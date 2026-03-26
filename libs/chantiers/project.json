@@ -1,0 +1,9 @@
+{
+  "name": "chantiers",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/chantiers/src",
+  "projectType": "library",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project chantiers --web",
+  "targets": {}
+}
