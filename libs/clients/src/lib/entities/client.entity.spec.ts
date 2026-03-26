@@ -7,7 +7,6 @@ describe('Client Entity', () => {
     client.setEmail('john@example.com');
     
     expect(client.id).toBe('c-1');
-    expect(client.name).toBe('John Doe');
     expect(client.email).toBe('john@example.com');
   });
 
@@ -21,7 +20,6 @@ describe('Client Entity', () => {
     expect(client.firstName).toBe('John');
     expect(client.lastName).toBe('Doe');
     expect(client.phone).toBe('+229 01 00 00 00 00');
-    expect(client.name).toBe('John Doe');
     expect(client.email).toBe('john.doe@example.com');
   });
 

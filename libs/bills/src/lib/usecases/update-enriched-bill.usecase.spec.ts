@@ -86,7 +86,8 @@ describe('UpdateEnrichedBillUseCase', () => {
       externalInvoiceReference: 'EXT-9',
       type: 'Situation',
       paymentMode: 'Chèque',
-      status: BILL_STATUS.VALIDATED
+      status: BILL_STATUS.VALIDATED,
+        reminderScenarioId: 'standard-reminder-scenario'
     });
 
     expect(result.success).toBe(false);
@@ -112,7 +113,8 @@ describe('UpdateEnrichedBillUseCase', () => {
       externalInvoiceReference: 'EXT-10',
       type: 'Situation',
       paymentMode: 'Virement',
-      status: BILL_STATUS.VALIDATED
+      status: BILL_STATUS.VALIDATED,
+      reminderScenarioId: 'standard-reminder-scenario'
     });
 
     expect(result.success).toBe(false);
@@ -138,7 +140,8 @@ describe('UpdateEnrichedBillUseCase', () => {
       externalInvoiceReference: 'EXT-10',
       type: 'Situation',
       paymentMode: 'Virement',
-      status: BILL_STATUS.VALIDATED
+      status: BILL_STATUS.VALIDATED,
+      reminderScenarioId: 'standard-reminder-scenario'
     });
 
     expect(result.success).toBe(false);

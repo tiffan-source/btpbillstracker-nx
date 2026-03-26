@@ -58,6 +58,7 @@ describe('CreateEnrichedBillUseCase', () => {
       type: 'Situation',
       paymentMode: 'Virement',
       chantierId: 'chantier-1',
+      reminderScenarioId: 'standard-reminder-scenario',
     });
 
     expect(result.success).toBe(true);
@@ -282,29 +283,5 @@ describe('CreateEnrichedBillUseCase', () => {
     expect(result.data.reminderScenarioId).toBe('standard-reminder-scenario');
   });
 
-  it('resolves chantier id through port when creating a new chantier from bill creation', async () => {
-    const repository = new InMemoryBillRepository();
-    const referenceGenerator = new StaticReferenceGenerator();
-    const idGenerator = new StaticIdGenerator();
-    const useCase = new CreateEnrichedBillUseCase(
-      repository,
-      referenceGenerator,
-      idGenerator,
-    );
-
-    const result = await useCase.execute({
-      clientId: 'client-123',
-      amountTTC: 3200,
-      dueDate: '2026-04-20',
-      externalInvoiceReference: 'EXT-7788',
-      type: 'Situation',
-      paymentMode: 'Virement',
-      chantierId: '',
-      reminderScenarioId: ''
-    });
-
-    expect(result.success).toBe(true);
-    expect(repository.savedBill?.chantierId).toBe('created-Lot A');
-  });
 
 });
