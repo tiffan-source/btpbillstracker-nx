@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+@import "primeicons/primeicons.css";
+@import "tailwindcss-primeui";
+
+@theme {
+    --color-sidebar: #141F38;
+    --color-sidebar-accent: #1E2E52;
+    --color-sidebar-foreground: #DBE6F0;
+    --color-background: #f9fafb;
+}

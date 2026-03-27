@@ -8,14 +8,18 @@ export const appRoutes: Route[] = [
   },
   {
     path: '',
+    loadComponent: () =>
+      import('./protected-shell/protected-shell.component').then(
+        (m) => m.ProtectedShellComponent
+      ),
     children: [
       {
-        path: 'new-bill',
+        path: 'create-bill',
         loadComponent: () =>
           import('./create-bills/create-bills').then(
             (m) => m.CreateBills
           )
-      }
+      },
     ]
   }
 ];

@@ -1,0 +1,104 @@
+<div class="bg-background text-foreground lg:flex">
+    <!-- <header class="bg-sidebar text-sidebar-foreground flex items-center justify-between p-4 lg:hidden">
+    <p class="text-base font-semibold">RelanceBTP</p>
+    <button
+        type="button"
+        data-testid="mobile-menu-open"
+        class="rounded-btn border-sidebar-subtle border px-3 py-2 text-sm"
+        (click)="openMobileMenu()"
+    >
+        Menu
+    </button>
+    </header>
+
+    @if (isMobileMenuOpen()) {
+    <div class="fixed inset-0 z-20 lg:hidden">
+        <div
+        class="bg-sidebar/70 absolute inset-0"
+        role="button"
+        tabindex="0"
+        aria-label="Fermer le menu mobile"
+        (click)="closeMobileMenu()"
+        (keydown.enter)="closeMobileMenu()"
+        ></div>
+        <aside
+        data-testid="mobile-drawer"
+        class="bg-sidebar text-sidebar-foreground relative z-30 h-full w-72 p-4"
+        aria-label="Menu mobile"
+        >
+        <div class="mb-4 flex items-center justify-between">
+            <p class="text-base font-semibold">Navigation</p>
+            <button
+            type="button"
+            data-testid="mobile-menu-close"
+            class="rounded-btn border-sidebar-subtle border px-3 py-2 text-sm"
+            (click)="closeMobileMenu()"
+            >
+            Fermer
+            </button>
+        </div>
+        <nav aria-label="Navigation principale mobile" class="flex flex-col gap-2">
+            <a
+            routerLink="/dashboard"
+            routerLinkActive="bg-sidebar-hover text-sidebar-foreground"
+            [routerLinkActiveOptions]="{ exact: true }"
+            ariaCurrentWhenActive="page"
+            class="text-sidebar-muted rounded-card hover:bg-sidebar-hover hover:text-sidebar-foreground px-4 py-3 text-sm"
+            (click)="closeMobileMenu()"
+            >
+            Tableau de bord
+            </a>
+            <a
+            routerLink="/new-bill"
+            routerLinkActive="bg-sidebar-hover text-sidebar-foreground"
+            [routerLinkActiveOptions]="{ exact: true }"
+            ariaCurrentWhenActive="page"
+            class="text-sidebar-muted rounded-card hover:bg-sidebar-hover hover:text-sidebar-foreground px-4 py-3 text-sm"
+            (click)="closeMobileMenu()"
+            >
+            Ajouter une facture
+            </a>
+            <a
+            routerLink="/clients-chantiers"
+            routerLinkActive="bg-sidebar-hover text-sidebar-foreground"
+            [routerLinkActiveOptions]="{ exact: true }"
+            ariaCurrentWhenActive="page"
+            class="text-sidebar-muted rounded-card hover:bg-sidebar-hover hover:text-sidebar-foreground px-4 py-3 text-sm"
+            (click)="closeMobileMenu()"
+            >
+            Clients & Chantiers
+            </a>
+        </nav>
+        </aside>
+    </div>
+    } -->
+
+    <aside class="bg-sidebar text-sidebar-foreground min-h-screen hidden w-64 flex-col lg:flex">
+        <header class="flex items-center gap-3 p-6">
+            <div class="flex h-10 w-10 items-center justify-center rounded-card text-amber-50 bg-primary rounded" aria-hidden="true">
+                <!-- There must be an logo there but lets cheat an use primeng icon-->
+                <i class="pi pi-warehouse" style="font-weight: bold; font-size: large;"></i>
+            </div>
+            <div>
+            <h1 class="font-semibold">RelanceBTP</h1>
+            <h2 class="text-sm">Suivi de factures</h2>
+            </div>
+        </header>
+
+        <nav aria-label="Navigation principale" class="flex flex-col gap-2 p-4">
+            @for (item of navItem; track $index) {
+                <lib-sidebar-item
+                    [text]="item.text"
+                    [prime_icon_class]="item.prime_icon_class"
+                    [active]="true"
+                />
+            }
+        </nav>
+
+    </aside>
+
+    <div class="min-h-screen flex-1 p-4">
+    <router-outlet />
+    </div>
+</div>
+ 

@@ -1,18 +1,15 @@
 import { Component } from '@angular/core';
-import { Card } from "@btpbilltracker/components"
+import { Button, Card, DatePicker, Input, InputFile, InputSelect, Label, Toogle, PageTitle, PageSubTitle } from "@btpbilltracker/components"
+import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-create-bills',
-  imports: [Card],
+  imports: [Card, Input, ReactiveFormsModule, InputSelect, Label, Button, DatePicker, InputFile, Toogle, PageTitle, PageSubTitle],
   templateUrl: './create-bills.html',
 })
 export class CreateBills {
-    isCreatingNewClient = false;
+    isCreatingNewClient = true;
     isCreatingNewChantier = false;
-
-    onValueSelected(value: string) {
-        console.log('Selected value:', value);
-    }
 
     toggleNewClientMode() {
         this.isCreatingNewClient = !this.isCreatingNewClient;
