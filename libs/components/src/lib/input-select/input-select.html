@@ -1,0 +1,8 @@
+<p-select   
+  [options]="options()"   
+  [(ngModel)]="value"   
+  optionLabel="{{optionLabel()}}"   
+  placeholder="{{placeholder()}}"  
+  (ngModelChange)="updateValue($event)"
+  fluid
+/>

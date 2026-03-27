@@ -1,0 +1,9 @@
+<input pInputText
+[type]="type()" 
+id="{{id()}}"
+placeholder="{{placeholder()}}"
+aria-describedby="{{id()}} + '-help'"
+[value]="value()"
+(input)="updateValue($event)"
+fluid
+/>

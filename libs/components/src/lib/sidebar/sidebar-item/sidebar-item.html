@@ -1,0 +1,13 @@
+<div
+class="flex items-center gap-2 hover:text-white rounded-xl hover:bg-sidebar-accent px-4 py-2 {{ active() ? 'bg-sidebar-accent text-white' : '' }}"
+>
+    @if (prime_icon_class()) {
+        <i [class]="prime_icon_class() + ' ' + (active() ? 'text-primary' : 'text-sidebar-muted')"></i>
+    }
+
+    <span class="">
+        <ng-content select="[custom-icon]"></ng-content>
+    </span>
+
+    <span class="text-[15px]">{{ text() }}</span>
+</div>
