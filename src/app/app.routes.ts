@@ -9,14 +9,14 @@ export const appRoutes: Route[] = [
   {
     path: '',
     loadComponent: () =>
-      import('./protected-shell/protected-shell.component').then(
+      import('./pages/protected-shell/protected-shell.component').then(
         (m) => m.ProtectedShellComponent
       ),
     children: [
       {
         path: 'create-bill',
         loadComponent: () =>
-          import('./create-bills/create-bills').then(
+          import('./pages/create-bills/create-bills').then(
             (m) => m.CreateBills
           )
       },
