@@ -13,7 +13,8 @@ export enum BILL_TYPES {
 export enum PAYMENT_MODES {
   VIREMENT = 'Virement',
   CHEQUE = 'Chèque',
-  ESPECES = 'Espèces'
+  ESPECES = 'Espèces',
+CARTE_BANCAIRE = 'Carte bancaire'
 }
 
 import {
@@ -27,36 +28,38 @@ import { BillExternalReferenceRequiredError } from '../errors/bill-external-refe
 import { InvalidBillReferenceError } from '../errors/invalid-bill-reference.error';
 import { InvalidBillTypeError } from '../errors/invalid-bill-type.error';
 import { InvalidPaymentModeError } from '../errors/invalid-payment-mode.error';
-import { ReminderScenarioRequiredError } from '../errors/reminder-scenario-required.error';
+import { BillChantierRequiredError } from '../errors/bill-chantier-required.error';
 
 export class Bill {
   private readonly _id: string;
-  private readonly _reference: string;
   private readonly _clientId: string;
+  private _chantierId: string;
   private _status: BILL_STATUS = BILL_STATUS.DRAFT;
   private _amountTTC?: number;
   private _dueDate?: string;
   private _externalInvoiceReference?: string;
   private _type?: BILL_TYPES;
   private _paymentMode?: PAYMENT_MODES;
-  private _chantierId?: string;
   private _reminderScenarioId?: string;
 
-  constructor(id: string, reference: string, clientId: string) {
+  constructor(id: string, reference: string, clientId: string, chantierId: string) {
     if (!reference || reference.trim().length === 0) {
       throw new InvalidBillReferenceError();
     }
     if (!clientId || clientId.trim().length === 0) {
       throw new BillClientRequiredError();
     }
+    if (!chantierId || chantierId.trim().length === 0) {
+      throw new BillChantierRequiredError();
+    }
 
     this._id = id;
-    this._reference = reference;
+    this._externalInvoiceReference = reference;
     this._clientId = clientId;
+    this._chantierId = chantierId;
   }
 
   get id(): string { return this._id; }
-  get reference(): string { return this._reference; }
   get clientId(): string { return this._clientId; }
   get status(): BILL_STATUS { return this._status; }
   get amountTTC(): number | undefined { return this._amountTTC; }
@@ -109,8 +112,10 @@ export class Bill {
   }
 
   setChantierId(chantierId: string): this {
-    const normalized = chantierId.trim();
-    this._chantierId = normalized.length > 0 ? normalized : undefined;
+    if (!chantierId || chantierId.trim().length === 0) {
+      throw new BillChantierRequiredError();
+    }
+    this._chantierId = chantierId;
     return this;
   }
 
@@ -124,11 +129,7 @@ export class Bill {
     return this;
   }
 
-  configureReminder(reminderScenarioId?: string): this {
-    if (!reminderScenarioId || reminderScenarioId.trim().length === 0) {
-      throw new ReminderScenarioRequiredError();
-    }
-
+  configureReminder(reminderScenarioId: string): this {
     this._reminderScenarioId = reminderScenarioId;
     return this;
   }

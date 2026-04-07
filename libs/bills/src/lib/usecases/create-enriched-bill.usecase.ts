@@ -28,7 +28,6 @@ export type CreateEnrichedBillInput = {
 export class CreateEnrichedBillUseCase {
   constructor(
     private readonly repository: BillRepository,
-    private readonly referenceGenerator: ReferenceGeneratorService,
     private readonly idGenerator: IdGeneratorPort,
   ) {}
 
@@ -37,22 +36,20 @@ export class CreateEnrichedBillUseCase {
    */
   async execute(input: CreateEnrichedBillInput): Promise<Result<Bill>> {
     try {
-      const reference = await this.referenceGenerator.generate();
 
-      const bill = new Bill(this.idGenerator.generate(), reference, input.clientId)
+      const bill = new Bill(this.idGenerator.generate(), input.externalInvoiceReference, input.clientId, input.chantierId)
         .setAmountTTC(input.amountTTC)
         .setDueDate(input.dueDate)
-        .setExternalInvoiceReference(input.externalInvoiceReference)
         .setType(input.type)
         .setPaymentMode(input.paymentMode)
-        .setChantierId(input.chantierId)
-        .configureReminder(input.reminderScenarioId);
+
+        if (input.reminderScenarioId) 
+          bill.configureReminder(input.reminderScenarioId);
 
       await this.repository.save(bill);
       return success(bill);
     } catch (error: unknown) {
       if (
-        error instanceof InvalidBillReferenceError ||
         error instanceof BillAmountBelowMinError ||
         error instanceof BillDueDateRequiredError ||
         error instanceof BillExternalReferenceRequiredError ||

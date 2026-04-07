@@ -1,1 +1,5 @@
-export * from './lib/bills';
+export * from "./lib/usecases/create-enriched-bill.usecase"
+export * from "./lib/ports/bill.repository"
+export * from "./lib/ports/reference-generator.service"
+export * from "./lib/domains/bill.entity"
+export * from "./lib/errors/bill-persistence.error"
