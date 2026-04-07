@@ -21,6 +21,7 @@ export class Input implements ControlValueAccessor {
     type = input<InputType>('text');
     placeholder = input<string>('');
     id = input<string>('');
+    invalid = input<boolean>(false);
 
     value = signal('');
     private onChange: any = (value: string) => {};

@@ -21,6 +21,8 @@ export class InputSelect<T> implements ControlValueAccessor{
   id = input<string>('');  
   options = input<T[]>([]);  
   optionLabel = input.required<string>();
+  optionValue = input<string>();
+  invalid = input<boolean>(false);
     
   // Use signal for value  
   value = signal<T | null>(null);  

@@ -8,3 +8,5 @@ export * from "./lib/input-file/input-file"
 export * from "./lib/sidebar/sidebar-item/sidebar-item";
 export * from "./lib/toogle/toogle";
 export * from "./lib/title/page-title/page-title"
+export * from "./lib/toast/toast"
+export * from "./lib/text-error/text-error"

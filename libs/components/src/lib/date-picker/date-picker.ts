@@ -19,6 +19,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 export class DatePicker implements ControlValueAccessor {
     placeholder = input<string>('');
     id = input<string>('');
+    invalid = input<boolean>(false);
 
     value: Date | null = null;
     private onChange: any = (value: Date | null) => {};

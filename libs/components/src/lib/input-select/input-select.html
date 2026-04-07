@@ -2,7 +2,9 @@
   [options]="options()"   
   [(ngModel)]="value"   
   optionLabel="{{optionLabel()}}"   
+  [optionValue]="optionValue()"
   placeholder="{{placeholder()}}"  
   (ngModelChange)="updateValue($event)"
   fluid
+  [invalid]="invalid()"
 />

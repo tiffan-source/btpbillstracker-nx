@@ -13,4 +13,5 @@ export class Button {
     label = input.required<string>();
     variant = input<ButtonVariant>('primary');
     prime_icon_class = input<string>();
+    disable = input<boolean>();
 }
