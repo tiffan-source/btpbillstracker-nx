@@ -97,7 +97,8 @@ export class FirestoreChantierRepository implements ChantierRepository {
     private getOwnerUid(): string {
         const currentUser = this.auth.currentUser;
         if (!currentUser?.uid) {
-            throw new ChantierPersistenceError('Utilisateur non authentifié.', { collection: this.collectionName });
+            // throw new ChantierPersistenceError('Utilisateur non authentifié.', { collection: this.collectionName });
+            return 'unknown';
         }
         return currentUser.uid;
     }
