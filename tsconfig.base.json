@@ -19,7 +19,8 @@
       "@btpbilltracker/chore": ["libs/chore/src/index.ts"],
       "@btpbilltracker/clients": ["libs/clients/src/index.ts"],
       "@btpbilltracker/chantiers": ["libs/chantiers/src/index.ts"],
-      "@btpbilltracker/components": ["libs/components/src/index.ts"]
+      "@btpbilltracker/components": ["libs/components/src/index.ts"],
+      "@btpbilltracker/infrastructure": ["libs/infrastructure/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

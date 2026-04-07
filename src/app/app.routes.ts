@@ -3,7 +3,7 @@ import { Route } from '@angular/router';
 export const appRoutes: Route[] = [
   {
     path: '',
-    redirectTo: 'new-bill',
+    redirectTo: 'create-bill',
     pathMatch: 'full'
   },
   {

@@ -1,4 +1,5 @@
 <div class="max-w-4xl flex flex-col gap-6 mx-auto my-8">
+    <lib-toast/>
 
     <div>
         <lib-page-title title="Créer une facture"></lib-page-title>
@@ -6,17 +7,27 @@
     </div>
 
     <lib-card title="Informations de la facture" subtitle="Remplissez les détails de la facture à créer">
-        <form>
+        <form [formGroup]="billForm">
             <!-- Client Selection  -->
             <div class="flex flex-col mb-4">
                 <lib-label for="client" label="Client"></lib-label>
-                <div class="flex gap-4">
-                    @if (isCreatingNewClient) {
-                        <lib-input-select class="flex-1" optionLabel="clientId" placeholder="Selectionner un client" id="client"></lib-input-select>
-                        <lib-button label="Ajouter un nouveau client" (click)="toggleNewClientMode()"></lib-button>
+                <div>
+                    @if (!isCreatingNewClient) {
+                        <div class="flex gap-4">
+                            <lib-input-select [invalid]="fieldHasError(BillFormField.ClientId)" [formControlName]="BillFormField.ClientId" class="flex-1" optionLabel="clientId" placeholder="Selectionner un client" id="client"></lib-input-select>
+                            <lib-button label="Ajouter un nouveau client" (click)="toggleNewClientMode()"></lib-button>
+                        </div>
+                        @if (fieldHasError(BillFormField.ClientId)) {
+                            <lib-text-error>{{ fieldErrorMessage(BillFormField.ClientId) }}</lib-text-error>
+                        }
                     } @else {
-                        <lib-input class="flex-1" placeholder="Nom du nouveau client" id="client"></lib-input>
-                        <lib-button label="Selectionner un client existant" variant="secondary" (click)="toggleNewClientMode()"></lib-button>
+                        <div class="flex gap-4">
+                            <lib-input [invalid]="fieldHasError(BillFormField.NewClientName)" [formControlName]="BillFormField.NewClientName" class="flex-1" placeholder="Nom du nouveau client" id="client"></lib-input>
+                            <lib-button label="Selectionner un client existant" variant="secondary" (click)="toggleNewClientMode()"></lib-button>
+                        </div>
+                        @if (fieldHasError(BillFormField.NewClientName)) {
+                            <lib-text-error>{{ fieldErrorMessage(BillFormField.NewClientName) }}</lib-text-error>
+                        }
                     }
                 </div>
             </div>
@@ -24,13 +35,23 @@
             <!-- Chantier Selection -->
             <div class="flex flex-col mb-4">
                 <lib-label for="chantier" label="Chantier"></lib-label>
-                <div class="flex gap-4">
-                    @if (isCreatingNewChantier) {
-                        <lib-input-select class="flex-1" optionLabel="chantierId" placeholder="Selectionner un chantier" id="chantier"></lib-input-select>
-                        <lib-button label="Ajouter un nouveau chantier" (click)="toggleNewChantierMode()"></lib-button>
+                <div>
+                    @if (!isCreatingNewChantier) {
+                        <div class="flex gap-4">
+                            <lib-input-select [invalid]="fieldHasError(BillFormField.ChantierId)" [formControlName]="BillFormField.ChantierId" class="flex-1" optionLabel="chantierId" placeholder="Selectionner un chantier" id="chantier"></lib-input-select>
+                            <lib-button label="Ajouter un nouveau chantier" (click)="toggleNewChantierMode()"></lib-button>
+                        </div>
+                        @if (fieldHasError(BillFormField.ChantierId)) {
+                            <lib-text-error>{{ fieldErrorMessage(BillFormField.ChantierId) }}</lib-text-error>
+                        }
                     } @else {
-                        <lib-input class="flex-1" placeholder="Nom du nouveau chantier" id="chantier"></lib-input>
-                        <lib-button label="Selectionner un chantier existant" variant="secondary" (click)="toggleNewChantierMode()"></lib-button>
+                        <div class="flex gap-4">
+                            <lib-input [invalid]="fieldHasError(BillFormField.NewChantierName)" [formControlName]="BillFormField.NewChantierName" class="flex-1" placeholder="Nom du nouveau chantier" id="chantier"></lib-input>
+                            <lib-button label="Selectionner un chantier existant" variant="secondary" (click)="toggleNewChantierMode()"></lib-button>
+                        </div>
+                        @if (fieldHasError(BillFormField.NewChantierName)) {
+                            <lib-text-error>{{ fieldErrorMessage(BillFormField.NewChantierName) }}</lib-text-error>
+                        }
                     }
                 </div>
             </div>
@@ -39,11 +60,17 @@
             <div class="flex gap-4 mb-4">
                 <div class="flex flex-col flex-1">
                     <lib-label for="montant" label="Montant TTC ($)"></lib-label>
-                    <lib-input type="number" placeholder="0,00" id="montant"></lib-input>
+                    <lib-input [invalid]="fieldHasError(BillFormField.AmountTTC)" [formControlName]="BillFormField.AmountTTC" type="number" placeholder="0,00" id="montant"></lib-input>
+                    @if (fieldHasError(BillFormField.AmountTTC)) {
+                        <lib-text-error>{{ fieldErrorMessage(BillFormField.AmountTTC) }}</lib-text-error>
+                    }
                 </div>
                 <div class="flex flex-col flex-1">
                     <lib-label for="echeance" label="Date d'échéance"></lib-label>
-                    <lib-date-picker id="echeance" placeholder="mm / dd / yyyy"></lib-date-picker>
+                    <lib-date-picker [invalid]="fieldHasError(BillFormField.DueDate)" [formControlName]="BillFormField.DueDate" id="echeance" placeholder="mm / dd / yyyy"></lib-date-picker>
+                    @if (fieldHasError(BillFormField.DueDate)) {
+                        <lib-text-error>{{ fieldErrorMessage(BillFormField.DueDate) }}</lib-text-error>
+                    }
                 </div>
             </div>
 
@@ -51,18 +78,27 @@
             <div class="flex gap-4 mb-4">
                 <div class="flex flex-col flex-1">
                     <lib-label for="facture" label="Numero de facture"></lib-label>
-                    <lib-input type="text" placeholder="FAC-001" id="facture"></lib-input>
+                    <lib-input [invalid]="fieldHasError(BillFormField.InvoiceNumber)" [formControlName]="BillFormField.InvoiceNumber" type="text" placeholder="FAC-001" id="facture"></lib-input>
+                    @if (fieldHasError(BillFormField.InvoiceNumber)) {
+                        <lib-text-error>{{ fieldErrorMessage(BillFormField.InvoiceNumber) }}</lib-text-error>
+                    }
                 </div>
                 <div class="flex flex-col flex-1">
                     <lib-label for="type" label="Type"></lib-label>
-                    <lib-date-picker id="type" ></lib-date-picker>
+                    <lib-input-select [options]="typeOptions" [formControlName]="BillFormField.Type" id="type" optionLabel="label" optionValue="value" placeholder="Selectionner un type"></lib-input-select>
+                    @if (fieldHasError(BillFormField.Type)) {
+                        <lib-text-error>{{ fieldErrorMessage(BillFormField.Type) }}</lib-text-error>
+                    }
                 </div>
             </div>
 
             <!-- Méthode de paiement -->
             <div class="flex flex-col mb-4">
                 <lib-label for="paiement" label="Méthode de paiement prevu"></lib-label>
-                <lib-input id="paiement"></lib-input>
+                <lib-input-select [options]="paymentModeOptions" placeholder="Selectionner le mode de paiement" optionLabel="label" optionValue="value" [formControlName]="BillFormField.PaymentMode" id="paiement"></lib-input-select>
+                @if (fieldHasError(BillFormField.PaymentMode)) {
+                    <lib-text-error>{{ fieldErrorMessage(BillFormField.PaymentMode) }}</lib-text-error>
+                }
             </div>
 
             <!-- PDF de la facture -->
@@ -73,11 +109,14 @@
         </form>
     </lib-card>
     <lib-card title="Scénario de relance" subtitle="Définissez les étapes de relance pour cette facture">
-        <form>
+        <form [formGroup]="billForm">
             <!-- Scenario Selection  -->
             <div class="flex flex-col mb-4">
                 <lib-label for="scenarion" label="Scenario"></lib-label>
-                <lib-input-select optionLabel="scenaionId" ></lib-input-select>
+                <lib-input-select placeholder="Selectionner un scenario de relance" [formControlName]="BillFormField.ReminderScenarioId" optionLabel="scenaionId" ></lib-input-select>
+                @if (fieldHasError(BillFormField.ReminderScenarioId)) {
+                    <lib-text-error>{{ fieldErrorMessage(BillFormField.ReminderScenarioId) }}</lib-text-error>
+                }
             </div>
 
             <div class="flex justify-between items-center p-3 rounded bg-primary/15">
@@ -92,5 +131,5 @@
         </form>
     </lib-card>
 
-    <lib-button label="Créer la facture" class="self-end" prime_icon_class="pi pi-plus"></lib-button>
+    <lib-button [disable]="orchestrator.isProcessing()" (click)="createBill()" label="Créer la facture" class="self-end" prime_icon_class="pi pi-plus"></lib-button>
 </div>
