@@ -1,7 +1,7 @@
 import { FirebaseAppService } from "./firebase-app";
-import { BillPersistenceError, BillRepository } from "@btpbilltracker/bills"
-import { Bill } from "@btpbilltracker/bills";
-import { collection, CollectionReference, doc, DocumentData, DocumentReference, setDoc } from "firebase/firestore";
+import { Bill, BillRepository } from "@btpbilltracker/bills";
+import { addDoc, doc, DocumentData, DocumentReference } from "firebase/firestore";
+import { FirestoreBaseRepository } from "./firestore-base.repository";
 
 export type FirestorePlainBill = {
   id: string;
@@ -17,46 +17,15 @@ export type FirestorePlainBill = {
   reminderScenarioId: string;
 };
 
-export class FirestoreBillRepository implements BillRepository {
-  private readonly collectionName = 'bills';
-    private readonly auth;
-    private readonly store;
+export class FirestoreBillRepository extends FirestoreBaseRepository implements BillRepository {
 
     public constructor(firebaseAppService: FirebaseAppService) {
-        this.auth = FirebaseAppService.getAppAuth();
-        this.store = FirebaseAppService.getAppFirestore();
+        super(firebaseAppService);
+        this.collectionName = 'bills';
     }
 
-    private getCollection(): CollectionReference<DocumentData> {
-        return collection(this.store, this.collectionName);
-    }
-
-    private getBillDocRef(billId: string): DocumentReference<DocumentData> {
-        return doc(this.getCollection(), billId);
-    }
-
-    private async execute<T>(
-        operation: (ownerUid: string) => Promise<T>,
-        errorContext: { errorMessage?: string; context?: Record<string, unknown> }
-    ): Promise<T> {
-        try {
-            const ownerUid = this.getOwnerUid();
-            return await operation(ownerUid);
-        } catch (error: unknown) {
-            if (error instanceof BillPersistenceError) {
-                throw error;
-            }
-            throw new BillPersistenceError(
-                errorContext.errorMessage,
-                { collection: this.collectionName, ...errorContext.context }
-            );
-        }
-    }
-
-    async save(bill: Bill): Promise<void> {
-        return this.execute(async (ownerUid) => {
-            await setDoc(this.getBillDocRef(bill.id), this.toPlainBill(bill, ownerUid));
-        }, { context: { billId: bill.id } });
+    async save(bill: Bill, ownerUid: string): Promise<void> {
+        await addDoc(this.getCollection(), this.toPlainBill(bill, ownerUid));
     }
 
     private toPlainBill(bill: Bill, ownerUid: string): FirestorePlainBill {
@@ -73,14 +42,5 @@ export class FirestoreBillRepository implements BillRepository {
         chantierId: bill.chantierId,
         reminderScenarioId: bill.reminderScenarioId || ""
         };
-    }
-
-    private getOwnerUid(): string {
-        const currentUser = this.auth.currentUser;
-        if (!currentUser?.uid) {
-            // throw new BillPersistenceError('Utilisateur non authentifié.', { collection: this.collectionName });
-            return 'allUsers'; // Temporary fallback to allow unauthenticated access, should be handled properly in a real application
-        }
-        return currentUser.uid;
     }
 }
