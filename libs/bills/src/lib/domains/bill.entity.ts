@@ -25,7 +25,6 @@ import { BillAmountBelowMinError } from '../errors/bill-amount-below-min.error';
 import { BillClientRequiredError } from '../errors/bill-client-required.error';
 import { BillDueDateRequiredError } from '../errors/bill-due-date-required.error';
 import { BillExternalReferenceRequiredError } from '../errors/bill-external-reference-required.error';
-import { InvalidBillReferenceError } from '../errors/invalid-bill-reference.error';
 import { InvalidBillTypeError } from '../errors/invalid-bill-type.error';
 import { InvalidPaymentModeError } from '../errors/invalid-payment-mode.error';
 import { BillChantierRequiredError } from '../errors/bill-chantier-required.error';
@@ -44,7 +43,7 @@ export class Bill {
 
   constructor(id: string, reference: string, clientId: string, chantierId: string) {
     if (!reference || reference.trim().length === 0) {
-      throw new InvalidBillReferenceError();
+      throw new BillExternalReferenceRequiredError();
     }
     if (!clientId || clientId.trim().length === 0) {
       throw new BillClientRequiredError();

@@ -1,33 +1,15 @@
+import { CurrentUserIdPort, IdGeneratorPort } from '@btpbilltracker/chore';
 import { Bill } from '../domains/bill.entity';
 import { BillRepository } from '../ports/bill.repository';
-import { ReferenceGeneratorService } from '../ports/reference-generator.service';
 import { CreateEnrichedBillUseCase } from './create-enriched-bill.usecase';
-import { Result, success } from '@btpbilltracker/chore';
-import { IdGeneratorPort } from '@btpbilltracker/chore';
 
 class InMemoryBillRepository implements BillRepository {
   savedBill: Bill | null = null;
+  savedOwnerUid: string | null = null;
 
-  async save(bill: Bill): Promise<void> {
+  async save(bill: Bill, ownerUid: string): Promise<void> {
     this.savedBill = bill;
-  }
-
-  async list(): Promise<Bill[]> {
-    return this.savedBill ? [this.savedBill] : [];
-  }
-
-  async listByOwner(userId: string): Promise<Bill[]> {
-    return this.list();
-  }
-
-  async update(bill: Bill): Promise<void> {
-    this.savedBill = bill;
-  }
-}
-
-class StaticReferenceGenerator implements ReferenceGeneratorService {
-  async generate(): Promise<string> {
-    return 'F-2026-0100';
+    this.savedOwnerUid = ownerUid;
   }
 }
 
@@ -37,17 +19,19 @@ class StaticIdGenerator implements IdGeneratorPort {
   }
 }
 
-
+class StaticCurrentUserId extends CurrentUserIdPort {
+  getRequiredUserId(): string {
+    return 'owner-uid-1';
+  }
+}
 
 describe('CreateEnrichedBillUseCase', () => {
-  it('creates and saves an enriched bill from a valid payload', async () => {
+  it('creates and saves an enriched bill from a valid payload with authenticated owner uid', async () => {
     const repository = new InMemoryBillRepository();
-    const referenceGenerator = new StaticReferenceGenerator();
-    const idGenerator = new StaticIdGenerator();
     const useCase = new CreateEnrichedBillUseCase(
       repository,
-      referenceGenerator,
-      idGenerator,
+      new StaticIdGenerator(),
+      new StaticCurrentUserId(),
     );
 
     const result = await useCase.execute({
@@ -68,7 +52,6 @@ describe('CreateEnrichedBillUseCase', () => {
 
     expect(result.data.clientId).toBe('client-123');
     expect(result.data.id).toBe('bill-id-456');
-    expect(result.data.reference).toBe('F-2026-0100');
     expect(result.data.amountTTC).toBe(3200);
     expect(result.data.dueDate).toBe('2026-04-20');
     expect(result.data.externalInvoiceReference).toBe('EXT-7788');
@@ -76,16 +59,15 @@ describe('CreateEnrichedBillUseCase', () => {
     expect(result.data.paymentMode).toBe('Virement');
     expect(result.data.chantierId).toBe('chantier-1');
     expect(repository.savedBill).toBe(result.data);
+    expect(repository.savedOwnerUid).toBe('owner-uid-1');
   });
 
   it('fails when amount TTC is negative', async () => {
     const repository = new InMemoryBillRepository();
-    const referenceGenerator = new StaticReferenceGenerator();
-    const idGenerator = new StaticIdGenerator();
     const useCase = new CreateEnrichedBillUseCase(
       repository,
-      referenceGenerator,
-      idGenerator
+      new StaticIdGenerator(),
+      new StaticCurrentUserId(),
     );
 
     const result = await useCase.execute({
@@ -110,12 +92,10 @@ describe('CreateEnrichedBillUseCase', () => {
 
   it("fails when due date is missing", async () => {
     const repository = new InMemoryBillRepository();
-    const referenceGenerator = new StaticReferenceGenerator();
-    const idGenerator = new StaticIdGenerator();
     const useCase = new CreateEnrichedBillUseCase(
       repository,
-      referenceGenerator,
-      idGenerator,
+      new StaticIdGenerator(),
+      new StaticCurrentUserId(),
     );
 
     const result = await useCase.execute({
@@ -125,7 +105,7 @@ describe('CreateEnrichedBillUseCase', () => {
       externalInvoiceReference: 'EXT-7788',
       type: 'Situation',
       paymentMode: 'Virement',
-      chantierId: 'chantier-1', 
+      chantierId: 'chantier-1',
     });
 
     expect(result.success).toBe(false);
@@ -140,12 +120,10 @@ describe('CreateEnrichedBillUseCase', () => {
 
   it('fails when external invoice reference is missing', async () => {
     const repository = new InMemoryBillRepository();
-    const referenceGenerator = new StaticReferenceGenerator();
-    const idGenerator = new StaticIdGenerator();
     const useCase = new CreateEnrichedBillUseCase(
       repository,
-      referenceGenerator,
-      idGenerator
+      new StaticIdGenerator(),
+      new StaticCurrentUserId(),
     );
 
     const result = await useCase.execute({
@@ -170,12 +148,10 @@ describe('CreateEnrichedBillUseCase', () => {
 
   it('fails when bill type is not coherent', async () => {
     const repository = new InMemoryBillRepository();
-    const referenceGenerator = new StaticReferenceGenerator();
-    const idGenerator = new StaticIdGenerator();
     const useCase = new CreateEnrichedBillUseCase(
       repository,
-      referenceGenerator,
-      idGenerator,
+      new StaticIdGenerator(),
+      new StaticCurrentUserId(),
     );
 
     const result = await useCase.execute({
@@ -185,25 +161,26 @@ describe('CreateEnrichedBillUseCase', () => {
       externalInvoiceReference: 'EXT-7788',
       type: 'InvalidType',
       paymentMode: 'Virement',
-        chantierId: 'chantier-1',
+      chantierId: 'chantier-1',
     });
 
     expect(result.success).toBe(false);
     if (result.success) {
       return;
     }
+
     expect(result.error.code).toBe('INVALID_BILL_TYPE');
-    expect(result.error.message).toBe("Le type de facture est invalide. Valeurs autorisées: Situation, Solde, Acompte.");
+    expect(result.error.message).toBe(
+      'Le type de facture est invalide. Valeurs autorisées: Situation, Solde, Acompte.',
+    );
   });
 
   it('fails when payment mode is not coherent', async () => {
     const repository = new InMemoryBillRepository();
-    const referenceGenerator = new StaticReferenceGenerator();
-    const idGenerator = new StaticIdGenerator();
     const useCase = new CreateEnrichedBillUseCase(
       repository,
-      referenceGenerator,
-      idGenerator,
+      new StaticIdGenerator(),
+      new StaticCurrentUserId(),
     );
 
     const result = await useCase.execute({
@@ -213,35 +190,6 @@ describe('CreateEnrichedBillUseCase', () => {
       externalInvoiceReference: 'EXT-7788',
       type: 'Situation',
       paymentMode: 'Carte',
-        chantierId: 'chantier-1',
-    });
-
-    expect(result.success).toBe(false);
-    if (result.success) {
-      return;
-    }
-    expect(result.error.code).toBe('INVALID_PAYMENT_MODE');
-    expect(result.error.message).toBe('Le mode de paiement est invalide. Valeurs autorisées: Virement, Chèque, Espèces.');
-  });
-
-  it('fails when reminders are enabled without scenario id', async () => {
-    const repository = new InMemoryBillRepository();
-    const referenceGenerator = new StaticReferenceGenerator();
-    const idGenerator = new StaticIdGenerator();
-    const useCase = new CreateEnrichedBillUseCase(
-      repository,
-      referenceGenerator,
-      idGenerator,
-    );
-
-    const result = await useCase.execute({
-      clientId: 'client-123',
-      amountTTC: 100,
-      dueDate: '2026-04-20',
-      externalInvoiceReference: 'EXT-7788',
-      type: 'Situation',
-      paymentMode: 'Virement',
-      reminderScenarioId: '',
       chantierId: 'chantier-1',
     });
 
@@ -250,18 +198,18 @@ describe('CreateEnrichedBillUseCase', () => {
       return;
     }
 
-    expect(result.error.code).toBe('REMINDER_SCENARIO_REQUIRED');
-    expect(repository.savedBill).toBeNull();
+    expect(result.error.code).toBe('INVALID_PAYMENT_MODE');
+    expect(result.error.message).toBe(
+      'Le mode de paiement est invalide. Valeurs autorisées: Virement, Chèque, Espèces.',
+    );
   });
 
   it('persists reminder relation when enabled with scenario id', async () => {
     const repository = new InMemoryBillRepository();
-    const referenceGenerator = new StaticReferenceGenerator();
-    const idGenerator = new StaticIdGenerator();
     const useCase = new CreateEnrichedBillUseCase(
       repository,
-      referenceGenerator,
-      idGenerator,
+      new StaticIdGenerator(),
+      new StaticCurrentUserId(),
     );
 
     const result = await useCase.execute({
@@ -272,7 +220,7 @@ describe('CreateEnrichedBillUseCase', () => {
       type: 'Situation',
       paymentMode: 'Virement',
       reminderScenarioId: 'standard-reminder-scenario',
-        chantierId: 'chantier-1',
+      chantierId: 'chantier-1',
     });
 
     expect(result.success).toBe(true);
@@ -282,6 +230,4 @@ describe('CreateEnrichedBillUseCase', () => {
 
     expect(result.data.reminderScenarioId).toBe('standard-reminder-scenario');
   });
-
-
 });

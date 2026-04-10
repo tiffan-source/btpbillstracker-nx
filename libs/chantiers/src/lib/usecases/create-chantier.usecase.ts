@@ -1,4 +1,4 @@
-import { failure, IdGeneratorPort, Result, success } from "@btpbilltracker/chore";
+import { CurrentUserIdPort, failure, IdGeneratorPort, Result, success } from "@btpbilltracker/chore";
 import { ChantierRepository } from "../ports/chantier.repository";
 import { Chantier } from "../entities/chantier.entity";
 import { ChantierNameAlreadyExistsError } from "../errors/chantier-name-already-exists.error";
@@ -12,18 +12,20 @@ export interface CreateChantierInput {
 export class CreateChantierUseCase {
   constructor(
     private readonly repository: ChantierRepository,
-    private readonly idGenerator: IdGeneratorPort
+    private readonly idGenerator: IdGeneratorPort,
+    private readonly currentUserId: CurrentUserIdPort
   ) {}
 
   async execute(input: CreateChantierInput): Promise<Result<Chantier>> {
     try {
-      const alreadyExists = await this.repository.existsByName(input.name);
+      const ownerUid = this.currentUserId.getRequiredUserId();
+      const alreadyExists = await this.repository.existsByNameForUser(input.name, ownerUid);
       if (alreadyExists) {
         throw new ChantierNameAlreadyExistsError();
       }
 
       const chantier = new Chantier(this.idGenerator.generate(), input.name);
-      await this.repository.save(chantier);
+      await this.repository.save(chantier, ownerUid);
       return success(chantier);
     } catch (error: unknown) {
       if (

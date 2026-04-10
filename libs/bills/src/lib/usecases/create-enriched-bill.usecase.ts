@@ -1,8 +1,6 @@
 import { BillRepository } from "../ports/bill.repository";
-import { failure, IdGeneratorPort, Result, success } from "@btpbilltracker/chore";
-import { ReferenceGeneratorService } from "../ports/reference-generator.service";
+import { CurrentUserIdPort, failure, IdGeneratorPort, Result, success } from "@btpbilltracker/chore";
 import { Bill } from "../domains/bill.entity";
-import { InvalidBillReferenceError } from "../errors/invalid-bill-reference.error";
 import { BillAmountBelowMinError } from "../errors/bill-amount-below-min.error";
 import { BillDueDateRequiredError } from "../errors/bill-due-date-required.error";
 import { BillExternalReferenceRequiredError } from "../errors/bill-external-reference-required.error";
@@ -29,6 +27,7 @@ export class CreateEnrichedBillUseCase {
   constructor(
     private readonly repository: BillRepository,
     private readonly idGenerator: IdGeneratorPort,
+    private readonly currentUserId: CurrentUserIdPort,
   ) {}
 
   /**
@@ -46,7 +45,8 @@ export class CreateEnrichedBillUseCase {
         if (input.reminderScenarioId) 
           bill.configureReminder(input.reminderScenarioId);
 
-      await this.repository.save(bill);
+      const ownerUid = this.currentUserId.getRequiredUserId();
+      await this.repository.save(bill, ownerUid);
       return success(bill);
     } catch (error: unknown) {
       if (
