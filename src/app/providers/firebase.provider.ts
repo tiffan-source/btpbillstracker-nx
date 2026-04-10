@@ -1,6 +1,6 @@
-import { inject, InjectionToken, Provider, provideAppInitializer } from '@angular/core';
+import { InjectionToken, Provider } from '@angular/core';
 import { CurrentUserIdPort } from '@btpbilltracker/chore';
-import { AppFirebaseConfig, FirebaseAppService, FirebaseCurrentUserIdService } from '@btpbilltracker/infrastructure';
+import { AppFirebaseConfig, FirebaseAppService, CurrentUserIdService } from '@btpbilltracker/infrastructure';
 import { FIREBASE_CONFIG } from 'src/env/env';
 
 export const FIREBASE_APP_CONFIG = new InjectionToken<AppFirebaseConfig>('FIREBASE_APP_CONFIG');
@@ -13,7 +13,7 @@ export function provideFirebase(config: AppFirebaseConfig = FIREBASE_CONFIG): Pr
       useFactory: (firebaseConfig: AppFirebaseConfig) => new FirebaseAppService(firebaseConfig),
       deps: [FIREBASE_APP_CONFIG],
     },
-    { provide: CurrentUserIdPort, useClass: FirebaseCurrentUserIdService },
+    { provide: CurrentUserIdPort, useClass: CurrentUserIdService },
   ];
 }
 

@@ -40,7 +40,7 @@ export class CreateBillsOrchestrator {
         } else if (bill.client.name) {
             const client = await this.createClientUsecase.execute({firstName: bill.client.name, lastName: "CLIENT"});
             if (!client.success) {
-                this.processError.set("Failed to create client");
+                this.processError.set("Failed to create client: " + client.error.message);
                 this.isProcessing.set(false);
                 return false;
             }
@@ -52,7 +52,7 @@ export class CreateBillsOrchestrator {
         } else if (bill.chantier.name) {
             const chantier = await this.createChantierUsecase.execute({name: bill.chantier.name});
             if (!chantier.success) {
-                this.processError.set("Failed to create chantier");
+                this.processError.set("Failed to create chantier: " + chantier.error.message);
                 this.isProcessing.set(false);
                 return false;
             }
