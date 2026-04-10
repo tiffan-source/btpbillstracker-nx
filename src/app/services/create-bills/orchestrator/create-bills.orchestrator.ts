@@ -1,24 +1,46 @@
 import { inject, Injectable, signal } from "@angular/core";
 import { CreateEnrichedBillInput, CreateEnrichedBillUseCase } from "@btpbilltracker/bills"
 import { CreateQuickClientUseCase } from "@btpbilltracker/clients"
-import { CreateChantierUseCase } from "libs/chantiers/src/lib/usecases/create-chantier.usecase";
+import { CreateChantierUseCase } from "@btpbilltracker/chantiers";
+
+export type CreateBillClientRequest =
+  | { mode: "existing"; clientId: string }
+  | { mode: "new"; clientName: string };
+
+export type CreateBillChantierRequest =
+  | { mode: "existing"; chantierId: string }
+  | { mode: "new"; chantierName: string };
 
 export interface CreateBillRequest {
-    type: string;
-    client: {
-        name: string | null;
-        id: string | null;
-    }
-    chantier: {
-        name: string | null;
-        id: string | null;
-    },
-    amount: number;
-    dueDate: Date;
-    paymentMode: string;
-    invoiceNumber: string;
-    reminderScenarioId: string | null;
+  type: string;
+  client: CreateBillClientRequest;
+  chantier: CreateBillChantierRequest;
+  amount: number;
+  dueDate: string;
+  paymentMode: string;
+  invoiceNumber: string;
+  reminderScenarioId: string | null;
 }
+
+type CreateBillWorkflowStep = "client" | "chantier" | "bill";
+
+export type CreateBillProcessResult =
+  | {
+      success: true;
+      data: {
+        billId: string;
+        clientId: string;
+        chantierId: string;
+      };
+    }
+  | {
+      success: false;
+      step: CreateBillWorkflowStep;
+      error: {
+        code: string;
+        message: string;
+      };
+    };
 
 @Injectable({ providedIn: 'root' })
 export class CreateBillsOrchestrator {
@@ -29,55 +51,98 @@ export class CreateBillsOrchestrator {
     processError = signal<string | null>(null);
     isProcessing = signal(false);
 
-    createBillProcess = async (bill: CreateBillRequest) => {
+    createBillProcess = async (bill: CreateBillRequest): Promise<CreateBillProcessResult> => {
         this.processError.set(null);
         this.isProcessing.set(true);
 
-        let clientId: string | undefined, chantierId: string | undefined;
-
-        if (bill.client.id) {
-            clientId = bill.client.id;
-        } else if (bill.client.name) {
-            const client = await this.createClientUsecase.execute({firstName: bill.client.name, lastName: "CLIENT"});
-            if (!client.success) {
-                this.processError.set("Failed to create client: " + client.error.message);
-                this.isProcessing.set(false);
-                return false;
+        try {
+            const resolvedClient = await this.resolveClientId(bill.client);
+            if (!resolvedClient.success) {
+                this.processError.set(resolvedClient.error.message);
+                return resolvedClient;
             }
-            clientId = client.data.id;
-        }
 
-        if (bill.chantier.id) {
-            chantierId = bill.chantier.id;
-        } else if (bill.chantier.name) {
-            const chantier = await this.createChantierUsecase.execute({name: bill.chantier.name});
-            if (!chantier.success) {
-                this.processError.set("Failed to create chantier: " + chantier.error.message);
-                this.isProcessing.set(false);
-                return false;
+            const resolvedChantier = await this.resolveChantierId(bill.chantier);
+            if (!resolvedChantier.success) {
+                this.processError.set(resolvedChantier.error.message);
+                return resolvedChantier;
             }
-            chantierId = chantier.data.id;
+
+            const enrichedBill: CreateEnrichedBillInput = {
+                type: bill.type,
+                clientId: resolvedClient.data.clientId,
+                chantierId: resolvedChantier.data.chantierId,
+                amountTTC: bill.amount,
+                dueDate: bill.dueDate,
+                paymentMode: bill.paymentMode,
+                externalInvoiceReference: bill.invoiceNumber,
+                reminderScenarioId: bill.reminderScenarioId || undefined
+            };
+
+            const result = await this.createBillsUsecase.execute(enrichedBill);
+            if (!result.success) {
+                const failureResult: CreateBillProcessResult = {
+                    success: false,
+                    step: "bill",
+                    error: {
+                        code: result.error.code,
+                        message: result.error.message
+                    }
+                };
+                this.processError.set(failureResult.error.message);
+                return failureResult;
+            }
+
+            return {
+                success: true,
+                data: {
+                    billId: result.data.id,
+                    clientId: resolvedClient.data.clientId,
+                    chantierId: resolvedChantier.data.chantierId
+                }
+            };
+        } finally {
+            this.isProcessing.set(false);
+        }
+    }
+
+    private async resolveClientId(client: CreateBillClientRequest): Promise<CreateBillProcessResult | { success: true; data: { clientId: string } }> {
+        if (client.mode === "existing") {
+            return { success: true, data: { clientId: client.clientId } };
         }
 
-        const enrichedBill: CreateEnrichedBillInput = {
-            type: bill.type,
-            clientId: clientId!,
-            chantierId: chantierId!,
-            amountTTC: bill.amount,
-            dueDate: bill.dueDate.toDateString(),
-            paymentMode: bill.paymentMode,
-            externalInvoiceReference: bill.invoiceNumber,
-            reminderScenarioId: bill.reminderScenarioId || undefined
-        };
-
-        let result = await this.createBillsUsecase.execute(enrichedBill);
-        this.isProcessing.set(false);
-
-        if (!result.success) {
-            this.processError.set(result.error.message);
-            return false;
-        } else {
-            return result.success;
+        const createdClient = await this.createClientUsecase.execute({ firstName: client.clientName, lastName: "CLIENT" });
+        if (!createdClient.success) {
+            return {
+                success: false,
+                step: "client",
+                error: {
+                    code: createdClient.error.code,
+                    message: `Failed to create client: ${createdClient.error.message}`
+                }
+            };
         }
+
+        return { success: true, data: { clientId: createdClient.data.id } };
+    }
+
+    private async resolveChantierId(chantier: CreateBillChantierRequest): Promise<CreateBillProcessResult | { success: true; data: { chantierId: string } }> {
+        if (chantier.mode === "existing") {
+            return { success: true, data: { chantierId: chantier.chantierId } };
+        }
+
+        const createdChantier = await this.createChantierUsecase.execute({ name: chantier.chantierName });
+        if (!createdChantier.success) {
+            return {
+                success: false,
+                step: "chantier",
+                error: {
+                    code: createdChantier.error.code,
+                    message: `Failed to create chantier: ${createdChantier.error.message}`
+                }
+            };
+        }
+
+        return { success: true, data: { chantierId: createdChantier.data.id } };
     }
 }

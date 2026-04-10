@@ -1,8 +1,8 @@
-import { Component, effect, inject, OnInit } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { Button, Card, DatePicker, Input, InputFile, InputSelect, Label, Toogle, PageTitle, PageSubTitle, Toast, ToastService, TextError } from "@btpbilltracker/components"
 import { ReactiveFormsModule } from '@angular/forms';
-import { CreateBillForm, BillFormField, TypeBill, PaymentMode } from 'src/app/forms/create-bill.form';
-import { CreateBillsOrchestrator } from 'src/app/services/create-bills/orchestrator/create-bills.orchestrator';
+import { CreateBillForm, BillFormField, TypeBill, PaymentMode } from '../../forms/create-bill.form';
+import { CreateBillsOrchestrator } from '../../services/create-bills/orchestrator/create-bills.orchestrator';
 
 @Component({
   selector: 'app-create-bills',
@@ -36,7 +36,7 @@ export class CreateBills {
 
     constructor() {
         effect(() => {
-            let error = this.orchestrator.processError();
+            const error = this.orchestrator.processError();
             if (error) {
                 this.toastService.showToast('error', error);
             }
@@ -74,24 +74,22 @@ export class CreateBills {
         
         const { amountTTC, chantierId, chantierName, clientId, dueDate, invoiceNumber, type, paymentMode, reminderScenarioId, newClientName } = formValue;
         
-        let result = await this.orchestrator.createBillProcess({
+        const result = await this.orchestrator.createBillProcess({
             amount: amountTTC,
-            chantier: {
-                id: chantierId,
-                name: chantierName
-            },
-            client: {
-                id: clientId,
-                name: newClientName
-            },
-            dueDate: new Date(dueDate),
+            chantier: this.isCreatingNewChantier
+                ? { mode: 'new', chantierName: chantierName ?? '' }
+                : { mode: 'existing', chantierId: chantierId ?? '' },
+            client: this.isCreatingNewClient
+                ? { mode: 'new', clientName: newClientName ?? '' }
+                : { mode: 'existing', clientId: clientId ?? '' },
+            dueDate: dueDate,
             invoiceNumber: invoiceNumber,
             type: type,
             paymentMode: paymentMode,
             reminderScenarioId: reminderScenarioId
         });
         
-        if (result) {
+        if (result.success) {
             this.toastService.showToast('success', 'Facture créée avec succès');
             this.billForm.reset();
             this.billForm.markAsUntouched();
