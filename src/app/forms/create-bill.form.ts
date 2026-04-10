@@ -89,7 +89,6 @@ export class CreateBillForm extends FormGroup<BillForm> {
     private setControlMode(controlName: CreateBillToggleField, isEnabled: boolean): void {
         const control = this.controls[controlName];
         control.setValue(null);
-        control.clearValidators();
         control.setValidators([Validators.required]);
         if (isEnabled) {
             control.enable({ emitEvent: false });
