@@ -1,8 +1,8 @@
-import { Component, effect, inject, OnInit } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { Button, Card, DatePicker, Input, InputFile, InputSelect, Label, Toogle, PageTitle, PageSubTitle, Toast, ToastService, TextError } from "@btpbilltracker/components"
 import { ReactiveFormsModule } from '@angular/forms';
-import { CreateBillForm, BillFormField, TypeBill, PaymentMode } from 'src/app/forms/create-bill.form';
-import { CreateBillsOrchestrator } from 'src/app/services/create-bills/orchestrator/create-bills.orchestrator';
+import { CreateBillForm, BillFormField, TypeBill, PaymentMode } from '../../forms/create-bill.form';
+import { CreateBillsOrchestrator } from '../../services/create-bills/orchestrator/create-bills.orchestrator';
 
 @Component({
   selector: 'app-create-bills',
@@ -27,16 +27,13 @@ export class CreateBills {
     orchestrator = inject(CreateBillsOrchestrator);
     toastService = inject(ToastService);
 
-    isCreatingNewClient = false;
-    isCreatingNewChantier = false;
-
     hasSubmittedInvalidForm = false;
 
     billForm = new CreateBillForm();
 
     constructor() {
         effect(() => {
-            let error = this.orchestrator.processError();
+            const error = this.orchestrator.processError();
             if (error) {
                 this.toastService.showToast('error', error);
             }
@@ -44,13 +41,19 @@ export class CreateBills {
     }
 
     toggleNewClientMode() {
-        this.isCreatingNewClient = !this.isCreatingNewClient;
-        this.billForm.toogleNewClientMode(this.isCreatingNewClient);
+        this.billForm.toggleMode('client');
     }
 
     toggleNewChantierMode() {
-        this.isCreatingNewChantier = !this.isCreatingNewChantier;
-        this.billForm.toogleNewChantierMode(this.isCreatingNewChantier);
+        this.billForm.toggleMode('chantier');
+    }
+
+    get isCreatingNewClient(): boolean {
+        return this.billForm.isInNewMode('client');
+    }
+
+    get isCreatingNewChantier(): boolean {
+        return this.billForm.isInNewMode('chantier');
     }
 
     fieldHasError(field: BillFormField): boolean {
@@ -74,7 +77,7 @@ export class CreateBills {
         
         const { amountTTC, chantierId, chantierName, clientId, dueDate, invoiceNumber, type, paymentMode, reminderScenarioId, newClientName } = formValue;
         
-        let result = await this.orchestrator.createBillProcess({
+        const result = await this.orchestrator.createBillProcess({
             amount: amountTTC,
             chantier: {
                 id: chantierId,
