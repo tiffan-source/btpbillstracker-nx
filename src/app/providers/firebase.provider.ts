@@ -1,7 +1,7 @@
 import { InjectionToken, Provider } from '@angular/core';
 import { CurrentUserIdPort } from '@btpbilltracker/chore';
 import { AppFirebaseConfig, FirebaseAppService, CurrentUserIdService } from '@btpbilltracker/infrastructure';
-import { FIREBASE_CONFIG } from 'src/env/env';
+import { FIREBASE_CONFIG } from '../../env/env';
 
 export const FIREBASE_APP_CONFIG = new InjectionToken<AppFirebaseConfig>('FIREBASE_APP_CONFIG');
 

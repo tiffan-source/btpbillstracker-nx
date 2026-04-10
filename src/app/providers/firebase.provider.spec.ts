@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { CurrentUserIdPort } from '@btpbilltracker/chore';
 import { AppFirebaseConfig, FirebaseAppService } from '@btpbilltracker/infrastructure';
-import { FIREBASE_CONFIG } from 'src/env/env';
+import { FIREBASE_CONFIG } from '../../env/env';
 import { FIREBASE_APP_CONFIG, provideFirebase } from './firebase.provider';
 
 describe('provideFirebase', () => {
