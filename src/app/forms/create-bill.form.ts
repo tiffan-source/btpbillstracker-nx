@@ -78,14 +78,14 @@ export class CreateBillForm extends FormGroup<BillForm> {
 
     setMode(mode: CreateBillToggleMode, isNewMode: boolean): void {
         const { existingField, newField } = CREATE_BILL_TOGGLE_VALIDATION_RULES[mode];
-        this.setControlMode(existingField, !isNewMode, true);
-        this.setControlMode(newField, isNewMode, true);
+        this.setControlMode(existingField, !isNewMode);
+        this.setControlMode(newField, isNewMode);
     }
 
-    private setControlMode(controlName: CreateBillToggleField, isEnabled: boolean, isRequired: boolean): void {
+    private setControlMode(controlName: CreateBillToggleField, isEnabled: boolean): void {
         const control = this.controls[controlName];
         control.setValue(null);
-        control.setValidators(isRequired ? [Validators.required] : []);
+        control.setValidators([Validators.required]);
         if (isEnabled) {
             control.enable({ emitEvent: false });
         } else {

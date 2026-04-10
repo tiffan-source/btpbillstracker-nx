@@ -28,6 +28,15 @@ describe('CreateBillForm', () => {
     form.controls[BillFormField.NewClientName].setValue('');
     form.controls[BillFormField.NewClientName].markAsTouched();
     expect(form.controls[BillFormField.NewClientName].hasError('required')).toBe(true);
+
+    form.toggleMode('client');
+    expect(form.isInNewMode('client')).toBe(false);
+    expect(form.controls[BillFormField.ClientId].enabled).toBe(true);
+    expect(form.controls[BillFormField.NewClientName].disabled).toBe(true);
+
+    form.controls[BillFormField.ClientId].setValue('');
+    form.controls[BillFormField.ClientId].markAsTouched();
+    expect(form.controls[BillFormField.ClientId].hasError('required')).toBe(true);
   });
 
   it('should apply chantier rules declaratively when toggling mode', () => {
