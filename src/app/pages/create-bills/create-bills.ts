@@ -27,9 +27,6 @@ export class CreateBills {
     orchestrator = inject(CreateBillsOrchestrator);
     toastService = inject(ToastService);
 
-    isCreatingNewClient = false;
-    isCreatingNewChantier = false;
-
     hasSubmittedInvalidForm = false;
 
     billForm = new CreateBillForm();
@@ -44,13 +41,19 @@ export class CreateBills {
     }
 
     toggleNewClientMode() {
-        this.isCreatingNewClient = !this.isCreatingNewClient;
-        this.billForm.toogleNewClientMode(this.isCreatingNewClient);
+        this.billForm.toggleMode('client');
     }
 
     toggleNewChantierMode() {
-        this.isCreatingNewChantier = !this.isCreatingNewChantier;
-        this.billForm.toogleNewChantierMode(this.isCreatingNewChantier);
+        this.billForm.toggleMode('chantier');
+    }
+
+    get isCreatingNewClient(): boolean {
+        return this.billForm.isInNewMode('client');
+    }
+
+    get isCreatingNewChantier(): boolean {
+        return this.billForm.isInNewMode('chantier');
     }
 
     fieldHasError(field: BillFormField): boolean {

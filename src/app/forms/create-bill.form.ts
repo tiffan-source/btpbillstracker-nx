@@ -30,6 +30,24 @@ export type BillForm = {
 export type TypeBill = 'Situation' | 'Solde' | 'Acompte';
 export type PaymentMode = 'Virement' | 'Chèque' | 'Espèces' | 'Carte bancaire';
 
+const CREATE_BILL_TOGGLE_VALIDATION_RULES = {
+    client: {
+        existingField: BillFormField.ClientId,
+        newField: BillFormField.NewClientName
+    },
+    chantier: {
+        existingField: BillFormField.ChantierId,
+        newField: BillFormField.NewChantierName
+    }
+} as const;
+
+type CreateBillToggleMode = keyof typeof CREATE_BILL_TOGGLE_VALIDATION_RULES;
+type CreateBillToggleField =
+    | BillFormField.ClientId
+    | BillFormField.NewClientName
+    | BillFormField.ChantierId
+    | BillFormField.NewChantierName;
+
 export class CreateBillForm extends FormGroup<BillForm> {
     constructor() {
         // We will assume clientId and chantierId are the first option wich are required, and if the user want to create a new client or chantier, the form will be updated to require the newClientName or newChantierName instead and disable the clientId or chantierId
@@ -45,44 +63,39 @@ export class CreateBillForm extends FormGroup<BillForm> {
             [BillFormField.PaymentMode] : new FormControl<PaymentMode>('Virement', { nonNullable: true }),
             [BillFormField.ReminderScenarioId] : new FormControl<string | null>(null, {nonNullable: false})
         });
+
+        this.setMode('client', false);
+        this.setMode('chantier', false);
     }
 
     get formValue() {
         return this.getRawValue();
     }
 
-    toogleNewClientMode(isNewClientMode: boolean) {
-        if(isNewClientMode) {
-            this.controls[BillFormField.ClientId].setValue(null);
-            this.controls[BillFormField.ClientId].disable();
-            this.controls[BillFormField.NewClientName].removeValidators([Validators.required]);
-            this.controls[BillFormField.NewClientName].enable();
-            this.controls[BillFormField.NewClientName].setValidators([Validators.required]);
-            this.controls[BillFormField.NewClientName].updateValueAndValidity();
-        } else {
-            this.controls[BillFormField.NewClientName].setValue(null);
-            this.controls[BillFormField.NewClientName].disable();
-            this.controls[BillFormField.NewClientName].removeValidators([Validators.required]);
-            this.controls[BillFormField.ClientId].enable();
-            this.controls[BillFormField.ClientId].setValidators([Validators.required]);
-            this.controls[BillFormField.ClientId].updateValueAndValidity();
-        }
+    isInNewMode(mode: CreateBillToggleMode): boolean {
+        return this.controls[CREATE_BILL_TOGGLE_VALIDATION_RULES[mode].existingField].disabled;
     }
 
-    toogleNewChantierMode(isNewChantierMode: boolean) {
-        if(isNewChantierMode) {
-            this.controls[BillFormField.ChantierId].setValue(null);
-            this.controls[BillFormField.ChantierId].disable();
-            this.controls[BillFormField.NewChantierName].enable();
-            this.controls[BillFormField.NewChantierName].setValidators([Validators.required]);
-            this.controls[BillFormField.NewChantierName].updateValueAndValidity();
+    toggleMode(mode: CreateBillToggleMode): void {
+        this.setMode(mode, !this.isInNewMode(mode));
+    }
+
+    setMode(mode: CreateBillToggleMode, isNewMode: boolean): void {
+        const { existingField, newField } = CREATE_BILL_TOGGLE_VALIDATION_RULES[mode];
+        this.setControlMode(existingField, !isNewMode);
+        this.setControlMode(newField, isNewMode);
+    }
+
+    private setControlMode(controlName: CreateBillToggleField, isEnabled: boolean): void {
+        const control = this.controls[controlName];
+        control.setValue(null);
+        control.setValidators([Validators.required]);
+        if (isEnabled) {
+            control.enable({ emitEvent: false });
         } else {
-            this.controls[BillFormField.NewChantierName].setValue(null);
-            this.controls[BillFormField.NewChantierName].disable();
-            this.controls[BillFormField.ChantierId].enable();
-            this.controls[BillFormField.ChantierId].setValidators([Validators.required]);
-            this.controls[BillFormField.ChantierId].updateValueAndValidity();
+            control.disable({ emitEvent: false });
         }
+        control.updateValueAndValidity({ emitEvent: false });
     }
 
     getErrors(controlName: BillFormField): string | null {
