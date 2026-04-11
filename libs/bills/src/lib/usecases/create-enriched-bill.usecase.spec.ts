@@ -6,8 +6,12 @@ import { CreateEnrichedBillUseCase } from './create-enriched-bill.usecase';
 class InMemoryBillRepository implements BillRepository {
   savedBill: Bill | null = null;
   savedOwnerUid: string | null = null;
+  throwUnknown = false;
 
   async save(bill: Bill, ownerUid: string): Promise<void> {
+    if (this.throwUnknown) {
+      throw new Error('Unknown bill failure');
+    }
     this.savedBill = bill;
     this.savedOwnerUid = ownerUid;
   }
@@ -229,5 +233,31 @@ describe('CreateEnrichedBillUseCase', () => {
     }
 
     expect(result.data.reminderScenarioId).toBe('standard-reminder-scenario');
+  });
+
+  it('maps unknown errors to UNKNOWN_ERROR', async () => {
+    const repository = new InMemoryBillRepository();
+    repository.throwUnknown = true;
+    const useCase = new CreateEnrichedBillUseCase(
+      repository,
+      new StaticIdGenerator(),
+      new StaticCurrentUserId(),
+    );
+
+    const result = await useCase.execute({
+      clientId: 'client-123',
+      amountTTC: 100,
+      dueDate: '2026-04-20',
+      externalInvoiceReference: 'EXT-7788',
+      type: 'Situation',
+      paymentMode: 'Virement',
+      chantierId: 'chantier-1',
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.code).toBe('UNKNOWN_ERROR');
+      expect(result.error.message).toBe('Unknown bill failure');
+    }
   });
 });

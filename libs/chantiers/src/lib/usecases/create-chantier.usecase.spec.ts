@@ -5,8 +5,12 @@ import { CreateChantierUseCase } from './create-chantier.usecase';
 
 class InMemoryChantierRepository extends ChantierRepository {
   readonly chantiers: Array<{ chantier: Chantier; ownerUid: string }> = [];
+  throwUnknown = false;
 
   async save(chantier: Chantier, ownerUid: string): Promise<void> {
+    if (this.throwUnknown) {
+      throw new Error('Unknown chantier failure');
+    }
     this.chantiers.push({ chantier, ownerUid });
   }
 
@@ -64,6 +68,24 @@ describe('CreateChantierUseCase', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.code).toBe('CHANTIER_NAME_ALREADY_EXISTS');
+    }
+  });
+
+  it('maps unknown errors to UNKNOWN_ERROR', async () => {
+    const repository = new InMemoryChantierRepository();
+    repository.throwUnknown = true;
+    const useCase = new CreateChantierUseCase(
+      repository,
+      new StaticIdGenerator(),
+      new StaticCurrentUserId(),
+    );
+
+    const result = await useCase.execute({ name: 'Villa B' });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.code).toBe('UNKNOWN_ERROR');
+      expect(result.error.message).toBe('Unknown chantier failure');
     }
   });
 });

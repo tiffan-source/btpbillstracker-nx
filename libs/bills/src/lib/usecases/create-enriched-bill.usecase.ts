@@ -1,5 +1,5 @@
 import { BillRepository } from "../ports/bill.repository";
-import { CurrentUserIdPort, failure, IdGeneratorPort, Result, success } from "@btpbilltracker/chore";
+import { CurrentUserIdPort, IdGeneratorPort, Result, runWithResult } from "@btpbilltracker/chore";
 import { Bill } from "../domains/bill.entity";
 import { BillAmountBelowMinError } from "../errors/bill-amount-below-min.error";
 import { BillDueDateRequiredError } from "../errors/bill-due-date-required.error";
@@ -34,8 +34,8 @@ export class CreateEnrichedBillUseCase {
    * Orchestrer la résolution client, la validation métier et la persistance de la facture.
    */
   async execute(input: CreateEnrichedBillInput): Promise<Result<Bill>> {
-    try {
-
+    return runWithResult(
+      async () => {
       const bill = new Bill(this.idGenerator.generate(), input.externalInvoiceReference, input.clientId, input.chantierId)
         .setAmountTTC(input.amountTTC)
         .setDueDate(input.dueDate)
@@ -47,22 +47,18 @@ export class CreateEnrichedBillUseCase {
 
       const ownerUid = this.currentUserId.getRequiredUserId();
       await this.repository.save(bill, ownerUid);
-      return success(bill);
-    } catch (error: unknown) {
-      if (
-        error instanceof BillAmountBelowMinError ||
-        error instanceof BillDueDateRequiredError ||
-        error instanceof BillExternalReferenceRequiredError ||
-        error instanceof InvalidBillTypeError ||
-        error instanceof InvalidPaymentModeError ||
-        error instanceof BillPersistenceError ||
-        error instanceof ReminderScenarioRequiredError
-      ) {
-        return failure(error.code, error.message, error.metadata);
-      }
-
-      const message = error instanceof Error ? error.message : 'Une erreur inattendue est survenue';
-      return failure('UNKNOWN_ERROR', message);
-    }
+      return bill;
+      },
+      [
+        BillAmountBelowMinError,
+        BillDueDateRequiredError,
+        BillExternalReferenceRequiredError,
+        InvalidBillTypeError,
+        InvalidPaymentModeError,
+        BillPersistenceError,
+        ReminderScenarioRequiredError,
+      ],
+      'Une erreur inattendue est survenue',
+    );
   }
 }
