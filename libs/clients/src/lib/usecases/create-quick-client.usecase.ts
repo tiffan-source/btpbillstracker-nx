@@ -1,4 +1,4 @@
-import { CurrentUserIdPort, failure, IdGeneratorPort, Result, success } from '@btpbilltracker/chore';
+import { CurrentUserIdPort, IdGeneratorPort, Result, runWithResult } from '@btpbilltracker/chore';
 import { Client } from '../entities/client.entity';
 import { ClientPersistenceError } from '../errors/client-persistence.error';
 import { InvalidClientNameError } from '../errors/invalid-client-name.error';
@@ -19,7 +19,8 @@ export class CreateQuickClientUseCase {
   ) { }
 
   async execute(input: CreateQuickClientInput): Promise<Result<Client>> {
-    try {
+    return runWithResult(
+      async () => {
       const id = this.idGenerator.generate();
       const client = new Client(id, input.firstName)
         .setLastName(input.lastName)
@@ -33,14 +34,10 @@ export class CreateQuickClientUseCase {
 
       const ownerUid = this.currentUserId.getRequiredUserId();
       await this.repository.save(client, ownerUid);
-      return success(client);
-    } catch (error: unknown) {
-      if (error instanceof InvalidClientNameError || error instanceof ClientPersistenceError) {
-        return failure(error.code, error.message, error.metadata);
-      }
-
-      const message = error instanceof Error ? error.message : 'Error creating client';
-      return failure('UNKNOWN_ERROR', message);
-    }
+      return client;
+      },
+      [InvalidClientNameError, ClientPersistenceError],
+      'Error creating client',
+    );
   }
 }
