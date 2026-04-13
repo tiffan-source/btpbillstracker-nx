@@ -6,4 +6,6 @@ export abstract class ClientRepository {
    * @throws {ClientPersistenceError} Quand le stockage ne peut pas enregistrer le client.
    */
   abstract save(client: Client, userId: string): Promise<void>;
+
+  abstract getAllUserClients(userId: string): Promise<Client[]>;
 }

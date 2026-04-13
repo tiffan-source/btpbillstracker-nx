@@ -23,6 +23,20 @@ export class FirestoreClientRepository extends FirestoreBaseRepository implement
       await addDoc(this.getCollection(), this.toPlainClient(client, userId));
     }
 
+    async getAllUserClients(userId: string): Promise<Client[]> {
+      const querySnapshot = await getDocs(this.getCollection());
+      const clients: Client[] = [];
+
+      querySnapshot.forEach((doc) => {
+        const plainClient = doc.data() as FirestorePlainClient;
+        if (plainClient.ownerUid === userId) {
+          clients.push(this.fromPlainClient(plainClient));
+        }
+      });
+
+      return clients;
+    }
+
   private toPlainClient(client: Client, ownerUid: string): FirestorePlainClient {
     return {
       id: client.id,
@@ -32,5 +46,14 @@ export class FirestoreClientRepository extends FirestoreBaseRepository implement
       email: client.email || '',
       phone: client.phone || ''
     };
+  }
+
+  private fromPlainClient(plainClient: FirestorePlainClient): Client {
+    return new Client(
+      plainClient.id,
+      plainClient.firstName,
+    ).setLastName(plainClient.lastName || '')
+     .setEmail(plainClient.email || '')
+     .setPhone(plainClient.phone || '');
   }
 }
