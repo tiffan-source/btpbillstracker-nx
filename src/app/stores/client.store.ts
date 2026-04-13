@@ -2,16 +2,16 @@ import { Client } from "@btpbilltracker/clients";
 import { patchState, signalStore, withMethods, withState } from "@ngrx/signals"
 
 type ClientState = {
-  clients: Client[];
+    clients: Client[];
     isLoading: boolean;
 };
 
 const initialState: ClientState = {
-  clients: [],
+    clients: [],
     isLoading: false
 };
 
-export const clientStore = signalStore(
+export const ClientStore = signalStore(
     {providedIn: 'root'},
     withState(initialState),
     withMethods((store)=>({

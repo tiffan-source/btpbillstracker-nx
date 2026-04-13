@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from "@angular/core";
 import { GetAllUserClientsUseCase } from "@btpbilltracker/clients";
-import { clientStore } from "../stores/client.store";
+import { ClientStore } from "../stores/client.store";
 import { filter, forkJoin, switchMap, take } from "rxjs";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop"
 
@@ -8,7 +8,7 @@ import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop"
 export class AppBootstrapOrchestrator {
   private readonly triggered = signal(false);
   private readonly clientService = inject(GetAllUserClientsUseCase);
-  private readonly clientsStore = inject(clientStore);
+  private readonly clientsStore = inject(ClientStore);
 
   constructor() {
     toObservable(this.triggered).pipe(

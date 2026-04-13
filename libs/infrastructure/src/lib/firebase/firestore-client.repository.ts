@@ -1,5 +1,5 @@
 import { Client, ClientRepository } from '@btpbilltracker/clients';
-import { addDoc, collection, CollectionReference, doc, DocumentData, DocumentReference, Firestore, getDoc, getDocs, setDoc } from 'firebase/firestore';
+import { addDoc, collection, CollectionReference, doc, DocumentData, DocumentReference, Firestore, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore';
 import { FirebaseAppService } from './firebase-app';
 import { FirestoreBaseRepository } from './firestore-base.repository';
 
@@ -24,14 +24,13 @@ export class FirestoreClientRepository extends FirestoreBaseRepository implement
     }
 
     async getAllUserClients(userId: string): Promise<Client[]> {
-      const querySnapshot = await getDocs(this.getCollection());
+        const q = query(this.getCollection(), where('ownerUid', '==', userId));
+      const querySnapshot = await getDocs(q);
       const clients: Client[] = [];
 
       querySnapshot.forEach((doc) => {
         const plainClient = doc.data() as FirestorePlainClient;
-        if (plainClient.ownerUid === userId) {
           clients.push(this.fromPlainClient(plainClient));
-        }
       });
 
       return clients;

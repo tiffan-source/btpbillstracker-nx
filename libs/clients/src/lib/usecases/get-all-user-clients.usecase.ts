@@ -1,7 +1,7 @@
 import { failure, Result, success } from "@btpbilltracker/chore";
 import { Client } from "../entities/client.entity";
 import { ClientRepository } from "../ports/client.repository";
-import { AuthProvider } from "@btpbilltracker/auth";
+import { AuthProvider, NoUserAuthenticatedError } from "@btpbilltracker/auth";
 
 export class GetAllUserClientsUseCase {
     constructor(
@@ -11,11 +11,14 @@ export class GetAllUserClientsUseCase {
 
     async execute(): Promise<Result<Client[]>> {
         try {
-            const user = await this.currentUser.getCurrentUser();
-            const clients = await this.repository.getAllUserClients(user?.uid || '');
+            const owner = await this.currentUser.getCurrentUser();
+            if (!owner) {
+            throw new NoUserAuthenticatedError();
+            }
+            const clients = await this.repository.getAllUserClients(owner.uid);
             return success(clients);
         } catch (error) {
-            const message = error instanceof Error ? error.message : 'Error creating client';
+            const message = error instanceof Error ? error.message : 'Error fetching clients';
             return failure('UNKNOWN_ERROR', message);
         }
     }

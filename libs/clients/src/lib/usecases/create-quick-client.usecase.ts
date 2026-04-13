@@ -3,7 +3,7 @@ import { Client } from '../entities/client.entity';
 import { ClientPersistenceError } from '../errors/client-persistence.error';
 import { InvalidClientNameError } from '../errors/invalid-client-name.error';
 import { ClientRepository } from '../ports/client.repository';
-import { AuthProvider } from '@btpbilltracker/auth';
+import { AuthProvider, NoUserAuthenticatedError } from '@btpbilltracker/auth';
 
 export interface CreateQuickClientInput {
   firstName: string;
@@ -34,7 +34,7 @@ export class CreateQuickClientUseCase {
 
       const owner = await this.currentUser.getCurrentUser();
       if (!owner) {
-        return failure('USER_NOT_FOUND', 'Current user not found');
+        throw new NoUserAuthenticatedError();
       }
       await this.repository.save(client, owner.uid);
       return success(client);
