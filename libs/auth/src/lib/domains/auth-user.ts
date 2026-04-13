@@ -1,8 +1,8 @@
 export class AuthUser {
-  private readonly _uid: string;
-  private readonly _email: string;
-  private _emailVerified: boolean = false;
-  private _displayName?: string;
+    private readonly _uid: string;
+    private readonly _email: string;
+    private _emailVerified: boolean = false;
+    private _displayName?: string;
 
     constructor(
       uid: string,
