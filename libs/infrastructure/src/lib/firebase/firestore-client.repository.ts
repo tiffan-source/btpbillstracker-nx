@@ -1,5 +1,5 @@
 import { Client, ClientRepository } from '@btpbilltracker/clients';
-import { addDoc, collection, CollectionReference, doc, DocumentData, DocumentReference, Firestore, getDoc, getDocs, query, setDoc, where } from 'firebase/firestore';
+import { addDoc, getDocs, query, where } from 'firebase/firestore';
 import { FirebaseAppService } from './firebase-app';
 import { FirestoreBaseRepository } from './firestore-base.repository';
 
