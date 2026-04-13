@@ -13,11 +13,14 @@ export class GetAllUserClientsUseCase {
         try {
             const owner = await this.currentUser.getCurrentUser();
             if (!owner) {
-            throw new NoUserAuthenticatedError();
+                throw new NoUserAuthenticatedError();
             }
             const clients = await this.repository.getAllUserClients(owner.uid);
             return success(clients);
         } catch (error) {
+            if (error instanceof NoUserAuthenticatedError) {
+                return failure(error.code, error.message, error.metadata);
+            }
             const message = error instanceof Error ? error.message : 'Error fetching clients';
             return failure('UNKNOWN_ERROR', message);
         }
