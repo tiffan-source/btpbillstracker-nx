@@ -7,4 +7,4 @@ export * from './lib/usecases/register-with-email-and-password.usecase';
 
 export * from './lib/errors/login-credidential-invalid.error';
 export * from './lib/errors/email-already-use.error';
-export * from './lib/errors/no-user-authenticate.error';
+export * from './lib/errors/no-user-authenticated.error';
