@@ -14,4 +14,5 @@ export class Button {
     variant = input<ButtonVariant>('primary');
     prime_icon_class = input<string>();
     disable = input<boolean>();
+    loading = input<boolean>();
 }

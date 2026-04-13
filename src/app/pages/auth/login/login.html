@@ -1,0 +1,44 @@
+<main class="min-h-screen w-full flex bg-background">
+    <lib-toast/>
+
+    <!-- Section Image (BTP/Construction) -->
+    <div class="hidden lg:flex w-1/2 relative bg-neutral-900 border-r border-border">
+        <img
+            src="assets/login.jpg"
+            alt="Chantier de construction"
+            class="absolute inset-0 w-full h-full object-cover opacity-80"
+        >
+        <div class="absolute inset-0 bg-black/40"></div>
+        <div class="absolute bottom-12 left-12 text-white max-w-lg">
+            <lib-page-title title="Bienvenue sur BTP Bill Tracker"/>
+            <lib-page-subtitle title="La solution de facturation pour les professionnels du bâtiment"/>
+        </div>
+    </div>
+
+    <!-- Section Formulaire -->
+    <div class="lg:w-1/2 flex items-center justify-center">
+    <div class="max-w-md">
+
+        <div class="text-center lg:text-left">
+            <lib-page-title title="Connexion à votre compte"/>
+            <lib-page-subtitle title="Entrez vos identifiants pour accéder à votre espace de gestion de factures."/>
+        </div>
+        <form class="flex flex-col gap-5 mt-6" [formGroup]="loginForm">
+            <div>
+                <lib-label label="Adresse email" for="login-email"/>
+                <lib-input id="login-email" type="email" placeholder="artisan@chantier.fr" [formControlName]="AuthFormField.Email"/>
+            </div>
+            <div>
+                <lib-label label="Mot de passe" for="login-password"/>
+                <lib-input id="login-password" type="password" placeholder="••••••••" [formControlName]="AuthFormField.Password"/>
+            </div>
+            <lib-button [loading]="authService.isProcessing()" label="Se connecter" (click)="login()"/>
+        </form>
+
+        <p class="text-center text-sm text-foreground-muted mt-8">
+        Pas encore de compte ?
+        <a routerLink="/register" class="text-primary font-medium hover:underline">Créer un compte</a>
+        </p>
+    </div>
+    </div>
+</main>

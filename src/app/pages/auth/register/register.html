@@ -1,0 +1,53 @@
+<main class="min-h-screen w-full flex bg-background">
+    <lib-toast/>
+
+    <!-- Section Formulaire -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12">
+    <div class="w-full max-w-md space-y-8">
+
+        <div class="text-center lg:text-left">
+            <lib-page-title title="Créer un compte"/>
+            <lib-page-subtitle title="Rejoignez-nous pour simplifier la gestion de vos chantiers."/>
+        </div>
+
+        <form class="flex flex-col gap-5 mt-6" [formGroup]="registerForm">
+            <div>
+                <lib-label label="Adresse email" for="register-email"/>
+                <lib-input id="register-email" type="email" placeholder="artisan@chantier.fr" [formControlName]="NewUserFormField.EMAIL"/>
+            </div>
+
+            <div>
+                <lib-label label="Mot de passe" for="register-password"/>
+                <lib-input id="register-password" type="password" placeholder="••••••••" [formControlName]="NewUserFormField.PASSWORD"/>
+            </div>
+
+            <div>
+                <lib-label label="Confirmer le mot de passe" for="register-confirm-password"/>
+                <lib-input id="register-confirm-password" type="password" placeholder="••••••••" [formControlName]="NewUserFormField.CONFIRM_PASSWORD"/>
+            </div>
+
+            <lib-button [loading]="authService.isProcessing()" label="Créer un compte" (click)="register()"/>
+
+        </form>
+
+        <p class="text-center text-sm text-foreground-muted mt-8">
+        Déjà un compte ?
+        <a routerLink="/login" class="text-primary font-medium hover:underline">Se connecter</a>
+        </p>
+    </div>
+    </div>
+
+    <!-- Section Image (BTP/Construction) -->
+    <div class="hidden lg:flex w-1/2 relative bg-neutral-900 border-l border-border">
+    <img
+        src="assets/register.jpg"
+        alt="Plans et matériel d'architecte"
+        class="absolute inset-0 w-full h-full object-cover opacity-80"
+    >
+    <div class="absolute inset-0 bg-black/40"></div>
+    <div class="absolute bottom-12 right-12 text-white max-w-lg text-right">
+        <lib-page-title title="La fondation de votre réussite."/>
+        <lib-page-subtitle title="Des devis professionnels, un suivi rigoureux, et plus de temps pour vous concentrer sur l'essentiel : vos travaux."/>
+    </div>
+    </div>
+</main>
