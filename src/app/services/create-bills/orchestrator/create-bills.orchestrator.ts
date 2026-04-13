@@ -57,7 +57,7 @@ export class CreateBillsOrchestrator {
         
         return clients.map(client => {           
             return {
-                label: client.firstName + ' ' + client.lastName,
+                label: `${client.firstName} ${client.lastName ?? ""}`.trim(),
                 value: client.id
             }
         });
