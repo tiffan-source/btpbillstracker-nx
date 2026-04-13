@@ -1,5 +1,5 @@
 import { Client, ClientRepository } from '@btpbilltracker/clients';
-import { addDoc, collection, CollectionReference, doc, DocumentData, DocumentReference, Firestore, getDoc, getDocs, setDoc } from 'firebase/firestore';
+import { addDoc, getDocs, query, where } from 'firebase/firestore';
 import { FirebaseAppService } from './firebase-app';
 import { FirestoreBaseRepository } from './firestore-base.repository';
 
@@ -23,6 +23,19 @@ export class FirestoreClientRepository extends FirestoreBaseRepository implement
       await addDoc(this.getCollection(), this.toPlainClient(client, userId));
     }
 
+    async getAllUserClients(userId: string): Promise<Client[]> {
+        const q = query(this.getCollection(), where('ownerUid', '==', userId));
+      const querySnapshot = await getDocs(q);
+      const clients: Client[] = [];
+
+      querySnapshot.forEach((doc) => {
+        const plainClient = doc.data() as FirestorePlainClient;
+          clients.push(this.fromPlainClient(plainClient));
+      });
+
+      return clients;
+    }
+
   private toPlainClient(client: Client, ownerUid: string): FirestorePlainClient {
     return {
       id: client.id,
@@ -32,5 +45,14 @@ export class FirestoreClientRepository extends FirestoreBaseRepository implement
       email: client.email || '',
       phone: client.phone || ''
     };
+  }
+
+  private fromPlainClient(plainClient: FirestorePlainClient): Client {
+    return new Client(
+      plainClient.id,
+      plainClient.firstName,
+    ).setLastName(plainClient.lastName || '')
+     .setEmail(plainClient.email || '')
+     .setPhone(plainClient.phone || '');
   }
 }

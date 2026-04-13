@@ -6,8 +6,8 @@ import { CreateQuickClientUseCase } from './create-quick-client.usecase';
 import { AuthUser, AuthProvider } from '@btpbilltracker/auth';
 
 class MockClientRepository implements ClientRepository {
-  savedClient: Client | null = null;
-  savedOwnerUid: string | null = null;
+  savedClient: Client[] = [];
+  savedOwnerUid: string[] = [];
   throwUnknown = false;
   throwPersistenceError = false;
 
@@ -18,10 +18,13 @@ class MockClientRepository implements ClientRepository {
     if (this.throwUnknown) {
       throw new Error('Unknown runtime issue');
     }
-
-    this.savedClient = client;
-    this.savedOwnerUid = ownerUid;
+    this.savedClient.push(client);
+    this.savedOwnerUid.push(ownerUid);
   }
+
+    async getAllUserClients(userId: string): Promise<Client[]> {
+        return this.savedClient;
+    }
 }
 
 class StaticIdGenerator implements IdGeneratorPort {
@@ -33,6 +36,13 @@ class StaticIdGenerator implements IdGeneratorPort {
 class StaticCurrentUserId extends AuthProvider {
   async getCurrentUser(): Promise<AuthUser | null> {
     return new AuthUser('owner-uid-1', 'Owner 1');
+  }
+
+  async loginWithEmailAndPassword(email: string, password: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  async registerWithEmailAndPassword(email: string, password: string): Promise<void> {
+    throw new Error('Method not implemented.');
   }
 }
 
@@ -60,8 +70,8 @@ describe('CreateQuickClientUseCase', () => {
       expect(result.data.phone).toBe('+2290100000000');
       expect(result.data.id).toBe('client-id-123');
 
-      expect(repository.savedClient).toBe(result.data);
-      expect(repository.savedOwnerUid).toBe('owner-uid-1');
+      expect(repository.savedClient).toContain(result.data);
+      expect(repository.savedOwnerUid).toContain('owner-uid-1');
     }
   });
 

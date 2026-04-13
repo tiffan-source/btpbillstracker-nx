@@ -14,7 +14,7 @@
                 <div>
                     @if (!isCreatingNewClient) {
                         <div class="flex gap-4">
-                            <lib-input-select [invalid]="fieldHasError(BillFormField.ClientId)" [formControlName]="BillFormField.ClientId" class="flex-1" optionLabel="clientId" placeholder="Selectionner un client" id="client"></lib-input-select>
+                            <lib-input-select class="flex-1" optionLabel="label" optionValue="value" [options]="orchestrator.clientOptions()" [invalid]="fieldHasError(BillFormField.ClientId)" [formControlName]="BillFormField.ClientId" placeholder="Selectionner un client" id="client"></lib-input-select>
                             <lib-button label="Ajouter un nouveau client" (click)="toggleNewClientMode()"></lib-button>
                         </div>
                         @if (fieldHasError(BillFormField.ClientId)) {

@@ -1,7 +1,8 @@
-import { inject, Injectable, signal } from "@angular/core";
+import { computed, inject, Injectable, signal } from "@angular/core";
 import { CreateEnrichedBillInput, CreateEnrichedBillUseCase } from "@btpbilltracker/bills"
 import { CreateQuickClientUseCase } from "@btpbilltracker/clients"
 import { CreateChantierUseCase } from "@btpbilltracker/chantiers";
+import { ClientStore } from "../../../stores/client.store"
 
 export type CreateBillClientRequest =
   | { mode: "existing"; clientId: string }
@@ -47,9 +48,20 @@ export class CreateBillsOrchestrator {
     private createBillsUsecase = inject(CreateEnrichedBillUseCase)
     private createClientUsecase = inject(CreateQuickClientUseCase)
     private createChantierUsecase = inject(CreateChantierUseCase)
+    private clientStore = inject(ClientStore);
 
     processError = signal<string | null>(null);
     isProcessing = signal(false);
+    clientOptions = computed(() => {
+        const clients = this.clientStore.clients();        
+        
+        return clients.map(client => {           
+            return {
+                label: `${client.firstName} ${client.lastName ?? ""}`.trim(),
+                value: client.id
+            }
+        });
+    });
 
     createBillProcess = async (bill: CreateBillRequest): Promise<CreateBillProcessResult> => {
         this.processError.set(null);
