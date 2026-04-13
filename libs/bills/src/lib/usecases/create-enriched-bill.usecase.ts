@@ -1,5 +1,5 @@
 import { BillRepository } from "../ports/bill.repository";
-import { CurrentUserIdPort, failure, IdGeneratorPort, Result, success } from "@btpbilltracker/chore";
+import { failure, IdGeneratorPort, Result, success } from "@btpbilltracker/chore";
 import { Bill } from "../domains/bill.entity";
 import { BillAmountBelowMinError } from "../errors/bill-amount-below-min.error";
 import { BillDueDateRequiredError } from "../errors/bill-due-date-required.error";
@@ -8,6 +8,7 @@ import { InvalidBillTypeError } from "../errors/invalid-bill-type.error";
 import { InvalidPaymentModeError } from "../errors/invalid-payment-mode.error";
 import { BillPersistenceError } from "../errors/bill-persistence.error";
 import { ReminderScenarioRequiredError } from "../errors/reminder-scenario-required.error";
+import { AuthProvider } from "@btpbilltracker/auth";
 
 export type CreateEnrichedBillInput = {
   clientId: string;
@@ -27,7 +28,7 @@ export class CreateEnrichedBillUseCase {
   constructor(
     private readonly repository: BillRepository,
     private readonly idGenerator: IdGeneratorPort,
-    private readonly currentUserId: CurrentUserIdPort,
+    private readonly currentUser: AuthProvider,
   ) {}
 
   /**
@@ -45,8 +46,8 @@ export class CreateEnrichedBillUseCase {
         if (input.reminderScenarioId) 
           bill.configureReminder(input.reminderScenarioId);
 
-      const ownerUid = this.currentUserId.getRequiredUserId();
-      await this.repository.save(bill, ownerUid);
+      const ownerUid = await this.currentUser.getCurrentUser();
+      await this.repository.save(bill, ownerUid?.uid || 'unknown');
       return success(bill);
     } catch (error: unknown) {
       if (

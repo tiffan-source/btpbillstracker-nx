@@ -1,8 +1,9 @@
-import { CurrentUserIdPort, IdGeneratorPort } from '@btpbilltracker/chore';
+import { IdGeneratorPort } from '@btpbilltracker/chore';
 import { Client } from '../entities/client.entity';
 import { ClientPersistenceError } from '../errors/client-persistence.error';
 import { ClientRepository } from '../ports/client.repository';
 import { CreateQuickClientUseCase } from './create-quick-client.usecase';
+import { AuthUser, AuthProvider } from '@btpbilltracker/auth';
 
 class MockClientRepository implements ClientRepository {
   savedClient: Client | null = null;
@@ -29,9 +30,9 @@ class StaticIdGenerator implements IdGeneratorPort {
   }
 }
 
-class StaticCurrentUserId extends CurrentUserIdPort {
-  getRequiredUserId(): string {
-    return 'owner-uid-1';
+class StaticCurrentUserId extends AuthProvider {
+  async getCurrentUser(): Promise<AuthUser | null> {
+    return new AuthUser('owner-uid-1', 'Owner 1');
   }
 }
 

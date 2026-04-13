@@ -1,7 +1,8 @@
-import { CurrentUserIdPort, IdGeneratorPort } from '@btpbilltracker/chore';
+import {  IdGeneratorPort } from '@btpbilltracker/chore';
 import { Bill } from '../domains/bill.entity';
 import { BillRepository } from '../ports/bill.repository';
 import { CreateEnrichedBillUseCase } from './create-enriched-bill.usecase';
+import { AuthProvider, AuthUser } from '@btpbilltracker/auth';
 
 class InMemoryBillRepository implements BillRepository {
   savedBill: Bill | null = null;
@@ -19,9 +20,9 @@ class StaticIdGenerator implements IdGeneratorPort {
   }
 }
 
-class StaticCurrentUserId extends CurrentUserIdPort {
-  getRequiredUserId(): string {
-    return 'owner-uid-1';
+class StaticCurrentUser implements AuthProvider {
+  async getCurrentUser(): Promise<AuthUser | null> {
+    return new AuthUser('owner-uid-1', 'Owner 1');
   }
 }
 
@@ -31,7 +32,7 @@ describe('CreateEnrichedBillUseCase', () => {
     const useCase = new CreateEnrichedBillUseCase(
       repository,
       new StaticIdGenerator(),
-      new StaticCurrentUserId(),
+      new StaticCurrentUser(),
     );
 
     const result = await useCase.execute({
@@ -67,7 +68,7 @@ describe('CreateEnrichedBillUseCase', () => {
     const useCase = new CreateEnrichedBillUseCase(
       repository,
       new StaticIdGenerator(),
-      new StaticCurrentUserId(),
+      new StaticCurrentUser(),
     );
 
     const result = await useCase.execute({
@@ -95,7 +96,7 @@ describe('CreateEnrichedBillUseCase', () => {
     const useCase = new CreateEnrichedBillUseCase(
       repository,
       new StaticIdGenerator(),
-      new StaticCurrentUserId(),
+      new StaticCurrentUser(),
     );
 
     const result = await useCase.execute({
@@ -123,7 +124,7 @@ describe('CreateEnrichedBillUseCase', () => {
     const useCase = new CreateEnrichedBillUseCase(
       repository,
       new StaticIdGenerator(),
-      new StaticCurrentUserId(),
+      new StaticCurrentUser(),
     );
 
     const result = await useCase.execute({
@@ -151,7 +152,7 @@ describe('CreateEnrichedBillUseCase', () => {
     const useCase = new CreateEnrichedBillUseCase(
       repository,
       new StaticIdGenerator(),
-      new StaticCurrentUserId(),
+      new StaticCurrentUser(),
     );
 
     const result = await useCase.execute({
@@ -180,7 +181,7 @@ describe('CreateEnrichedBillUseCase', () => {
     const useCase = new CreateEnrichedBillUseCase(
       repository,
       new StaticIdGenerator(),
-      new StaticCurrentUserId(),
+      new StaticCurrentUser(),
     );
 
     const result = await useCase.execute({
@@ -209,7 +210,7 @@ describe('CreateEnrichedBillUseCase', () => {
     const useCase = new CreateEnrichedBillUseCase(
       repository,
       new StaticIdGenerator(),
-      new StaticCurrentUserId(),
+      new StaticCurrentUser(),
     );
 
     const result = await useCase.execute({

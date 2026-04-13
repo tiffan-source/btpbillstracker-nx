@@ -1,7 +1,8 @@
-import { CurrentUserIdPort, IdGeneratorPort } from '@btpbilltracker/chore';
+import { IdGeneratorPort } from '@btpbilltracker/chore';
 import { Chantier } from '../entities/chantier.entity';
 import { ChantierRepository } from '../ports/chantier.repository';
 import { CreateChantierUseCase } from './create-chantier.usecase';
+import { AuthUser, AuthProvider } from '@btpbilltracker/auth';
 
 class InMemoryChantierRepository extends ChantierRepository {
   readonly chantiers: Array<{ chantier: Chantier; ownerUid: string }> = [];
@@ -25,9 +26,9 @@ class StaticIdGenerator implements IdGeneratorPort {
   }
 }
 
-class StaticCurrentUserId extends CurrentUserIdPort {
-  getRequiredUserId(): string {
-    return 'owner-uid-1';
+class StaticCurrentUserId extends AuthProvider {
+  async getCurrentUser(): Promise<AuthUser | null> {
+    return new AuthUser('owner-uid-1', 'Owner 1');
   }
 }
 

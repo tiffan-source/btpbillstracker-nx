@@ -1,8 +1,9 @@
-import { CurrentUserIdPort, failure, IdGeneratorPort, Result, success } from '@btpbilltracker/chore';
+import { failure, IdGeneratorPort, Result, success } from '@btpbilltracker/chore';
 import { Client } from '../entities/client.entity';
 import { ClientPersistenceError } from '../errors/client-persistence.error';
 import { InvalidClientNameError } from '../errors/invalid-client-name.error';
 import { ClientRepository } from '../ports/client.repository';
+import { AuthProvider } from '@btpbilltracker/auth';
 
 export interface CreateQuickClientInput {
   firstName: string;
@@ -15,7 +16,7 @@ export class CreateQuickClientUseCase {
   constructor(
     private readonly repository: ClientRepository,
     private readonly idGenerator: IdGeneratorPort,
-    private readonly currentUserId: CurrentUserIdPort
+    private readonly currentUser: AuthProvider
   ) { }
 
   async execute(input: CreateQuickClientInput): Promise<Result<Client>> {
@@ -31,8 +32,11 @@ export class CreateQuickClientUseCase {
         client.setPhone(input.phone);
       }
 
-      const ownerUid = this.currentUserId.getRequiredUserId();
-      await this.repository.save(client, ownerUid);
+      const owner = await this.currentUser.getCurrentUser();
+      if (!owner) {
+        return failure('USER_NOT_FOUND', 'Current user not found');
+      }
+      await this.repository.save(client, owner.uid);
       return success(client);
     } catch (error: unknown) {
       if (error instanceof InvalidClientNameError || error instanceof ClientPersistenceError) {
