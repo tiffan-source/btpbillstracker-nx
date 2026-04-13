@@ -7,7 +7,7 @@ import { AuthUser, AuthProvider } from '@btpbilltracker/auth';
 
 class MockClientRepository implements ClientRepository {
   savedClient: Client[] = [];
-  savedOwnerUid: string[]= ['owner-uid-1'];
+  savedOwnerUid: string[] = [];
   throwUnknown = false;
   throwPersistenceError = false;
 
