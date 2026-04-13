@@ -1,6 +1,7 @@
-import { AuthProvider, AuthUser } from "@btpbilltracker/auth"
+import { AuthProvider, AuthUser, EmailAlreadyUseError, LoginWithEmailAndPasswordError } from "@btpbilltracker/auth"
 import { FirebaseAppService } from "./firebase-app";
-import { Auth } from "firebase/auth";
+import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { FirebaseError } from "firebase/app";
 
 export class FirebaseAuthProvider implements AuthProvider {
     private readonly auth: Auth;
@@ -21,5 +22,28 @@ export class FirebaseAuthProvider implements AuthProvider {
         currentUser.setDisplayName(user.displayName || "");
         
         return currentUser;
+    }
+
+    async loginWithEmailAndPassword(email: string, password: string): Promise<void> {
+        try {
+            await signInWithEmailAndPassword(this.auth, email, password);        
+        } catch (error) {
+            if (error instanceof FirebaseError) {
+                if (error.code === "auth/invalid-credential")
+                    throw new LoginWithEmailAndPasswordError()
+            }
+            
+        }
+    }
+
+    async registerWithEmailAndPassword(email: string, password: string): Promise<void> {
+        try {
+            await createUserWithEmailAndPassword(this.auth, email, password);
+        } catch (error) {
+            if (error instanceof FirebaseError) {
+                if (error.code === "auth/email-already-in-use")
+                    throw new EmailAlreadyUseError(email)
+            }
+        }
     }
 }
