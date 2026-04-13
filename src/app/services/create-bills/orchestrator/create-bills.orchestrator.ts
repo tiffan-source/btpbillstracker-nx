@@ -3,6 +3,7 @@ import { CreateEnrichedBillInput, CreateEnrichedBillUseCase } from "@btpbilltrac
 import { CreateQuickClientUseCase } from "@btpbilltracker/clients"
 import { CreateChantierUseCase } from "@btpbilltracker/chantiers";
 import { ClientStore } from "../../../stores/client.store"
+import { ChantierStore } from "src/app/stores/chantier.store";
 
 export type CreateBillClientRequest =
   | { mode: "existing"; clientId: string }
@@ -48,10 +49,13 @@ export class CreateBillsOrchestrator {
     private createBillsUsecase = inject(CreateEnrichedBillUseCase)
     private createClientUsecase = inject(CreateQuickClientUseCase)
     private createChantierUsecase = inject(CreateChantierUseCase)
+
     private clientStore = inject(ClientStore);
+    private chantierStore = inject(ChantierStore);
 
     processError = signal<string | null>(null);
     isProcessing = signal(false);
+    
     clientOptions = computed(() => {
         const clients = this.clientStore.clients();        
         
@@ -61,6 +65,15 @@ export class CreateBillsOrchestrator {
                 value: client.id
             }
         });
+    });
+
+    chantierOptions = computed(() => {
+        const chantiers = this.chantierStore.chantiers();
+        
+        return chantiers.map(chantier => ({
+            label: chantier.name,
+            value: chantier.id
+        }));
     });
 
     createBillProcess = async (bill: CreateBillRequest): Promise<CreateBillProcessResult> => {
@@ -135,6 +148,7 @@ export class CreateBillsOrchestrator {
             };
         }
 
+        this.clientStore.addClient({ id: createdClient.data.id, firstName: createdClient.data.firstName ?? '', lastName: createdClient.data.lastName ?? '' });
         return { success: true, data: { clientId: createdClient.data.id } };
     }
 
@@ -155,6 +169,7 @@ export class CreateBillsOrchestrator {
             };
         }
 
+        this.chantierStore.addChantier({ id: createdChantier.data.id, name: createdChantier.data.name });
         return { success: true, data: { chantierId: createdChantier.data.id } };
     }
 }

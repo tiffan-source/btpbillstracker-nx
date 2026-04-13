@@ -3,12 +3,17 @@ import { GetAllUserClientsUseCase } from "@btpbilltracker/clients";
 import { ClientStore } from "../stores/client.store";
 import { filter, forkJoin, switchMap, take } from "rxjs";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop"
+import { GetAllUserChantiersUseCase } from "@btpbilltracker/chantiers";
+import { ChantierStore } from "../stores/chantier.store";
 
 @Injectable({ providedIn: 'root' })
 export class AppBootstrapOrchestrator {
   private readonly triggered = signal(false);
   private readonly clientService = inject(GetAllUserClientsUseCase);
+  private readonly chantierService = inject(GetAllUserChantiersUseCase);
+
   private readonly clientsStore = inject(ClientStore);
+  private readonly chantiersStore = inject(ChantierStore);
 
   constructor() {
     toObservable(this.triggered).pipe(
@@ -17,11 +22,13 @@ export class AppBootstrapOrchestrator {
       switchMap(() =>
         forkJoin({
           clients: this.clientService.execute(),
+          chantiers: this.chantierService.execute()
         })
       ),
       takeUntilDestroyed()
-    ).subscribe(({ clients }) => {
-      this.clientsStore.setClients(clients.success ? clients.data : []);
+    ).subscribe(({ clients, chantiers }) => {
+      this.clientsStore.setClients(clients.success ? clients.data.map((c) => ({ id: c.id, firstName: c.firstName || '', lastName: c.lastName || '' })) : []);
+      this.chantiersStore.setChantiers(chantiers.success ? chantiers.data.map((c) => ({ id: c.id, name: c.name })) : []);
     });
   }
 

@@ -1,4 +1,5 @@
 export * from './lib/usecases/create-chantier.usecase';
+export * from './lib/usecases/get-all-user-chantiers.usecase';
 
 export * from './lib/ports/chantier.repository'
 

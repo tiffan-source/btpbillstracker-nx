@@ -38,7 +38,7 @@
                 <div>
                     @if (!isCreatingNewChantier) {
                         <div class="flex gap-4">
-                            <lib-input-select [invalid]="fieldHasError(BillFormField.ChantierId)" [formControlName]="BillFormField.ChantierId" class="flex-1" optionLabel="chantierId" placeholder="Selectionner un chantier" id="chantier"></lib-input-select>
+                            <lib-input-select [invalid]="fieldHasError(BillFormField.ChantierId)" [formControlName]="BillFormField.ChantierId" class="flex-1" optionLabel="label" optionValue="value" [options]="orchestrator.chantierOptions()" placeholder="Selectionner un chantier" id="chantier"></lib-input-select>
                             <lib-button label="Ajouter un nouveau chantier" (click)="toggleNewChantierMode()"></lib-button>
                         </div>
                         @if (fieldHasError(BillFormField.ChantierId)) {

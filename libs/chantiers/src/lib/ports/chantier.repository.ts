@@ -12,5 +12,7 @@ export abstract class ChantierRepository {
    * @throws {ChantierPersistenceError} Quand le stockage ne peut pas vérifier l'unicité.
    */
   abstract existsByNameForUser(name: string, ownerUid: string): Promise<boolean>;
+
+  abstract getAllUserChantiers(userId: string): Promise<Chantier[]>;
 }
 

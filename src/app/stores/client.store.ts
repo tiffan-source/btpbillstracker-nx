@@ -1,8 +1,14 @@
 import { Client } from "@btpbilltracker/clients";
 import { patchState, signalStore, withMethods, withState } from "@ngrx/signals"
 
+type ClientViewModel = {
+    id: string;
+    firstName: string;
+    lastName: string;
+}
+
 type ClientState = {
-    clients: Client[];
+    clients: ClientViewModel[];
     isLoading: boolean;
 };
 
@@ -15,11 +21,14 @@ export const ClientStore = signalStore(
     {providedIn: 'root'},
     withState(initialState),
     withMethods((store)=>({
-        setClients(clients: Client[]) {
+        setClients(clients: ClientViewModel[]) {
             patchState(store, (state) => ({...state, clients}));
         },
         setIsLoading(isLoading: boolean) {
             patchState(store, (state) => ({...state, isLoading}));
+        },
+        addClient(client: ClientViewModel) {
+            patchState(store, (state) => ({...state, clients: [...state.clients, client]}));
         }
     }))
 );

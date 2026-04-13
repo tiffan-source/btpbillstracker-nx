@@ -76,7 +76,7 @@ export class CreateBills {
         }
         
         const { amountTTC, chantierId, chantierName, clientId, dueDate, invoiceNumber, type, paymentMode, reminderScenarioId, newClientName } = formValue;
-        
+
         const result = await this.orchestrator.createBillProcess({
             amount: amountTTC,
             chantier: this.isCreatingNewChantier
@@ -85,7 +85,7 @@ export class CreateBills {
             client: this.isCreatingNewClient
                 ? { mode: 'new', clientName: newClientName ?? '' }
                 : { mode: 'existing', clientId: clientId ?? '' },
-            dueDate: dueDate,
+            dueDate: dueDate?.toDateString() ?? '',
             invoiceNumber: invoiceNumber,
             type: type,
             paymentMode: paymentMode,
