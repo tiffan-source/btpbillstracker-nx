@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Button, KpiCard, KpiCardVariant, PageSubTitle, PageTitle, Table } from '@btpbilltracker/components';
 import { DashboardOrchestrator } from 'src/app/services/dashboard/orchestrator/dashboard.orchestrator';
 
@@ -10,5 +10,5 @@ import { DashboardOrchestrator } from 'src/app/services/dashboard/orchestrator/d
 })
 export class DashboardPageComponent {
     readonly KpiCardVariant = KpiCardVariant;
-    readonly dasboardOrchestrator = new DashboardOrchestrator();
+    readonly dashboardOrchestrator = inject(DashboardOrchestrator);
 }
