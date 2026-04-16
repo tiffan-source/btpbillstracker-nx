@@ -21,6 +21,13 @@ export const appRoutes: Route[] = [
             (m) => m.CreateBills
           )
       },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./pages/dashboard/dashboard-page.component').then(
+            (m) => m.DashboardPageComponent
+          )
+      },
     ],
     canActivate: [authGuard]
   },

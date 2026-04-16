@@ -4,6 +4,7 @@ import { CreateQuickClientUseCase } from "@btpbilltracker/clients"
 import { CreateChantierUseCase } from "@btpbilltracker/chantiers";
 import { ClientStore } from "../../../stores/client.store"
 import { ChantierStore } from "src/app/stores/chantier.store";
+import { BillStore } from "src/app/stores/bills.store";
 
 export type CreateBillClientRequest =
   | { mode: "existing"; clientId: string }
@@ -52,6 +53,7 @@ export class CreateBillsOrchestrator {
 
     private clientStore = inject(ClientStore);
     private chantierStore = inject(ChantierStore);
+    private billStore = inject(BillStore);
 
     processError = signal<string | null>(null);
     isProcessing = signal(false);
@@ -116,6 +118,15 @@ export class CreateBillsOrchestrator {
                 };
                 this.processError.set(failureResult.error.message);
                 return failureResult;
+            }else {
+                this.billStore.addBill({
+                    id: result.data.id,
+                    clientId: enrichedBill.clientId,
+                    chantierId: enrichedBill.chantierId,
+                    amount: enrichedBill.amountTTC.toString(),
+                    dueDate: enrichedBill.dueDate,
+                    status: 'unpaid'
+                });
             }
 
             return {
