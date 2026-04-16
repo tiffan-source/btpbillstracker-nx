@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { CurrentUserIdPort } from '@btpbilltracker/chore';
 import { AppFirebaseConfig, FirebaseAppService } from '@btpbilltracker/infrastructure';
 import { FIREBASE_CONFIG } from '../../env/env';
 import { FIREBASE_APP_CONFIG, provideFirebase } from './firebase.provider';
+import { AuthProvider } from '@btpbilltracker/auth';
 
 describe('provideFirebase', () => {
   it('wires FirebaseAppService with config from src/env by default', () => {
@@ -12,7 +12,7 @@ describe('provideFirebase', () => {
 
     const configured = TestBed.inject(FIREBASE_APP_CONFIG);
     const service = TestBed.inject(FirebaseAppService);
-    const currentUserPort = TestBed.inject(CurrentUserIdPort);
+    const currentUserPort = TestBed.inject(AuthProvider);
 
     expect(configured).toEqual(FIREBASE_CONFIG);
     expect(service).toBeTruthy();

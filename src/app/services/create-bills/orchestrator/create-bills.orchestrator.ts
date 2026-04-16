@@ -123,7 +123,7 @@ export class CreateBillsOrchestrator {
                     id: result.data.id,
                     clientId: enrichedBill.clientId,
                     chantierId: enrichedBill.chantierId,
-                    amount: enrichedBill.amountTTC.toString(),
+                    amount: enrichedBill.amountTTC,
                     dueDate: enrichedBill.dueDate,
                     status: 'unpaid'
                 });

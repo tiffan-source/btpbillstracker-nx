@@ -1,4 +1,4 @@
-import { Component, Input, ContentChild, TemplateRef, input } from '@angular/core';
+import { Component, ContentChild, TemplateRef, input } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { NgTemplateOutlet } from '@angular/common';
 
@@ -10,7 +10,7 @@ import { NgTemplateOutlet } from '@angular/common';
 })
 export class Table {
     // Les données à afficher
-    value= input<any[]>();
+  value = input.required<unknown[]>();
 
     // On capture le template nommé #header depuis le parent
     @ContentChild('header') headerTemplate!: TemplateRef<any>;

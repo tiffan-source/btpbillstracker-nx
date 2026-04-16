@@ -45,7 +45,7 @@ export class FirestoreBillRepository extends FirestoreBaseRepository implements 
         return bills;
     }
 
-    private toBillEntity(plainBill: FirestorePlainBill): Bill | null {
+    private toBillEntity(plainBill: FirestorePlainBill): Bill | null {        
         if (
             !this.isNonEmptyString(plainBill.id) ||
             !this.isNonEmptyString(plainBill.clientId) ||
@@ -62,9 +62,9 @@ export class FirestoreBillRepository extends FirestoreBaseRepository implements 
             plainBill.chantierId
         );
 
-        if (typeof plainBill.amountTTC === 'number') {
-            bill.setAmountTTC(plainBill.amountTTC);
-        }
+        console.log(plainBill.amountTTC);
+        
+        bill.setAmountTTC(parseInt(plainBill.amountTTC?.toString() || "0"));
 
         if (this.isNonEmptyString(plainBill.dueDate)) {
             bill.setDueDate(plainBill.dueDate);

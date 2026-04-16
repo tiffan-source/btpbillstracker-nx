@@ -23,4 +23,42 @@ export class DashboardOrchestrator {
             }
         })
     });
+
+    totalBillLate = computed(() => {
+        const today = new Date();
+        return this.billStore.bills().filter(bill => {
+            const dueDate = new Date(bill.dueDate);
+            return dueDate < today && bill.status !== 'paid';
+        }).length;
+    });
+
+    totalAmountBillLate = computed(() => {
+        const today = new Date();
+        let totalLate = 0;
+        this.billStore.bills().forEach(bill => {
+            const dueDate = new Date(bill.dueDate);
+            if (dueDate < today && bill.status !== 'paid') {
+                totalLate += bill.amount;
+            }
+        });
+        return totalLate;
+    });
+
+    toCashoutThisMonth = computed(() => {
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+        let totalCashout = 0;
+        this.billStore.bills().forEach(bill => {
+            const dueDate = new Date(bill.dueDate);
+            if (dueDate.getMonth() === currentMonth && dueDate.getFullYear() === currentYear) {
+                totalCashout += bill.amount;
+            }
+        });
+        return totalCashout;
+    });
+
+    numberBillPending = computed(() => {
+        return this.billStore.bills().filter(bill => bill.status === 'unpaid').length;
+    });
 }

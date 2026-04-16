@@ -100,7 +100,7 @@ describe('GetAllUserClientsUseCase', () => {
     }
   });
 
-  it('should return failure UNKNOWN_ERROR when no user is authenticated', async () => {
+  it('should return failure NO_USER_AUTHENTICATED when no user is authenticated', async () => {
     const repository = new MockClientRepository();
     const useCase = new GetAllUserClientsUseCase(repository, new UnauthenticatedProvider());
 
@@ -108,7 +108,7 @@ describe('GetAllUserClientsUseCase', () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.code).toBe('UNKNOWN_ERROR');
+      expect(result.error.code).toBe('NO_USER_AUTHENTICATED');
       expect(result.error.message).toBeTruthy();
     }
   });

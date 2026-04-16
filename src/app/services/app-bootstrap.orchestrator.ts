@@ -34,7 +34,7 @@ export class AppBootstrapOrchestrator {
     ).subscribe(({ clients, chantiers, bills }) => {
       this.clientsStore.setClients(clients.success ? clients.data.map((c) => ({ id: c.id, firstName: c.firstName || '', lastName: c.lastName || '' })) : []);
       this.chantiersStore.setChantiers(chantiers.success ? chantiers.data.map((c) => ({ id: c.id, name: c.name })) : []);
-      this.billsStore.setBills(bills.success ? bills.data.map((b) => ({ id: b.id, amount: b.amountTTC?.toString() || "0", dueDate: b.dueDate || '', status: b.status === BILL_STATUS.PAID ? 'paid' : 'unpaid', clientId: b.clientId || '', chantierId: b.chantierId || '' })) : []);
+      this.billsStore.setBills(bills.success ? bills.data.map((b) => ({ id: b.id, amount: b.amountTTC || 0, dueDate: b.dueDate || '', status: b.status === BILL_STATUS.PAID ? 'paid' : 'unpaid', clientId: b.clientId || '', chantierId: b.chantierId || '' })) : []);
     });
   }
 

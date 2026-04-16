@@ -2,7 +2,7 @@ import { patchState, signalStore, withMethods, withState } from "@ngrx/signals";
 
 type BillViewModel = {
     id: string;
-    amount: string;
+    amount: number;
     dueDate: string;
     status: 'paid' | 'unpaid';
     clientId: string;
