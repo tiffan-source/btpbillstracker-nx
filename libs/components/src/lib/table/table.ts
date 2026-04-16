@@ -4,7 +4,6 @@ import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'lib-table',
-  standalone: true,
   imports: [TableModule, NgTemplateOutlet],
   templateUrl: './table.html',
   styleUrl: './table.css',

@@ -1,6 +1,6 @@
 import { AuthProvider, NoUserAuthenticatedError } from "@btpbilltracker/auth";
 import { BillRepository } from "../ports/bill.repository";
-import { failure, Result, success } from "libs/chore/src/lib/result/result";
+import { failure, Result, success } from "@btpbilltracker/chore";
 import { Bill } from "../domains/bill.entity";
 import { BillPersistenceError } from "../errors/bill-persistence.error";
 
