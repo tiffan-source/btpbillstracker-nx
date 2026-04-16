@@ -10,3 +10,5 @@ export * from "./lib/toogle/toogle";
 export * from "./lib/title/page-title/page-title"
 export * from "./lib/toast/toast"
 export * from "./lib/text-error/text-error"
+export * from "./lib/kpi-card/kpi-card"
+export * from "./lib/table/table";

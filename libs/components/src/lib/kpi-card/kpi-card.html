@@ -1,0 +1,30 @@
+<article
+  class="p-5 rounded-2xl border"
+    [class]="
+        variant() === KpiCardVariant.DANGER
+      ? 'bg-red-50 border-red-300'
+      : variant() === KpiCardVariant.WARNING
+        ? 'bg-yellow-50 border-yellow-300'
+        : 'bg-white border-gray-300'
+  "
+>
+  <header class="flex items-start justify-between gap-8">
+    <div>
+        <h3 class="font-bold text-gray-500 text-md">{{ title() }}</h3>
+        <p class="text-2xl font-bold text-gray-900">{{ value() }}</p>
+    </div>
+    <span class="inline-flex justify-center items-center h-12 w-12 rounded-lg"
+      [class]="
+        variant() === KpiCardVariant.DANGER
+          ? 'text-red-500 bg-red-100'
+          : variant() === KpiCardVariant.WARNING
+            ? 'text-yellow-500 bg-yellow-100'
+            : 'text-gray-500 bg-gray-100'
+      "
+      aria-hidden="true"
+    >
+        <i [className]="prime_icon()" style="font-size: 1.3rem;"></i>
+    </span>
+  </header>
+
+</article>

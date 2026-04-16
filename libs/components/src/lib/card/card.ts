@@ -8,5 +8,5 @@ import { CardModule } from 'primeng/card';
 })
 export class Card {
     title = input<string>('title');
-    subtitle = input<string>('subtitle');
+    subtitle = input<string>('');
 }
