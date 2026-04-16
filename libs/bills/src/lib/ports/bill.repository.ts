@@ -6,4 +6,6 @@ export abstract class BillRepository {
    * @throws {BillPersistenceError} Quand la persistance échoue.
    */
   abstract save(bill: Bill, ownerUid: string): Promise<void>;
+
+  abstract findAllByOwner(ownerUid: string): Promise<Bill[]>;
 }

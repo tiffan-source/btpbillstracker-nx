@@ -16,7 +16,8 @@
                 <lib-sidebar-item
                     [text]="item.text"
                     [prime_icon_class]="item.prime_icon_class"
-                    [active]="true"
+                    [active]="routerService.url === item.route"
+                    [route]="item.route"
                 />
             }
         </nav>

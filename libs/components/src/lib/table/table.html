@@ -1,0 +1,9 @@
+<p-table [value]="value" class="border border-gray-200">
+    <ng-template pTemplate="header">
+        <ng-container *ngTemplateOutlet="headerTemplate"></ng-container>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-rowData>
+        <ng-container *ngTemplateOutlet="bodyTemplate; context: { $implicit: rowData }"></ng-container>
+    </ng-template>
+</p-table>

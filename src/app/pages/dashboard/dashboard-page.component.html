@@ -1,0 +1,76 @@
+<div class="min-h-screen bg-background p-6">
+  <div class="mx-auto flex w-full max-w-6xl flex-col gap-8">
+    <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div >
+        <lib-page-title title="Tableau de bord" />
+        <lib-page-subtitle title="Vue d'ensemble de vos factures et relances" />
+      </div>
+
+      <lib-button prime_icon_class="pi pi-plus" label="Ajouter une facture"/>
+    </header>
+
+    <section class="flex justify-between gap-4">
+      <lib-kpi-card title="Total en retard" value="0 €" prime_icon="pi pi-exclamation-circle" [variant]="KpiCardVariant.DANGER"/>
+      <lib-kpi-card title="Factures en retard" value="0 €" prime_icon="pi pi-exclamation-triangle" [variant]="KpiCardVariant.DANGER"/>
+      <lib-kpi-card title="À encaisser ce mois" value="0 €" prime_icon="pi pi-clock" [variant]="KpiCardVariant.WARNING"/>
+      <lib-kpi-card title="Factures en cours" value="0" prime_icon="pi pi-file" [variant]="KpiCardVariant.NEUTRAL"/>
+    </section>
+
+    <!-- <section class="flex flex-col gap-3">
+      <h2 class="flex items-center gap-2 text-lg font-semibold text-foreground">
+        <span class="text-warning" aria-hidden="true">⚠</span>
+        <span>Factures les plus urgentes</span>
+      </h2>
+
+      <div class="rounded-card border border-subtle bg-surface p-5">
+        <div class="flex flex-col gap-3">
+          @for (invoice of facade.urgentInvoices(); track invoice.id) {
+            <article class="grid grid-cols-1 gap-2 text-sm md:grid-cols-4">
+              <p class="font-semibold text-foreground">
+                <span>{{ invoice.client }}</span>
+                @if (invoice.showsIncompleteClientIndicator) {
+                  <span
+                    class="ml-2 inline-flex rounded-full border border-warning/30 bg-warning/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-warning"
+                    title="Profil client incomplet"
+                  >
+                    Client incomplet
+                  </span>
+                }
+              </p>
+              <p class="text-foreground-muted">{{ invoice.chantier }}</p>
+              <p class="font-semibold text-foreground">{{ invoice.amountTTC }} €</p>
+              <p class="text-danger">{{ invoice.overdueDays }}j de retard</p>
+            </article>
+          }
+        </div>
+      </div>
+    </section> -->
+
+
+    <lib-table [value]="dashboardOrchestrator.billsLineTableData()" >
+        <ng-template #header>
+            <tr class="">
+                <th>Client</th>
+                <th>Chantier</th>
+                <th>Montant</th>
+                <th>Echeance</th>
+                <th>Statut</th>
+                <th>Prochaine Relance</th>
+                <th>Actions</th>
+            </tr>
+        </ng-template>
+
+        <ng-template #body let-bills>
+            <tr>
+                <td>{{ bills.clientName }}</td>
+                <td>{{ bills.chantierName }}</td>
+                <td>{{ bills.amount }} €</td>
+                <td>{{ bills.dueDate }}</td>
+                <td>{{ bills.status }}</td>
+                <td>_</td>
+                <td></td>
+            </tr>
+        </ng-template>
+  </lib-table>
+  </div>
+</div>

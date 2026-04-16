@@ -8,7 +8,7 @@ import { InvalidBillTypeError } from "../errors/invalid-bill-type.error";
 import { InvalidPaymentModeError } from "../errors/invalid-payment-mode.error";
 import { BillPersistenceError } from "../errors/bill-persistence.error";
 import { ReminderScenarioRequiredError } from "../errors/reminder-scenario-required.error";
-import { AuthProvider } from "@btpbilltracker/auth";
+import { AuthProvider, NoUserAuthenticatedError } from "@btpbilltracker/auth";
 
 export type CreateEnrichedBillInput = {
   clientId: string;
@@ -46,8 +46,11 @@ export class CreateEnrichedBillUseCase {
         if (input.reminderScenarioId) 
           bill.configureReminder(input.reminderScenarioId);
 
-      const ownerUid = await this.currentUser.getCurrentUser();
-      await this.repository.save(bill, ownerUid?.uid || 'unknown');
+      const owner = await this.currentUser.getCurrentUser();
+      if (!owner) {
+        throw new NoUserAuthenticatedError();
+      }
+      await this.repository.save(bill, owner.uid );
       return success(bill);
     } catch (error: unknown) {
       if (
