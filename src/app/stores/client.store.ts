@@ -1,4 +1,3 @@
-import { Client } from "@btpbilltracker/clients";
 import { patchState, signalStore, withMethods, withState } from "@ngrx/signals"
 
 type ClientViewModel = {

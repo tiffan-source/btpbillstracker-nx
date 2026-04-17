@@ -2,7 +2,7 @@ import { Provider } from "@angular/core";
 import { ChantierRepository, CreateChantierUseCase, GetAllUserChantiersUseCase } from "@btpbilltracker/chantiers"
 import {  IdGeneratorPort } from "@btpbilltracker/chore";
 import { FirestoreChantierRepository, UuidIdGeneratorService, FirebaseAppService } from "@btpbilltracker/infrastructure";
-import { AuthProvider } from "libs/auth/src/lib/ports/auth.provider";
+import { AuthProvider } from "@btpbilltracker/auth";
 
 export const CHANTIER_PROVIDERS: Provider[] = [
     {provide: CreateChantierUseCase, useFactory: (repo: ChantierRepository, idGen: IdGeneratorPort, currentUser: AuthProvider) => new CreateChantierUseCase(repo, idGen, currentUser), deps: [ChantierRepository, IdGeneratorPort, AuthProvider]},

@@ -21,7 +21,8 @@
       "@btpbilltracker/chantiers": ["libs/chantiers/src/index.ts"],
       "@btpbilltracker/components": ["libs/components/src/index.ts"],
       "@btpbilltracker/infrastructure": ["libs/infrastructure/src/index.ts"],
-      "@btpbilltracker/auth": ["libs/auth/src/index.ts"]
+      "@btpbilltracker/auth": ["libs/auth/src/index.ts"],
+      "@btpbilltracker/reminders": ["libs/reminders/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -61,8 +61,6 @@ export class FirestoreBillRepository extends FirestoreBaseRepository implements 
             plainBill.clientId,
             plainBill.chantierId
         );
-
-        console.log(plainBill.amountTTC);
         
         bill.setAmountTTC(parseInt(plainBill.amountTTC?.toString() || "0"));
 

@@ -14,6 +14,7 @@ import { BILL_PROVIDERS } from './providers/bills.provider';
 import { MessageService } from 'primeng/api';
 import { FIREBASE_CONFIG } from '../env/env';
 import { AUTH_PROVIDERS } from './providers/auth.provider';
+import { REMINDER_PROVIDERS } from './providers/reminder.provider';
 
 export function provideAppConfig(config: AppFirebaseConfig = FIREBASE_CONFIG): ApplicationConfig {
   return {
@@ -30,6 +31,7 @@ export function provideAppConfig(config: AppFirebaseConfig = FIREBASE_CONFIG): A
       ...CHANTIER_PROVIDERS,
       ...BILL_PROVIDERS,
       ...AUTH_PROVIDERS,
+      ...REMINDER_PROVIDERS,
       MessageService,
     ],
   };

@@ -24,7 +24,6 @@ export class AuthService {
         try {
             let result = await this.loginWithEmailAndPasswordUseCase.execute(email, password);
             this.isProcessing.set(false);
-            console.log(result);
 
             if(result.success)
                 this.router.navigate(['/']);

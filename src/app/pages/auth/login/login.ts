@@ -19,9 +19,7 @@ export class Login {
     constructor() {
         effect(() => {
             let error = this.authService.processError()
-            if(error !==  null) {
-                console.log(error);
-                
+            if(error !==  null) {                
                 this.toastService.showToast('error', error);
             }
         });

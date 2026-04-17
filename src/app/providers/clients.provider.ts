@@ -3,7 +3,7 @@ import { IdGeneratorPort } from "@btpbilltracker/chore";
 import { CreateQuickClientUseCase, ClientRepository, GetAllUserClientsUseCase } from "@btpbilltracker/clients";
 import { UuidIdGeneratorService, FirebaseAppService } from "@btpbilltracker/infrastructure"
 import { FirestoreClientRepository } from "@btpbilltracker/infrastructure";
-import { AuthProvider } from "libs/auth/src/lib/ports/auth.provider";
+import { AuthProvider } from "@btpbilltracker/auth";
 
 export const CLIENT_PROVIDERS: Provider[] = [
     {provide: IdGeneratorPort, useClass: UuidIdGeneratorService},
