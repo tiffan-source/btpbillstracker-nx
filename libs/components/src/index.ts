@@ -12,3 +12,4 @@ export * from "./lib/toast/toast"
 export * from "./lib/text-error/text-error"
 export * from "./lib/kpi-card/kpi-card"
 export * from "./lib/table/table";
+export * from "./lib/progress-bar/progress-bar";

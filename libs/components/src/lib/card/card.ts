@@ -7,6 +7,6 @@ import { CardModule } from 'primeng/card';
   templateUrl: './card.html',
 })
 export class Card {
-    title = input<string>('title');
+    title = input<string>('');
     subtitle = input<string>('');
 }

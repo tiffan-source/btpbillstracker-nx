@@ -18,7 +18,7 @@ export class ProtectedShellComponent {
   navItem = [
     {
       text: "Dashboard",
-      prime_icon_class: "pi pi-receipt",
+      prime_icon_class: "pi pi-objects-column",
       route: "/dashboard"
     },
     {
@@ -28,8 +28,13 @@ export class ProtectedShellComponent {
     },
     {
       text: "Modeles de messages",
-      prime_icon_class: "pi pi-receipt",
+      prime_icon_class: "pi pi-envelope",
       route: "/reminders-templates"
+    },
+    {
+      text: "Clients & Chantiers",
+      prime_icon_class: "pi pi-users",
+      route: "/clients-chantiers"
     }
   ]
 

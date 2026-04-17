@@ -34,6 +34,13 @@ export const appRoutes: Route[] = [
           import('./pages/reminders-templates/reminders-templates').then(
             (m) => m.RemindersTemplates
           )
+      },
+      {
+        path: 'clients-chantiers',
+        loadComponent: () =>
+          import('./pages/clients-chantiers/clients-chantiers').then(
+            (m) => m.ClientsChantiers
+          )
       }
     ],
     canActivate: [authGuard]

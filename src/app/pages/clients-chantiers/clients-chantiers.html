@@ -1,0 +1,64 @@
+<div class="min-h-screen bg-background p-6">
+    <div class="mx-auto flex w-full max-w-6xl flex-col gap-8">
+        <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div >
+                <lib-page-title title="Clients & Chantiers" />
+                <lib-page-subtitle title="Vue par client et par chantier" />
+            </div>
+        </header>
+        <div>
+            <h3 class="text-lg font-semibold"> <span class="pi pi-user"></span> Clients</h3>
+            <div class="mt-4 flex flex-col gap-4">
+                @for (client of clientsOrchestrator.clientsInformation(); track client.id) {
+                    <lib-card>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div>
+                                    <span class="font-bold">{{ client.name }}</span>
+                                </div>
+                                <div class="flex gap-2 text-md text-gray-600">
+                                    <span>{{ client.factureNumber }} factures</span>
+                                    <span>-</span>
+                                    @if (client.factureNumberUnpaid > 0) {
+                                        <span class="text-red-500">{{ client.factureNumberUnpaid }} non payées</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="flex flex-col items-end">
+                                    <span class="text-sm text-gray-600">Total du</span>
+                                    <span class="font-bold text-red-500">{{ client.amountUnpaid }} $</span>
+                                </div>
+                                <div class="flex flex-col items-end">
+                                    <span class="text-sm text-gray-600">Paye</span>
+                                    <span class="font-bold text-green-500">{{ client.amountPaid }} $</span>
+                                </div>
+                            </div>
+                        </div>
+                    </lib-card>
+                }
+            </div>
+        </div>
+
+        <div>
+            <h3 class="text-lg font-semibold"> <span class="pi pi-building"></span> Chantiers</h3>
+            <div class="mt-4 grid gap-4 grid-cols-2 ">
+                @for (chantier of chantiersOrchestrator.chantiersInformation(); track chantier.id) {
+                    <lib-card [title]="chantier.name">
+                        <lib-progress-bar [value]="chantier.totalAmountPaid / (chantier.totalAmountNotPaid + chantier.totalAmountPaid)" />
+                        <div class="mt-2 flex items-center justify-between">
+                            <span class="flex items-center gap-2 text-sm text-green-500">
+                                <span class="pi pi-wallet"></span>
+                                {{ chantier.totalAmountPaid }} $
+                            </span>
+                            <span class="flex items-center gap-2 text-sm text-red-500">
+                                <span class="pi pi-wallet"></span>
+                                {{ chantier.totalAmountNotPaid }} $ en attente
+                            </span>
+                        </div>
+                    </lib-card>
+                }
+            </div>
+        </div>
+    </div>
+</div>
