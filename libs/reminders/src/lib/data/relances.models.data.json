@@ -1,0 +1,83 @@
+[
+  {
+    "id": "1",
+    "name": "STANDARD",
+    "step": [
+      {
+        "id": "1",
+        "name": "1ère relance",
+        "delay": -3,
+        "emailTemplate": "Bonjour {{customer_name}},\n\nSauf erreur de notre part, la facture {{invoice_number}} d'un montant de {{amount}} € arrive à échéance le {{due_date}}.\n\nSi le règlement a déjà été effectué, merci de ne pas tenir compte de ce message. Sinon, vous pouvez procéder au paiement dès que possible.\n\nJe reste à votre disposition si besoin.\n\nCordialement,\n{{company_name}}",
+        "smsTemplate": "Bonjour {{customer_name}}, petit rappel concernant la facture {{invoice_number}} de {{amount}} €, échue le {{due_date}}. Merci si le paiement est déjà en cours. {{company_name}}"
+      },
+      {
+        "id": "2",
+        "name": "2ème relance",
+        "delay": 3,
+        "emailTemplate": "Bonjour {{customer_name}},\n\nJe me permets de revenir vers vous concernant la facture {{invoice_number}} d’un montant de {{amount}} €, échue le {{due_date}} et toujours en attente de règlement.\n\nPouvez-vous me confirmer la date de paiement prévue ?\n\nMerci d’avance pour votre retour.\n\nCordialement,\n{{company_name}}",
+        "smsTemplate": "Bonjour {{customer_name}}, la facture {{invoice_number}} de {{amount}} € est toujours en attente depuis le {{due_date}}. Pouvez-vous me confirmer la date de règlement ? {{company_name}}"
+      },
+      {
+        "id": "3",
+        "name": "3ème relance",
+        "delay": 10,
+        "emailTemplate": "Bonjour {{customer_name}},\n\nSauf retour de votre part, la facture {{invoice_number}} d’un montant de {{amount}} € reste impayée depuis le {{due_date}}.\n\nMerci de régulariser la situation ou de me contacter rapidement afin que nous trouvions une solution.\n\nSans réponse de votre part, nous serons contraints d’envisager la suite du processus de recouvrement.\n\nCordialement,\n{{company_name}}",
+        "smsTemplate": "Bonjour {{customer_name}}, dernier rappel : la facture {{invoice_number}} de {{amount}} € reste impayée depuis le {{due_date}}. Merci de régulariser rapidement ou de me contacter. {{company_name}}"
+      }
+    ]
+  },
+  {
+    "id": "2",
+    "name": "DOUX",
+    "step": [
+      {
+        "id": "1",
+        "name": "1ère relance",
+        "delay": 7,
+        "emailTemplate": "Bonjour {{customer_name}},\n\nJ’espère que vous allez bien.\n\nJe me permets un petit rappel concernant la facture {{invoice_number}} d’un montant de {{amount}} €, arrivée à échéance le {{due_date}}.\n\nSi le règlement est déjà parti, vous pouvez ignorer ce message.\n\nMerci beaucoup et bonne journée.\n\nCordialement,\n{{company_name}}",
+        "smsTemplate": "Bonjour {{customer_name}}, petit rappel amical pour la facture {{invoice_number}} de {{amount}} € échue le {{due_date}}. Merci si le paiement est déjà lancé. {{company_name}}"
+      },
+      {
+        "id": "2",
+        "name": "2ème relance",
+        "delay": 14,
+        "emailTemplate": "Bonjour {{customer_name}},\n\nJe reviens vers vous au sujet de la facture {{invoice_number}} de {{amount}} €, encore en attente depuis le {{due_date}}.\n\nPouvez-vous me dire si le règlement est bien en cours de votre côté ?\n\nMerci pour votre retour.\n\nCordialement,\n{{company_name}}",
+        "smsTemplate": "Bonjour {{customer_name}}, je me permets de relancer la facture {{invoice_number}} de {{amount}} €, toujours en attente depuis le {{due_date}}. Merci pour votre retour. {{company_name}}"
+      },
+      {
+        "id": "3",
+        "name": "3ème relance",
+        "delay": 21,
+        "emailTemplate": "Bonjour {{customer_name}},\n\nSauf erreur de ma part, la facture {{invoice_number}} d’un montant de {{amount}} € n’a pas encore été réglée.\n\nJe me permets de vous recontacter avant d’aller plus loin dans le processus de relance.\n\nSi besoin, je reste disponible pour en discuter.\n\nBien cordialement,\n{{company_name}}",
+        "smsTemplate": "Bonjour {{customer_name}}, dernier rappel amical concernant la facture {{invoice_number}} de {{amount}} € en attente depuis le {{due_date}}. Merci de votre retour. {{company_name}}"
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "name": "RAPIDE",
+    "step": [
+      {
+        "id": "1",
+        "name": "1ère relance",
+        "delay": 7,
+        "emailTemplate": "Bonjour {{customer_name}},\n\nLa facture {{invoice_number}} d’un montant de {{amount}} € est échue depuis le {{due_date}}.\n\nMerci de procéder au règlement dès que possible ou de nous indiquer la date prévue de paiement.\n\nCordialement,\n{{company_name}}",
+        "smsTemplate": "Bonjour {{customer_name}}, la facture {{invoice_number}} de {{amount}} € est échue depuis le {{due_date}}. Merci de régulariser rapidement. {{company_name}}"
+      },
+      {
+        "id": "2",
+        "name": "2ème relance",
+        "delay": 14,
+        "emailTemplate": "Bonjour {{customer_name}},\n\nSauf erreur, la facture {{invoice_number}} d’un montant de {{amount}} € reste impayée depuis le {{due_date}}.\n\nMerci de nous confirmer le statut du règlement dans les plus brefs délais.\n\nCordialement,\n{{company_name}}",
+        "smsTemplate": "Bonjour {{customer_name}}, 2e relance : la facture {{invoice_number}} de {{amount}} € reste impayée depuis le {{due_date}}. Merci de confirmer le règlement. {{company_name}}"
+      },
+      {
+        "id": "3",
+        "name": "3ème relance",
+        "delay": 21,
+        "emailTemplate": "Bonjour {{customer_name}},\n\nSans règlement de la facture {{invoice_number}} d’un montant de {{amount}} € sous 48h, nous serons contraints de passer à l’étape suivante.\n\nMerci de régulariser ou de nous contacter immédiatement.\n\nCordialement,\n{{company_name}}",
+        "smsTemplate": "Bonjour {{customer_name}}, dernier avis : la facture {{invoice_number}} de {{amount}} € est toujours impayée. Merci de régulariser sous 48h ou de nous contacter. {{company_name}}"
+      }
+    ]
+  }
+]
