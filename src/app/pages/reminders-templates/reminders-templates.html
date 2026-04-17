@@ -1,0 +1,27 @@
+<div class="min-h-screen bg-background p-6">
+  <div class="mx-auto flex w-full max-w-6xl flex-col gap-8">
+    <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div >
+        <lib-page-title title="Modèles de messages" />
+        <lib-page-subtitle title="Personnalisez les messages envoyés à vos clients" />
+      </div>
+    </header>
+
+    <div class="flex gap-4">
+        @for (reminder of reminderTemplateService.reminderMessage(); track reminder.id) {
+            <lib-button (click)="swicthReminderTemplate(reminder.id)" label="{{ reminder.title }}" [variant]="reminder.id === idReminderViewActive() ? 'primary' : 'secondary'"></lib-button>
+        }
+    </div>
+
+    @if (activeTemplate(); as template) {
+        @for (message of template.messagesToSend; track $index) {
+            <lib-card [title]="message.messageTitle">
+                <div class="bg-gray-100 rounded leading-relaxed">
+                    <p class="p-4">{{ message.emailMessage }}</p>
+                </div>
+            </lib-card>
+        }
+    } @else {
+        <p>Chargement du modèle...</p>
+    }
+</div>

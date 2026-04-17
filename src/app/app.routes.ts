@@ -28,6 +28,13 @@ export const appRoutes: Route[] = [
             (m) => m.DashboardPageComponent
           )
       },
+      {
+        path: 'reminders-templates',
+        loadComponent: () =>
+          import('./pages/reminders-templates/reminders-templates').then(
+            (m) => m.RemindersTemplates
+          )
+      }
     ],
     canActivate: [authGuard]
   },

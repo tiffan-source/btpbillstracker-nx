@@ -25,6 +25,11 @@ export class ProtectedShellComponent {
       text: "Ajouter une facture",
       prime_icon_class: "pi pi-receipt",
       route: "/create-bill"
+    },
+    {
+      text: "Modeles de messages",
+      prime_icon_class: "pi pi-receipt",
+      route: "/reminders-templates"
     }
   ]
 
