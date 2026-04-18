@@ -6,7 +6,7 @@
         <lib-page-subtitle title="Vue d'ensemble de vos factures et relances" />
       </div>
 
-      <lib-button prime_icon_class="pi pi-plus" label="Ajouter une facture"/>
+      <lib-button (click)="goToCreateBill()" prime_icon_class="pi pi-plus" label="Ajouter une facture"/>
     </header>
 
     <section class="flex justify-between gap-4">
@@ -16,13 +16,29 @@
       <lib-kpi-card title="Factures en cours" value="{{ dashboardOrchestrator.numberBillPending() }}" prime_icon="pi pi-file" [variant]="KpiCardVariant.NEUTRAL"/>
     </section>
 
-    <!-- <section class="flex flex-col gap-3">
-      <h2 class="flex items-center gap-2 text-lg font-semibold text-foreground">
-        <span class="text-warning" aria-hidden="true">⚠</span>
-        <span>Factures les plus urgentes</span>
-      </h2>
+    <section class="flex flex-col gap-3">
 
-      <div class="rounded-card border border-subtle bg-surface p-5">
+      <lib-panel>
+        <h2 panel-header class="flex items-center gap-2 text-lg font-semibold text-foreground">
+            <span class="pi pi-exclamation-triangle" style="color: red;"></span>
+            <span>Factures les plus urgentes</span>
+        </h2>
+
+        @for (bills of dashboardOrchestrator.mostLateBills(); track bills.id) {
+            <div class="flex items-center justify-between py-3 border-t panel-content">
+                <div class="flex flex-col">
+                    <span class="font-semibold">{{ bills.clientName }}</span>
+                    <span class="text-sm text-foreground-muted">{{ bills.chantierName }}</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-semibold">{{ bills.amount }} €</span>
+                    <span class="text-sm text-red-500">{{ bills.numberOfDaysLate }}j de retard</span>
+                </div>
+            </div>
+        }
+      </lib-panel>
+
+      <!-- <div class="rounded-card border border-subtle bg-surface p-5">
         <div class="flex flex-col gap-3">
           @for (invoice of facade.urgentInvoices(); track invoice.id) {
             <article class="grid grid-cols-1 gap-2 text-sm md:grid-cols-4">
@@ -43,8 +59,8 @@
             </article>
           }
         </div>
-      </div>
-    </section> -->
+      </div> -->
+    </section>
 
 
     <lib-table [value]="dashboardOrchestrator.billsLineTableData()" >
