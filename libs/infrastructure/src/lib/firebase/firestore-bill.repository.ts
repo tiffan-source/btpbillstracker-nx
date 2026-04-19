@@ -1,6 +1,6 @@
 import { FirebaseAppService } from "./firebase-app";
 import { Bill, BillRepository } from "@btpbilltracker/bills";
-import { addDoc, doc, DocumentData, DocumentReference, getDocs, query, where } from "firebase/firestore";
+import { addDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { FirestoreBaseRepository } from "./firestore-base.repository";
 
 export type FirestorePlainBill = {
@@ -22,6 +22,31 @@ export class FirestoreBillRepository extends FirestoreBaseRepository implements 
     public constructor(firebaseAppService: FirebaseAppService) {
         super(firebaseAppService);
         this.collectionName = 'bills';
+    }
+    
+    async edit(bill: Bill, ownerUid: string): Promise<void> {
+        const q = query(
+          this.getCollection(),
+          where('id', '==', bill.id),
+          where('ownerUid', '==', ownerUid)
+        );
+
+        const querySnapshot = await getDocs(q);
+
+        const documentToUpdate = querySnapshot.docs[0];
+        await updateDoc(documentToUpdate.ref, this.toPlainBill(bill, ownerUid));
+    }
+
+    async findById(billId: string): Promise<Bill | null> {
+        const q = query(this.getCollection(), where('id', '==', billId));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            return null;
+        }
+
+        const plainBill = querySnapshot.docs[0].data() as FirestorePlainBill;
+        return this.toBillEntity(plainBill);
     }
 
     async save(bill: Bill, ownerUid: string): Promise<void> {
