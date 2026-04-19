@@ -1,12 +1,6 @@
-<div class="max-w-4xl flex flex-col gap-6 mx-auto my-8">
-    <lib-toast/>
+<lib-modal [visible]="billId() !== null" width="40rem" header="Modifier mes informations" (closed)="closeModal()">
 
     <div>
-        <lib-page-title title="Créer une facture"></lib-page-title>
-        <lib-page-subtitle title="Renseignez les informations de la facture à suivre"></lib-page-subtitle>
-    </div>
-
-    <lib-card title="Informations de la facture" subtitle="Remplissez les détails de la facture à créer">
         <form [formGroup]="billForm">
             <!-- Client Selection  -->
             <div class="flex flex-col mb-4">
@@ -107,29 +101,11 @@
                 <lib-input-file id="pdf-facture" label=""></lib-input-file>
             </div>
         </form>
-    </lib-card>
-    <lib-card title="Scénario de relance" subtitle="Définissez les étapes de relance pour cette facture">
-        <form [formGroup]="billForm">
-            <!-- Scenario Selection  -->
-            <div class="flex flex-col mb-4">
-                <lib-label for="scenarion" label="Scenario"></lib-label>
-                <lib-input-select placeholder="Selectionner un scenario de relance" [formControlName]="BillFormField.ReminderScenarioId" optionLabel="scenaionId" ></lib-input-select>
-                @if (fieldHasError(BillFormField.ReminderScenarioId)) {
-                    <lib-text-error>{{ fieldErrorMessage(BillFormField.ReminderScenarioId) }}</lib-text-error>
-                }
-            </div>
+    </div>
 
-            <div class="flex justify-between items-center p-3 rounded bg-primary/15">
-                <div class="flex flex-col">
-                    <lib-label for="automated-reminders" label="Relances automatiques"></lib-label>
-                    <span>Désactivez si vous gérez à la main</span>
-                </div>
-                <div>
-                    <lib-toogle/>
-                </div>
-            </div>
-        </form>
-    </lib-card>
+      <ng-template #footer>
+            <lib-button variant="secondary" (click)="closeModal()" label="Annuler" styleClass="p-button-text"></lib-button>
+            <lib-button (click)="editBill()" label="Enregistrer"></lib-button>
+      </ng-template>
 
-    <lib-button [disable]="billsOrchestrator.isProcessing()" (click)="createBill()" label="Créer la facture" class="self-end" prime_icon_class="pi pi-plus"></lib-button>
-</div>
+</lib-modal>

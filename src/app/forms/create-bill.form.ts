@@ -1,19 +1,8 @@
 import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { BillFormField, PaymentMode, TypeBill } from "./bill.form.type";
 
-export enum BillFormField {
-    ClientId = 'clientId',
-    NewClientName = 'newClientName',
-    ChantierId = 'chantierId',
-    NewChantierName = 'chantierName',
-    AmountTTC = 'amountTTC',
-    DueDate = 'dueDate',
-    InvoiceNumber = 'invoiceNumber',
-    Type = 'type',
-    PaymentMode = 'paymentMode',
-    ReminderScenarioId = 'reminderScenarioId'
-}
 
-export type BillForm = {
+type BillForm = {
     [BillFormField.ClientId] : FormControl<string | null>,
     [BillFormField.NewClientName] : FormControl<string | null>,
     [BillFormField.ChantierId] : FormControl<string | null>,
@@ -25,10 +14,6 @@ export type BillForm = {
     [BillFormField.PaymentMode] : FormControl<PaymentMode>,
     [BillFormField.ReminderScenarioId] : FormControl<string | null>
 }
-
-
-export type TypeBill = 'Situation' | 'Solde' | 'Acompte';
-export type PaymentMode = 'Virement' | 'Chèque' | 'Espèces' | 'Carte bancaire';
 
 const CREATE_BILL_TOGGLE_VALIDATION_RULES = {
     client: {

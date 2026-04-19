@@ -7,9 +7,19 @@ export class ClientsOrchestrator {
     private readonly clientsStore = inject(ClientStore);
     private readonly billsStore = inject(BillStore);
 
+    clientOptions = computed(() => {
+        const clients = this.clientsStore.clients();        
+        
+        return clients.map(client => {           
+            return {
+                label: `${client.firstName} ${client.lastName ?? ""}`.trim(),
+                value: client.id
+            }
+        });
+    });
+
     clientsInformation = computed(() => {
         return this.clientsStore.clients().map(client => {
-            console.log('client', client);
             let factureNumber: number = 0;
             let factureNumberUnpaid: number = 0;
             let amountPaid: number = 0;

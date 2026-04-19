@@ -1,8 +1,11 @@
 import { Component, effect, inject } from '@angular/core';
 import { Button, Card, DatePicker, Input, InputFile, InputSelect, Label, Toogle, PageTitle, PageSubTitle, Toast, ToastService, TextError } from "@btpbilltracker/components"
 import { ReactiveFormsModule } from '@angular/forms';
-import { CreateBillForm, BillFormField, TypeBill, PaymentMode } from '../../forms/create-bill.form';
+import { CreateBillForm} from '../../forms/create-bill.form';
 import { CreateBillsOrchestrator } from '../../services/create-bills/orchestrator/create-bills.orchestrator';
+import { BillFormField, PaymentMode, TypeBill } from 'src/app/forms/bill.form.type';
+import { ClientsOrchestrator } from 'src/app/services/clients/orchestrator/clients.orchestrator';
+import { ChantierOrchestrator } from 'src/app/services/chantiers/orchestrator/chantier.orchestrator';
 
 @Component({
   selector: 'app-create-bills',
@@ -24,7 +27,9 @@ export class CreateBills {
         { label: "Carte bancaire", value: "Carte bancaire" },
     ]
 
-    orchestrator = inject(CreateBillsOrchestrator);
+    billsOrchestrator = inject(CreateBillsOrchestrator);
+    clientOrchestrator = inject(ClientsOrchestrator);
+    chantierOrchestrator = inject(ChantierOrchestrator);
     toastService = inject(ToastService);
 
     hasSubmittedInvalidForm = false;
@@ -33,7 +38,7 @@ export class CreateBills {
 
     constructor() {
         effect(() => {
-            const error = this.orchestrator.processError();
+            const error = this.billsOrchestrator.processError();
             if (error) {
                 this.toastService.showToast('error', error);
             }
@@ -77,7 +82,7 @@ export class CreateBills {
         
         const { amountTTC, chantierId, chantierName, clientId, dueDate, invoiceNumber, type, paymentMode, reminderScenarioId, newClientName } = formValue;
 
-        const result = await this.orchestrator.createBillProcess({
+        const result = await this.billsOrchestrator.createBillProcess({
             amount: amountTTC,
             chantier: this.isCreatingNewChantier
                 ? { mode: 'new', chantierName: chantierName ?? '' }

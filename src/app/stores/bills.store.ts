@@ -7,6 +7,10 @@ type BillViewModel = {
     status: 'paid' | 'unpaid';
     clientId: string;
     chantierId: string;
+    invoiceNumber: string;
+    type: string;
+    paymentMode: string;
+    reminderScenarioId: string | null;
 }
 
 type BillState = {
@@ -31,6 +35,12 @@ export const BillStore = signalStore(
         },
         addBill(bill: BillViewModel) {
             patchState(store, (state) => ({...state, bills: [...state.bills, bill]}));
+        },
+        updateBill(bill: BillViewModel) {
+            patchState(store, (state) => ({
+                ...state,
+                bills: state.bills.map((currentBill) => currentBill.id === bill.id ? bill : currentBill)
+            }));
         }
     }))
 );

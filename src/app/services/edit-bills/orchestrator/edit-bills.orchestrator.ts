@@ -1,10 +1,10 @@
-import { computed, inject, Injectable, signal } from "@angular/core";
-import { CreateEnrichedBillInput, CreateEnrichedBillUseCase } from "@btpbilltracker/bills"
-import { CreateQuickClientUseCase } from "@btpbilltracker/clients"
-import { CreateChantierUseCase } from "@btpbilltracker/chantiers";
-import { ClientStore } from "../../../stores/client.store"
+import { inject, Injectable, signal } from "@angular/core";
+import { BILL_STATUS, EditBillInput, EditBillUseCase } from "@btpbilltracker/bills";
+import { ClientStore } from "src/app/stores/client.store";
 import { ChantierStore } from "src/app/stores/chantier.store";
 import { BillStore } from "src/app/stores/bills.store";
+import { CreateQuickClientUseCase } from "@btpbilltracker/clients";
+import { CreateChantierUseCase } from "@btpbilltracker/chantiers";
 
 export type CreateBillClientRequest =
   | { mode: "existing"; clientId: string }
@@ -14,7 +14,8 @@ export type CreateBillChantierRequest =
   | { mode: "existing"; chantierId: string }
   | { mode: "new"; chantierName: string };
 
-export interface CreateBillRequest {
+export interface EditBillRequest {
+    billId: string;
   type: string;
   client: CreateBillClientRequest;
   chantier: CreateBillChantierRequest;
@@ -25,9 +26,10 @@ export interface CreateBillRequest {
   reminderScenarioId: string | null;
 }
 
-type CreateBillWorkflowStep = "client" | "chantier" | "bill";
 
-export type CreateBillProcessResult =
+type EditBillWorkflowStep = "client" | "chantier" | "bill";
+
+export type EditBillProcessResult =
   | {
       success: true;
       data: {
@@ -38,27 +40,47 @@ export type CreateBillProcessResult =
     }
   | {
       success: false;
-      step: CreateBillWorkflowStep;
+      step: EditBillWorkflowStep;
       error: {
         code: string;
         message: string;
       };
     };
 
-@Injectable({ providedIn: 'root' })
-export class CreateBillsOrchestrator {
-    private createBillsUsecase = inject(CreateEnrichedBillUseCase)
-    private createClientUsecase = inject(CreateQuickClientUseCase)
-    private createChantierUsecase = inject(CreateChantierUseCase)
+@Injectable({
+    providedIn: 'root'
+})
+export class EditBillsOrchestrator {
+    private readonly createClientUsecase = inject(CreateQuickClientUseCase);
+    private readonly createChantierUsecase = inject(CreateChantierUseCase);
+    private readonly editBillUsecase = inject(EditBillUseCase);
 
-    private clientStore = inject(ClientStore);
-    private chantierStore = inject(ChantierStore);
-    private billStore = inject(BillStore);
+    private readonly clientStore = inject(ClientStore);
+    private readonly chantierStore = inject(ChantierStore);
+    private readonly billStore = inject(BillStore);
 
     processError = signal<string | null>(null);
     isProcessing = signal(false);
     
-    createBillProcess = async (bill: CreateBillRequest): Promise<CreateBillProcessResult> => {
+    getBillInformationToEdit = (billId: string) => {
+        let bill = this.billStore.bills().find(bill => bill.id === billId);
+
+        let client = bill?.clientId || '';
+        let chantier = bill?.chantierId || '';
+
+        return {
+            clientId: client,
+            chantierId: chantier,
+            amount: bill?.amount || 0,
+            dueDate: bill ? new Date(bill.dueDate) : null,
+            invoiceNumber: bill?.invoiceNumber || '',
+            type: bill?.type || '',
+            paymentMode: bill?.paymentMode || '',
+            reminderScenarioId: bill?.reminderScenarioId || null
+        }
+    }
+
+    editBillProcess = async (bill: EditBillRequest): Promise<EditBillProcessResult> => {
         this.processError.set(null);
         this.isProcessing.set(true);
 
@@ -75,7 +97,8 @@ export class CreateBillsOrchestrator {
                 return resolvedChantier;
             }
 
-            const enrichedBill: CreateEnrichedBillInput = {
+            const enrichedBill: EditBillInput = {
+                billId: bill.billId,
                 type: bill.type,
                 clientId: resolvedClient.data.clientId,
                 chantierId: resolvedChantier.data.chantierId,
@@ -86,9 +109,9 @@ export class CreateBillsOrchestrator {
                 reminderScenarioId: bill.reminderScenarioId || undefined
             };
 
-            const result = await this.createBillsUsecase.execute(enrichedBill);
+            const result = await this.editBillUsecase.execute(enrichedBill);
             if (!result.success) {
-                const failureResult: CreateBillProcessResult = {
+                const failureResult: EditBillProcessResult = {
                     success: false,
                     step: "bill",
                     error: {
@@ -98,18 +121,18 @@ export class CreateBillsOrchestrator {
                 };
                 this.processError.set(failureResult.error.message);
                 return failureResult;
-            }else {
-                this.billStore.addBill({
+            } else {
+                this.billStore.updateBill({
                     id: result.data.id,
-                    clientId: enrichedBill.clientId,
-                    chantierId: enrichedBill.chantierId,
-                    amount: enrichedBill.amountTTC,
-                    dueDate: enrichedBill.dueDate,
-                    status: 'unpaid',
-                    invoiceNumber: enrichedBill.externalInvoiceReference,
-                    type: enrichedBill.type,
-                    paymentMode: enrichedBill.paymentMode,
-                    reminderScenarioId: enrichedBill.reminderScenarioId || null
+                    clientId: resolvedClient.data.clientId,
+                    chantierId: resolvedChantier.data.chantierId,
+                    amount: bill.amount,
+                    dueDate: bill.dueDate,
+                    status: result.data.status === BILL_STATUS.PAID ? 'paid' : 'unpaid',
+                    invoiceNumber: bill.invoiceNumber,
+                    type: bill.type,
+                    paymentMode: bill.paymentMode,
+                    reminderScenarioId: bill.reminderScenarioId || null
                 });
             }
 
@@ -126,7 +149,8 @@ export class CreateBillsOrchestrator {
         }
     }
 
-    private async resolveClientId(client: CreateBillClientRequest): Promise<CreateBillProcessResult | { success: true; data: { clientId: string } }> {
+
+    private async resolveClientId(client: CreateBillClientRequest): Promise<EditBillProcessResult | { success: true; data: { clientId: string } }> {
         if (client.mode === "existing") {
             return { success: true, data: { clientId: client.clientId } };
         }
@@ -147,7 +171,7 @@ export class CreateBillsOrchestrator {
         return { success: true, data: { clientId: createdClient.data.id } };
     }
 
-    private async resolveChantierId(chantier: CreateBillChantierRequest): Promise<CreateBillProcessResult | { success: true; data: { chantierId: string } }> {
+    private async resolveChantierId(chantier: CreateBillChantierRequest): Promise<EditBillProcessResult | { success: true; data: { chantierId: string } }> {
         if (chantier.mode === "existing") {
             return { success: true, data: { chantierId: chantier.chantierId } };
         }

@@ -40,7 +40,20 @@ export class AppBootstrapOrchestrator {
         // This is trash.... Mapper should be setup as soon as possible to avoid this kind of code
         this.clientsStore.setClients(clients.success ? clients.data.map((c) => ({ id: c.id, firstName: c.firstName || '', lastName: c.lastName || '' })) : []);
         this.chantiersStore.setChantiers(chantiers.success ? chantiers.data.map((c) => ({ id: c.id, name: c.name })) : []);
-        this.billsStore.setBills(bills.success ? bills.data.map((b) => ({ id: b.id, amount: b.amountTTC || 0, dueDate: b.dueDate || '', status: b.status === BILL_STATUS.PAID ? 'paid' : 'unpaid', clientId: b.clientId || '', chantierId: b.chantierId || '' })) : []);
+        this.billsStore.setBills(bills.success ? bills.data.map((b) => (
+            { 
+                id: b.id,
+                amount: b.amountTTC || 0,
+                dueDate: b.dueDate || '',
+                status: b.status === BILL_STATUS.PAID ? 'paid' : 'unpaid',
+                clientId: b.clientId || '',
+                chantierId: b.chantierId || '',
+                invoiceNumber: b.externalInvoiceReference || '',
+                type: b.type || '',
+                paymentMode: b.paymentMode || '',
+                reminderScenarioId: b.reminderScenarioId || null
+             }
+            )) : []);
         this.remindersStore.setReminders(reminders.success ? reminders.data.map((r) => ({
             id: r.id,
             title: r.title,
@@ -52,7 +65,6 @@ export class AppBootstrapOrchestrator {
             }))
         })) : []);
 
-        console.log(this.remindersStore.reminder());
     });
   }
 

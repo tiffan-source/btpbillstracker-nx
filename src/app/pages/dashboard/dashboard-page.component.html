@@ -84,9 +84,15 @@
                 <td>{{ bills.dueDate }}</td>
                 <td>{{ bills.status }}</td>
                 <td>_</td>
-                <td></td>
+                <td>
+                    <div class="flex gap-2 scale-90">
+                        <lib-button variant="secondary"  size="small" label="Modifier" (click)="openEditBillsModal(bills.id)"/>
+                        <lib-button size="small" label="Payer"/>
+                    </div>
+                </td>
             </tr>
         </ng-template>
-  </lib-table>
+    </lib-table>
   </div>
+          <app-edit-bills-modal [billId]="billIdToEdit()" (billIdChange)="billIdToEdit.set($event)"></app-edit-bills-modal>
 </div>

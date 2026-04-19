@@ -7,6 +7,15 @@ export class ChantierOrchestrator {
     private readonly chantierStore = inject(ChantierStore);
     private readonly billsStore = inject(BillStore);
 
+    chantierOptions = computed(() => {
+        const chantiers = this.chantierStore.chantiers();
+        
+        return chantiers.map(chantier => ({
+            label: chantier.name,
+            value: chantier.id
+        }));
+    });
+    
     chantiersInformation = computed(() => {
         return this.chantierStore.chantiers().map(chantier => {
             const totalAmountPaid = this.billsStore.bills().filter(bill => bill.chantierId === chantier.id && bill.status === 'paid').map(bill => bill.amount).reduce((a, b) => a + b, 0);
