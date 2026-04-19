@@ -23,7 +23,10 @@ export function provideAppConfig(config: AppFirebaseConfig = FIREBASE_CONFIG): A
       provideRouter(appRoutes),
       providePrimeNG({
         theme: {
-          preset: Aura,
+            preset: Aura,
+            options: {  
+                darkModeSelector: false || 'none'  
+            }  
         },
       }),
       ...provideFirebase(config),
