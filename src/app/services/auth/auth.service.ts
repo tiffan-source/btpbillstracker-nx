@@ -14,8 +14,11 @@ export class AuthService {
 
 
     async isSignedIn(): Promise<boolean> {
-        const user = await this.getCurrentUserUseCase.execute();
-        return !!user;
+        const result = await this.getCurrentUserUseCase.execute();
+        if (result.success && result.data) {
+            return true;
+        }
+        return false;
     }
 
     async loginWithEmailAndPassword(email: string, password: string): Promise<void> {
