@@ -14,3 +14,4 @@ export * from "./lib/kpi-card/kpi-card"
 export * from "./lib/table/table";
 export * from "./lib/progress-bar/progress-bar";
 export * from "./lib/panel/panel";
+export * from "./lib/modal/modal";

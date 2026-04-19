@@ -1,0 +1,22 @@
+<p-dialog 
+    [visible]="visible()" 
+    [modal]="true" 
+    [header]="header()"
+    [style]="{ width: width() }"
+    (onHide)="closed.emit()"
+> 
+    @if (headerTemplate) {
+    <ng-template pTemplate="header">
+        <ng-container *ngTemplateOutlet="headerTemplate"></ng-container>
+    </ng-template>
+    }
+
+    <ng-content></ng-content>
+
+    @if (footerTemplate) {
+    <ng-template pTemplate="footer">
+        <ng-container *ngTemplateOutlet="footerTemplate"></ng-container>
+    </ng-template>
+    }
+
+</p-dialog>

@@ -23,30 +23,28 @@ export class Input implements ControlValueAccessor {
     id = input<string>('');
     invalid = input<boolean>(false);
 
-    value = signal('');
-    private onChange: any = (value: string) => {};
-    private onTouched: any = () => {};
+    value = signal<string | number>('');
+    private onChange: (value: string | number) => void = () => {};
+    private onTouched: () => void = () => {};
 
-    increment() {
-        const newValue = this.value() + 'a';
-        this.value.set(newValue);
-        this.onChange(newValue);
-        this.onTouched();
+    writeValue(obj: string | number | null): void {
+      this.value.set(obj ?? '');
     }
 
-    writeValue(obj: any): void {
-        this.value.set(obj);
-    }
-
-    registerOnChange(fn: any): void {
+    registerOnChange(fn: (value: string | number) => void): void {
         this.onChange = fn;
     }
-    registerOnTouched(fn: any): void {
+
+    registerOnTouched(fn: () => void): void {
         this.onTouched = fn;
     }
 
     updateValue(event: Event) {
-        const newValue = (event.target as HTMLInputElement).value;
+      const inputElement = event.target as HTMLInputElement;
+      const newValue = this.type() === 'number'
+        ? Number(inputElement.value)
+        : inputElement.value;
+
         this.value.set(newValue);
         this.onChange(newValue);
         this.onTouched();
