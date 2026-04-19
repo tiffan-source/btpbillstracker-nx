@@ -1,4 +1,5 @@
 export * from "./lib/usecases/create-enriched-bill.usecase"
+export * from "./lib/usecases/edit-bill.usecase"
 export * from "./lib/usecases/get-all-user-connected-bill.usecase"
 export * from "./lib/ports/bill.repository"
 export * from "./lib/ports/reference-generator.service"

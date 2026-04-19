@@ -31,7 +31,7 @@ import { BillChantierRequiredError } from '../errors/bill-chantier-required.erro
 
 export class Bill {
   private readonly _id: string;
-  private readonly _clientId: string;
+  private _clientId: string;
   private _chantierId: string;
   private _status: BILL_STATUS = BILL_STATUS.DRAFT;
   private _amountTTC?: number;
@@ -107,6 +107,14 @@ export class Bill {
       throw new InvalidPaymentModeError();
     }
     this._paymentMode = paymentMode;
+    return this;
+  }
+
+  setClientId(clientId: string): this {
+    if (!clientId || clientId.trim().length === 0) {
+      throw new BillClientRequiredError();
+    }
+    this._clientId = clientId;
     return this;
   }
 
