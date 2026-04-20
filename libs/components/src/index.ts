@@ -15,3 +15,4 @@ export * from "./lib/table/table";
 export * from "./lib/progress-bar/progress-bar";
 export * from "./lib/panel/panel";
 export * from "./lib/modal/modal";
+export * from "./lib/tag/tags";
