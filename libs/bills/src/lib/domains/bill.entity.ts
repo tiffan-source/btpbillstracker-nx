@@ -66,8 +66,8 @@ export class Bill {
   get externalInvoiceReference(): string | undefined { return this._externalInvoiceReference; }
   get type(): BILL_TYPES | undefined { return this._type; }
   get paymentMode(): PAYMENT_MODES | undefined { return this._paymentMode; }
-  get chantierId(): string | undefined { return this._chantierId; }
-  get chantier(): string | undefined { return this._chantierId; }
+  get chantierId(): string { return this._chantierId; }
+  get chantier(): string { return this._chantierId; }
   get reminderScenarioId(): string | undefined { return this._reminderScenarioId; }
 
   setAmountTTC(amountTTC: number): this {
