@@ -1,8 +1,8 @@
-import { computed, inject, Injectable, signal } from "@angular/core";
+import { inject, Injectable, signal } from "@angular/core";
 import { CreateEnrichedBillInput, CreateEnrichedBillUseCase } from "@btpbilltracker/bills"
 import { CreateQuickClientUseCase } from "@btpbilltracker/clients"
 import { CreateChantierUseCase } from "@btpbilltracker/chantiers";
-import { ClientStore } from "../../../stores/client.store"
+import { ClientStore } from "../../../../stores/client.store"
 import { ChantierStore } from "src/app/stores/chantier.store";
 import { BillStore } from "src/app/stores/bills.store";
 

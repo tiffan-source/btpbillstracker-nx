@@ -5,7 +5,7 @@ import { BillFormField, PaymentMode, TypeBill } from "src/app/forms/bill.form.ty
 import { EditBillForm } from "src/app/forms/edit-bill.form";
 import { ChantierOrchestrator } from "src/app/services/chantiers/orchestrator/chantier.orchestrator";
 import { ClientsOrchestrator } from "src/app/services/clients/orchestrator/clients.orchestrator";
-import { EditBillsOrchestrator } from "src/app/services/edit-bills/orchestrator/edit-bills.orchestrator";
+import { EditBillsOrchestrator } from "src/app/services/bills/edit-bills/orchestrator/edit-bills.orchestrator";
 
 @Component({
     selector: 'app-edit-bills-modal',

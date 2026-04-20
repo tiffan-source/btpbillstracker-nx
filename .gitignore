@@ -52,3 +52,5 @@ vitest.config.*.timestamp*# Firebase configurations with real keys
 
 src/env/env.ts
 vitest.config.*.timestamp*
+
+.firebase/

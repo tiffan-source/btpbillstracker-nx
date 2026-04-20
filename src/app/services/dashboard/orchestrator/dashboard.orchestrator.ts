@@ -51,7 +51,7 @@ export class DashboardOrchestrator {
         let totalCashout = 0;
         this.billStore.bills().forEach(bill => {
             const dueDate = new Date(bill.dueDate);
-            if (dueDate.getMonth() === currentMonth && dueDate.getFullYear() === currentYear) {
+            if (dueDate.getMonth() === currentMonth && dueDate.getFullYear() === currentYear && bill.status === 'unpaid') {
                 totalCashout += bill.amount;
             }
         });

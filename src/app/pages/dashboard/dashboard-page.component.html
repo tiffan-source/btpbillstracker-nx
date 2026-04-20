@@ -82,17 +82,19 @@
                 <td>{{ bills.chantierName }}</td>
                 <td>{{ bills.amount }} €</td>
                 <td>{{ bills.dueDate }}</td>
-                <td>{{ bills.status }}</td>
+                <td> <lib-tags [label]="bills.status" [variant]="bills.status === 'unpaid' ? 'warning' : 'success'" /> </td>
                 <td>_</td>
                 <td>
                     <div class="flex gap-2 scale-90">
                         <lib-button variant="secondary"  size="small" label="Modifier" (click)="openEditBillsModal(bills.id)"/>
-                        <lib-button size="small" label="Payer"/>
+                        @if (bills.status === 'unpaid') {
+                            <lib-button size="small" label="Payer" (click)="payBillOrchestrator.payBill(bills.id)"/>
+                        }
                     </div>
                 </td>
             </tr>
         </ng-template>
     </lib-table>
   </div>
-          <app-edit-bills-modal [billId]="billIdToEdit()" (billIdChange)="billIdToEdit.set($event)"></app-edit-bills-modal>
+        <app-edit-bills-modal [billId]="billIdToEdit()" (billIdChange)="billIdToEdit.set($event)"></app-edit-bills-modal>
 </div>
