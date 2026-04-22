@@ -1,1 +1,8 @@
-<p-fileupload id="{{id()}}" #fu mode="basic" chooseLabel="{{label()}}" chooseIcon="pi pi-upload" accept="file/*" />
+<p-fileupload 
+  id="{{id()}}" 
+  #fu 
+  mode="basic" 
+  chooseIcon="pi pi-upload" 
+  accept=".pdf" 
+  (onSelect)="onPrimeNgFileSelect($event)" 
+/>
