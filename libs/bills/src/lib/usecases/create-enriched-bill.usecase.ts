@@ -19,6 +19,7 @@ export type CreateEnrichedBillInput = {
   paymentMode: string;
   chantierId: string;
   reminderScenarioId?: string;
+  billDocumentId?: string;
 };
 
 /**
@@ -42,6 +43,10 @@ export class CreateEnrichedBillUseCase {
         .setDueDate(input.dueDate)
         .setType(input.type)
         .setPaymentMode(input.paymentMode)
+
+         if (input.billDocumentId) {
+            bill.setBillDocumentId(input.billDocumentId);
+        }
 
         if (input.reminderScenarioId) 
           bill.configureReminder(input.reminderScenarioId);

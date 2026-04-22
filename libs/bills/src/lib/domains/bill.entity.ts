@@ -40,6 +40,7 @@ export class Bill {
   private _type?: BILL_TYPES;
   private _paymentMode?: PAYMENT_MODES;
   private _reminderScenarioId?: string;
+  private _billDocumentId?: string;
 
   constructor(id: string, reference: string, clientId: string, chantierId: string) {
     if (!reference || reference.trim().length === 0) {
@@ -133,6 +134,11 @@ export class Bill {
 
   setStatus(status: BILL_STATUS): this {
     this._status = status;
+    return this;
+  }
+
+  setBillDocumentId(billDocumentId: string): this {
+    this._billDocumentId = billDocumentId;
     return this;
   }
 
