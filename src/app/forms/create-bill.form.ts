@@ -12,7 +12,8 @@ type BillForm = {
     [BillFormField.InvoiceNumber] : FormControl<string>,
     [BillFormField.Type] : FormControl<TypeBill>,
     [BillFormField.PaymentMode] : FormControl<PaymentMode>,
-    [BillFormField.ReminderScenarioId] : FormControl<string | null>
+    [BillFormField.ReminderScenarioId] : FormControl<string | null>,
+    [BillFormField.BillPdf] : FormControl<File | null>
 }
 
 const CREATE_BILL_TOGGLE_VALIDATION_RULES = {
@@ -46,7 +47,8 @@ export class CreateBillForm extends FormGroup<BillForm> {
             [BillFormField.InvoiceNumber] : new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
             [BillFormField.Type] : new FormControl<TypeBill>('Solde', { nonNullable: true }),
             [BillFormField.PaymentMode] : new FormControl<PaymentMode>('Virement', { nonNullable: true }),
-            [BillFormField.ReminderScenarioId] : new FormControl<string | null>(null, {nonNullable: false})
+            [BillFormField.ReminderScenarioId] : new FormControl<string | null>(null, {nonNullable: false}),
+            [BillFormField.BillPdf] : new FormControl<File | null>(null, { nonNullable: false })
         });
 
         this.setMode('client', false);

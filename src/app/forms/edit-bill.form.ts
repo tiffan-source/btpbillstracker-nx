@@ -11,7 +11,8 @@ type BillForm = {
     [BillFormField.InvoiceNumber] : FormControl<string>,
     [BillFormField.Type] : FormControl<TypeBill>,
     [BillFormField.PaymentMode] : FormControl<PaymentMode>,
-    [BillFormField.ReminderScenarioId] : FormControl<string | null>
+    [BillFormField.ReminderScenarioId] : FormControl<string | null>,
+    [BillFormField.BillPdf] : FormControl<File | null>
 }
 
 const CREATE_BILL_TOGGLE_VALIDATION_RULES = {
@@ -56,7 +57,8 @@ export class EditBillForm extends FormGroup<BillForm> {
             [BillFormField.InvoiceNumber] : new FormControl<string>(initialValue.invoiceNumber, { nonNullable: true }),
             [BillFormField.Type] : new FormControl<TypeBill>(initialValue.type, { nonNullable: true }),
             [BillFormField.PaymentMode] : new FormControl<PaymentMode>(initialValue.paymentMode, { nonNullable: true }),
-            [BillFormField.ReminderScenarioId] : new FormControl<string | null>(initialValue.reminderScenarioId)
+            [BillFormField.ReminderScenarioId] : new FormControl<string | null>(initialValue.reminderScenarioId),
+            [BillFormField.BillPdf] : new FormControl<File | null>(null)
         });
     }
 

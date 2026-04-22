@@ -8,7 +8,8 @@ export enum BillFormField {
     InvoiceNumber = 'invoiceNumber',
     Type = 'type',
     PaymentMode = 'paymentMode',
-    ReminderScenarioId = 'reminderScenarioId'
+    ReminderScenarioId = 'reminderScenarioId',
+    BillPdf = 'billPdf'
 }
 
 export type TypeBill = 'Situation' | 'Solde' | 'Acompte';
