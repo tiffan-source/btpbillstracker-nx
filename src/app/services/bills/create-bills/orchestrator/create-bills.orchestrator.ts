@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from "@angular/core";
+import { computed, inject, Injectable, signal } from "@angular/core";
 import { CreateEnrichedBillInput, CreateEnrichedBillUseCase, UploadBillPdfUseCase } from "@btpbilltracker/bills"
 import { CreateQuickClientUseCase } from "@btpbilltracker/clients"
 import { CreateChantierUseCase } from "@btpbilltracker/chantiers";
@@ -13,7 +13,6 @@ export type CreateBillClientRequest =
 export type CreateBillChantierRequest =
   | { mode: "existing"; chantierId: string }
   | { mode: "new"; chantierName: string };
-
 export type UploadedBillPdfRequest = File | null;
 
 export interface CreateBillRequest {
@@ -60,29 +59,33 @@ export class CreateBillsOrchestrator {
     private chantierStore = inject(ChantierStore);
     private billStore = inject(BillStore);
 
-    processError = signal<string | null>(null);
+    private lastProcessResult = signal<CreateBillProcessResult | null>(null);
+    processError = computed(() => {
+        const result = this.lastProcessResult();
+        return result && !result.success ? result.error.message : null;
+    });
     isProcessing = signal(false);
     
     createBillProcess = async (bill: CreateBillRequest): Promise<CreateBillProcessResult> => {
-        this.processError.set(null);
+        this.lastProcessResult.set(null);
         this.isProcessing.set(true);
 
         try {
             const resolvedClient = await this.resolveClientId(bill.client);
             if (!resolvedClient.success) {
-                this.processError.set(resolvedClient.error.message);
+                this.lastProcessResult.set(resolvedClient);
                 return resolvedClient;
             }
 
             const resolvedChantier = await this.resolveChantierId(bill.chantier);
             if (!resolvedChantier.success) {
-                this.processError.set(resolvedChantier.error.message);
+                this.lastProcessResult.set(resolvedChantier);
                 return resolvedChantier;
             }
 
             const resolvedPdf = await this.resolvePdfId(bill.billPdfFile);
             if (!resolvedPdf.success) {
-                this.processError.set(resolvedPdf.error.message);
+                this.lastProcessResult.set(resolvedPdf);
                 return resolvedPdf;
             }
 
@@ -110,7 +113,7 @@ export class CreateBillsOrchestrator {
                         message: result.error.message
                     }
                 };
-                this.processError.set(failureResult.error.message);
+                this.lastProcessResult.set(failureResult);
                 return failureResult;
             }else {
                 this.billStore.addBill({
@@ -128,7 +131,7 @@ export class CreateBillsOrchestrator {
                 });
             }
 
-            return {
+            const successResult: CreateBillProcessResult = {
                 success: true,
                 data: {
                     billId: result.data.id,
@@ -136,6 +139,8 @@ export class CreateBillsOrchestrator {
                     chantierId: resolvedChantier.data.chantierId
                 }
             };
+            this.lastProcessResult.set(successResult);
+            return successResult;
         } finally {
             this.isProcessing.set(false);
         }

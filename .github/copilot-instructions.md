@@ -53,3 +53,37 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Design services around a single responsibility
 - Use the `providedIn: 'root'` option for singleton services
 - Use the `inject()` function instead of constructor injection
+
+## Project Architecture Rules
+
+- Respect layered boundaries:
+  - Domain libs (`libs/bills`, `libs/clients`, `libs/chantiers`, etc.)
+  - Infrastructure adapters (`libs/infrastructure`)
+  - App orchestration (`src/app/services/**/orchestrator`)
+  - App UI + forms + pages (`src/app/pages`, `src/app/forms`, `libs/components`)
+  - App providers/stores (`src/app/providers`, `src/app/stores`)
+- Domain code must not import Angular framework APIs.
+- Domain use cases must depend on ports, entities, and domain errors only.
+- Infrastructure must implement ports without leaking SDK details to domain code.
+- Orchestrators coordinate use cases, stores, and routing but do not call infrastructure adapters directly.
+- Providers in `src/app/providers` are the composition root for wiring ports to adapters.
+
+## Orchestrator Conventions
+
+- Use typed request and typed result contracts.
+- Use discriminated unions for workflow outcomes (`success: true | false`).
+- Map each failure to a workflow step with an actionable message.
+- Expose process state through signals and computed values.
+- Use optimistic store updates only after successful domain actions.
+
+## Local Instruction Files
+
+- `.github/instructions/architecture-boundaries.instructions.md`
+- `.github/instructions/orchestrator-playbook.instructions.md`
+
+## Local Skills
+
+- `.github/skills/angular-orchestrator-implementation/SKILL.md`
+- `.github/skills/domain-usecase-implementation/SKILL.md`
+- `.github/skills/ports-adapters-wiring/SKILL.md`
+- `.github/skills/bugfix-root-cause/SKILL.md`

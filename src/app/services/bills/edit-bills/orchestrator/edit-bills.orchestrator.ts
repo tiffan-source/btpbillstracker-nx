@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from "@angular/core";
+import { computed, inject, Injectable, signal } from "@angular/core";
 import { BILL_STATUS, DeleteBillPdfUseCase, EditBillInput, EditBillUseCase, UploadBillPdfUseCase } from "@btpbilltracker/bills";
 import { ClientStore } from "src/app/stores/client.store";
 import { ChantierStore } from "src/app/stores/chantier.store";
@@ -65,7 +65,11 @@ export class EditBillsOrchestrator {
     private readonly chantierStore = inject(ChantierStore);
     private readonly billStore = inject(BillStore);
 
-    processError = signal<string | null>(null);
+    private lastProcessResult = signal<EditBillProcessResult | null>(null);
+    processError = computed(() => {
+        const result = this.lastProcessResult();
+        return result && !result.success ? result.error.message : null;
+    });
     isProcessing = signal(false);
     
     getBillInformationToEdit = (billId: string) => {
@@ -87,25 +91,25 @@ export class EditBillsOrchestrator {
     }
 
     editBillProcess = async (bill: EditBillRequest): Promise<EditBillProcessResult> => {
-        this.processError.set(null);
+        this.lastProcessResult.set(null);
         this.isProcessing.set(true);
 
         try {
             const resolvedClient = await this.resolveClientId(bill.client);
             if (!resolvedClient.success) {
-                this.processError.set(resolvedClient.error.message);
+                this.lastProcessResult.set(resolvedClient);
                 return resolvedClient;
             }
 
             const resolvedChantier = await this.resolveChantierId(bill.chantier);
             if (!resolvedChantier.success) {
-                this.processError.set(resolvedChantier.error.message);
+                this.lastProcessResult.set(resolvedChantier);
                 return resolvedChantier;
             }
 
             const resolveBillPdf = await this.resolvePdfId(bill.billPdfFile, bill.billId);
             if (!resolveBillPdf.success) {
-                this.processError.set(resolveBillPdf.error.message);
+                this.lastProcessResult.set(resolveBillPdf);
                 return resolveBillPdf;
             }
 
@@ -132,7 +136,7 @@ export class EditBillsOrchestrator {
                         message: result.error.message
                     }
                 };
-                this.processError.set(failureResult.error.message);
+                this.lastProcessResult.set(failureResult);
                 return failureResult;
             } else {
                 this.billStore.updateBill({
@@ -150,7 +154,7 @@ export class EditBillsOrchestrator {
                 });
             }
 
-            return {
+            const successResult: EditBillProcessResult = {
                 success: true,
                 data: {
                     billId: result.data.id,
@@ -158,6 +162,8 @@ export class EditBillsOrchestrator {
                     chantierId: resolvedChantier.data.chantierId
                 }
             };
+            this.lastProcessResult.set(successResult);
+            return successResult;
         } finally {
             this.isProcessing.set(false);
         }
