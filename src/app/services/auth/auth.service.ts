@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from "@angular/core";
-import { GetCurrentUserUseCase, LoginWithEmailAndPasswordUseCase, RegisterWithEmailAndPasswordUseCase } from "@btpbilltracker/auth";
+import { GetCurrentUserUseCase, LoginWithEmailAndPasswordUseCase, LogoutUseCase, RegisterWithEmailAndPasswordUseCase } from "@btpbilltracker/auth";
 import { Router } from "@angular/router";
 
 @Injectable({ providedIn: 'root' })
@@ -7,11 +7,16 @@ export class AuthService {
     private getCurrentUserUseCase = inject(GetCurrentUserUseCase)
     private loginWithEmailAndPasswordUseCase = inject(LoginWithEmailAndPasswordUseCase)
     private registerWithEmailAndPasswordUseCase = inject(RegisterWithEmailAndPasswordUseCase)
+    private logoutUseCase = inject(LogoutUseCase)
 
     private router = inject(Router)
     isProcessing = signal(false);
     processError = signal<string | null>(null);
 
+    async logout(): Promise<void> {
+        await this.logoutUseCase.execute();
+        this.router.navigate(['/login']);
+    }
 
     async isSignedIn(): Promise<boolean> {
         const result = await this.getCurrentUserUseCase.execute();

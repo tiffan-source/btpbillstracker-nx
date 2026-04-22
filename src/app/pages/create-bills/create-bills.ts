@@ -1,5 +1,5 @@
 import { Component, effect, inject } from '@angular/core';
-import { Button, Card, DatePicker, Input, InputFile, InputSelect, Label, Toogle, PageTitle, PageSubTitle, Toast, ToastService, TextError } from "@btpbilltracker/components"
+import { Button, Card, DatePicker, Input, InputFile, InputSelect, Label, Toogle, PageTitle, PageSubTitle, Toast, ToastService, TextError, Modal, Spiner } from "@btpbilltracker/components"
 import { ReactiveFormsModule } from '@angular/forms';
 import { CreateBillForm} from '../../forms/create-bill.form';
 import { BillFormField, PaymentMode, TypeBill } from 'src/app/forms/bill.form.type';
@@ -9,7 +9,7 @@ import { CreateBillsOrchestrator } from 'src/app/services/bills/create-bills/orc
 
 @Component({
   selector: 'app-create-bills',
-  imports: [Card, Input, ReactiveFormsModule, InputSelect, Label, Button, DatePicker, InputFile, Toogle, PageTitle, PageSubTitle, Toast, TextError],
+  imports: [Card, Input, ReactiveFormsModule, InputSelect, Label, Button, DatePicker, InputFile, Toogle, PageTitle, PageSubTitle, Toast, TextError, Modal, Spiner],
   templateUrl: './create-bills.html',
 })
 
@@ -70,6 +70,14 @@ export class CreateBills {
         return this.billForm.getErrors(field);
     }
 
+    onFileChange(file: File | null): void {
+        this.billForm.patchValue({
+        [BillFormField.BillPdf]: file
+        });
+        
+        this.billForm.controls[BillFormField.BillPdf].updateValueAndValidity();
+    }
+
     async createBill(): Promise<void> {
         const formValue = this.billForm.formValue;
 
@@ -94,7 +102,8 @@ export class CreateBills {
             invoiceNumber: invoiceNumber,
             type: type,
             paymentMode: paymentMode,
-            reminderScenarioId: reminderScenarioId
+            reminderScenarioId: reminderScenarioId,
+            billPdfFile: formValue.billPdf
         });
         
         if (result.success) {

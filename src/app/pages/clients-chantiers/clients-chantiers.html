@@ -45,7 +45,7 @@
             <div class="mt-4 grid gap-4 grid-cols-2 ">
                 @for (chantier of chantiersOrchestrator.chantiersInformation(); track chantier.id) {
                     <lib-card [title]="chantier.name">
-                        <lib-progress-bar [value]="chantier.totalAmountPaid / (chantier.totalAmountNotPaid + chantier.totalAmountPaid)" />
+                        <lib-progress-bar [value]="(chantier.totalAmountPaid / (chantier.totalAmountNotPaid + chantier.totalAmountPaid))*100" />
                         <div class="mt-2 flex items-center justify-between">
                             <span class="flex items-center gap-2 text-sm text-green-500">
                                 <span class="pi pi-wallet"></span>

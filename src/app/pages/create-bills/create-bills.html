@@ -104,7 +104,10 @@
             <!-- PDF de la facture -->
             <div class="flex flex-col">
                 <lib-label for="pdf-facture" label="PDF de la facture (optionnel)"></lib-label>
-                <lib-input-file id="pdf-facture" label=""></lib-input-file>
+                <lib-input-file id="pdf-facture" (fileSelected)="onFileChange($event)"></lib-input-file>
+                @if (fieldHasError(BillFormField.BillPdf)) {
+                    <lib-text-error>{{ fieldErrorMessage(BillFormField.BillPdf) }}</lib-text-error>
+                }
             </div>
         </form>
     </lib-card>
@@ -132,4 +135,11 @@
     </lib-card>
 
     <lib-button [disable]="billsOrchestrator.isProcessing()" (click)="createBill()" label="Créer la facture" class="self-end" prime_icon_class="pi pi-plus"></lib-button>
+
+    <lib-modal [visible]="billsOrchestrator.isProcessing()" width="40rem">
+        <div class="flex flex-col items-center">
+            <lib-spiner></lib-spiner>
+            <p class="text-xl font-medium">Création de la facture en cours...</p>
+        </div>
+    </lib-modal>
 </div>

@@ -1,4 +1,4 @@
-export const FIREBASE_CONFIG = {
+const FIREBASE_CONFIG = {
     apiKey: "",
     authDomain: "",
     projectId: "",
@@ -7,3 +7,14 @@ export const FIREBASE_CONFIG = {
     appId: "",
     measurementId: ""
 };
+
+
+const SUPABASE_CONFIG = {
+    supabaseKey : '',
+    supabaseUrl : ''
+};
+
+export const appConfig = {
+    firebase: FIREBASE_CONFIG,
+    supabase: SUPABASE_CONFIG,
+}

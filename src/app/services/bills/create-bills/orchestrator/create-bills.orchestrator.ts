@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from "@angular/core";
-import { CreateEnrichedBillInput, CreateEnrichedBillUseCase } from "@btpbilltracker/bills"
+import { CreateEnrichedBillInput, CreateEnrichedBillUseCase, UploadBillPdfUseCase } from "@btpbilltracker/bills"
 import { CreateQuickClientUseCase } from "@btpbilltracker/clients"
 import { CreateChantierUseCase } from "@btpbilltracker/chantiers";
 import { ClientStore } from "../../../../stores/client.store"
@@ -14,6 +14,8 @@ export type CreateBillChantierRequest =
   | { mode: "existing"; chantierId: string }
   | { mode: "new"; chantierName: string };
 
+export type UploadedBillPdfRequest = File | null;
+
 export interface CreateBillRequest {
   type: string;
   client: CreateBillClientRequest;
@@ -23,9 +25,10 @@ export interface CreateBillRequest {
   paymentMode: string;
   invoiceNumber: string;
   reminderScenarioId: string | null;
+  billPdfFile: UploadedBillPdfRequest;
 }
 
-type CreateBillWorkflowStep = "client" | "chantier" | "bill";
+type CreateBillWorkflowStep = "client" | "chantier" | "pdf" | "bill";
 
 export type CreateBillProcessResult =
   | {
@@ -34,6 +37,7 @@ export type CreateBillProcessResult =
         billId: string;
         clientId: string;
         chantierId: string;
+        billPdfId?: string;
       };
     }
   | {
@@ -50,6 +54,7 @@ export class CreateBillsOrchestrator {
     private createBillsUsecase = inject(CreateEnrichedBillUseCase)
     private createClientUsecase = inject(CreateQuickClientUseCase)
     private createChantierUsecase = inject(CreateChantierUseCase)
+    private uploadBillPdfUseCase = inject(UploadBillPdfUseCase)
 
     private clientStore = inject(ClientStore);
     private chantierStore = inject(ChantierStore);
@@ -75,6 +80,12 @@ export class CreateBillsOrchestrator {
                 return resolvedChantier;
             }
 
+            const resolvedPdf = await this.resolvePdfId(bill.billPdfFile);
+            if (!resolvedPdf.success) {
+                this.processError.set(resolvedPdf.error.message);
+                return resolvedPdf;
+            }
+
             const enrichedBill: CreateEnrichedBillInput = {
                 type: bill.type,
                 clientId: resolvedClient.data.clientId,
@@ -83,8 +94,11 @@ export class CreateBillsOrchestrator {
                 dueDate: bill.dueDate,
                 paymentMode: bill.paymentMode,
                 externalInvoiceReference: bill.invoiceNumber,
-                reminderScenarioId: bill.reminderScenarioId || undefined
+                reminderScenarioId: bill.reminderScenarioId || undefined,
+                billDocumentId: resolvedPdf.data.billPdfId || undefined
             };
+
+
 
             const result = await this.createBillsUsecase.execute(enrichedBill);
             if (!result.success) {
@@ -124,6 +138,26 @@ export class CreateBillsOrchestrator {
         } finally {
             this.isProcessing.set(false);
         }
+    }
+
+    private async resolvePdfId(pdfFile: UploadedBillPdfRequest): Promise<CreateBillProcessResult | { success: true; data: { billPdfId: string | null } }> {
+        if (!pdfFile) {
+            return { success: true, data: { billPdfId: null } };
+        }
+
+        const uploadResult = await this.uploadBillPdfUseCase.execute(pdfFile);
+        if (!uploadResult.success) {
+            return {
+                success: false,
+                step: "pdf",
+                error: {
+                    code: uploadResult.error.code,
+                    message: `Failed to upload PDF: ${uploadResult.error.message}`
+                }
+            };
+        }
+
+        return { success: true, data: { billPdfId: uploadResult.data } };
     }
 
     private async resolveClientId(client: CreateBillClientRequest): Promise<CreateBillProcessResult | { success: true; data: { clientId: string } }> {

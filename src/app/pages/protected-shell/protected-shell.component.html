@@ -1,5 +1,5 @@
-<div class="bg-background text-foreground lg:flex">
-    <aside class="bg-sidebar text-sidebar-foreground min-h-screen hidden w-64 flex-col lg:flex">
+<div class="bg-background text-foreground h-screen flex overflow-hidden">
+    <aside class="bg-sidebar text-sidebar-foreground w-64 flex-col flex shrink-0">
         <header class="flex items-center gap-3 p-6">
             <div class="flex h-10 w-10 items-center justify-center rounded-card text-amber-50 bg-primary rounded" aria-hidden="true">
                 <!-- There must be an logo there but lets cheat an use primeng icon-->
@@ -11,7 +11,7 @@
             </div>
         </header>
 
-        <nav aria-label="Navigation principale" class="flex flex-col gap-2 p-4">
+        <nav aria-label="Navigation principale" class="flex flex-col gap-2 p-4 flex-1">
             @for (item of navItem; track $index) {
                 <lib-sidebar-item
                     [text]="item.text"
@@ -22,9 +22,17 @@
             }
         </nav>
 
+        <footer class="p-4 flex items-center justify-center">
+            <lib-button
+            variant="secondary"
+                label="Deconnexion"
+                (click)="authService.logout()"
+            >
+            </lib-button>
+        </footer>
     </aside>
 
-    <div class="min-h-screen flex-1 p-4">
+    <div class="min-h-screen grow overflow-auto">
     <router-outlet />
     </div>
 </div>

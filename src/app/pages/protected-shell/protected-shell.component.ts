@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
-import { SidebarItem } from "@btpbilltracker/components"
+import { Button, SidebarItem } from "@btpbilltracker/components"
+import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
   selector: 'app-protected-shell',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, SidebarItem],
+  imports: [RouterOutlet, SidebarItem, Button],
   host: {
     '(document:keydown.escape)': 'closeMobileMenu()'
   },
@@ -14,6 +15,8 @@ import { SidebarItem } from "@btpbilltracker/components"
 export class ProtectedShellComponent {
   readonly isMobileMenuOpen = signal(false);
   readonly routerService = inject(Router);
+
+  authService = inject(AuthService);
 
   navItem = [
     {
