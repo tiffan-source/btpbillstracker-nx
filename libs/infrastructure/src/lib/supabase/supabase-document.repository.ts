@@ -18,4 +18,10 @@ export class SupabaseDocumentRepository implements DocumentRepository {
         .upload('public/' + documentId, file)
 
     }
+
+    public async deleteDocument(documentId: string): Promise<void> {
+        const { data, error } = await this.supabaseClient.getClient().storage  
+        .from('btpbilltracker')  
+        .remove(['public/' + documentId])
+    }
 }

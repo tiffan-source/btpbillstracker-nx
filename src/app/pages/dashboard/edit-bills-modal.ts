@@ -125,7 +125,7 @@ export class EditBillsModal {
             return;
         }
         
-        const { amountTTC, chantierId, chantierName, clientId, dueDate, invoiceNumber, type, paymentMode, reminderScenarioId, newClientName } = formValue;
+        const { amountTTC, chantierId, chantierName, clientId, dueDate, invoiceNumber, type, paymentMode, reminderScenarioId, newClientName, billPdf } = formValue;
 
         const result = await this.editBillOrchestrator.editBillProcess({
             billId: currentBillId,
@@ -140,7 +140,8 @@ export class EditBillsModal {
             invoiceNumber: invoiceNumber,
             type: type,
             paymentMode: paymentMode,
-            reminderScenarioId: reminderScenarioId
+            reminderScenarioId: reminderScenarioId,
+            billPdfFile: billPdf
         });
         
         if (result.success) {

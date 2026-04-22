@@ -51,7 +51,8 @@ export class AppBootstrapOrchestrator {
                 invoiceNumber: b.externalInvoiceReference || '',
                 type: b.type || '',
                 paymentMode: b.paymentMode || '',
-                reminderScenarioId: b.reminderScenarioId || null
+                reminderScenarioId: b.reminderScenarioId || null,
+                billPdfId: b.billDocumentId || null,
              }
             )) : []);
         this.remindersStore.setReminders(reminders.success ? reminders.data.map((r) => ({
