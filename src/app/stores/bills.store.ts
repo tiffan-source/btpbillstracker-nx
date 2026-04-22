@@ -12,6 +12,7 @@ type BillViewModel = {
     type: string;
     paymentMode: string;
     reminderScenarioId: string | null;
+    billPdfId: string | null;
 }
 
 export function fromEntityToViewModel(bill: Bill): BillViewModel {
@@ -25,7 +26,8 @@ export function fromEntityToViewModel(bill: Bill): BillViewModel {
         invoiceNumber: bill.externalInvoiceReference || '',
         type: bill.type || '',
         paymentMode: bill.paymentMode || '',
-        reminderScenarioId: bill.reminderScenarioId || null
+        reminderScenarioId: bill.reminderScenarioId || null,
+        billPdfId: bill.billDocumentId || null
     }
 }
 

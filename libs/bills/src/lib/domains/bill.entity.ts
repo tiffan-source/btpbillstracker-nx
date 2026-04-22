@@ -70,6 +70,7 @@ export class Bill {
   get chantierId(): string { return this._chantierId; }
   get chantier(): string { return this._chantierId; }
   get reminderScenarioId(): string | undefined { return this._reminderScenarioId; }
+    get billDocumentId(): string | undefined { return this._billDocumentId; }
 
   setAmountTTC(amountTTC: number): this {
     if (amountTTC < BILL_MIN_AMOUNT_TTC) {

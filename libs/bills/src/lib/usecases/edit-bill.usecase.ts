@@ -22,6 +22,7 @@ export type EditBillInput = {
     type?: string;
     paymentMode?: string;
     reminderScenarioId?: string;
+    billPdfFile?: File;
 };
 
 export class EditBillUseCase {

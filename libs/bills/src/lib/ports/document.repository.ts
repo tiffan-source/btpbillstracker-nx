@@ -4,4 +4,6 @@ export abstract class DocumentRepository {
    * @throws {BillPersistenceError} Quand la persistance échoue.
    */
   abstract saveDocument(documentId: string, file: File, ownerUid: string): Promise<void> ;
+
+    abstract deleteDocument(documentId: string): Promise<void>;
 }

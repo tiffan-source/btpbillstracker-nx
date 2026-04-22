@@ -123,7 +123,8 @@ export class CreateBillsOrchestrator {
                     invoiceNumber: enrichedBill.externalInvoiceReference,
                     type: enrichedBill.type,
                     paymentMode: enrichedBill.paymentMode,
-                    reminderScenarioId: enrichedBill.reminderScenarioId || null
+                    reminderScenarioId: enrichedBill.reminderScenarioId || null,
+                    billPdfId: enrichedBill.billDocumentId || null
                 });
             }
 
