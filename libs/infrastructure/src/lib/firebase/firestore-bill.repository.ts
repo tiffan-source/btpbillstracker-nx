@@ -14,6 +14,7 @@ export type FirestorePlainBill = {
   type?: string;
   paymentMode?: string;
   chantierId?: string;
+  billDocumentId?: string;
   reminderScenarioId: string;
 };
 
@@ -116,6 +117,9 @@ export class FirestoreBillRepository extends FirestoreBaseRepository implements 
         if (this.isNonEmptyString(plainBill.reminderScenarioId)) {
             bill.configureReminder(plainBill.reminderScenarioId);
         }
+        if (this.isNonEmptyString(plainBill.billDocumentId)) {
+            bill.setBillDocumentId(plainBill.billDocumentId);
+        }
 
         return bill;
     }
@@ -135,6 +139,7 @@ export class FirestoreBillRepository extends FirestoreBaseRepository implements 
         type: bill.type,
         paymentMode: bill.paymentMode,
         chantierId: bill.chantierId,
+        billDocumentId: bill.billDocumentId,
         reminderScenarioId: bill.reminderScenarioId || ""
         };
     }

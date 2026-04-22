@@ -39,7 +39,7 @@ export type EditBillProcessResult =
         billId: string;
         clientId: string;
         chantierId: string;
-        billPdfId?: string;
+        billPdfId?: string | null;
       };
     }
   | {
@@ -123,7 +123,7 @@ export class EditBillsOrchestrator {
                 paymentMode: bill.paymentMode,
                 externalInvoiceReference: bill.invoiceNumber,
                 reminderScenarioId: bill.reminderScenarioId || undefined,
-                billPdfFile: bill.billPdfFile || undefined
+                billDocumentId: resolveBillPdf.data.billPdfId ?? undefined
             };
 
             const result = await this.editBillUsecase.execute(enrichedBill);
@@ -150,7 +150,7 @@ export class EditBillsOrchestrator {
                     type: bill.type,
                     paymentMode: bill.paymentMode,
                     reminderScenarioId: bill.reminderScenarioId || null,
-                    billPdfId: resolveBillPdf.data.billPdfId || null
+                    billPdfId: resolveBillPdf.data.billPdfId ?? null
                 });
             }
 
@@ -159,7 +159,8 @@ export class EditBillsOrchestrator {
                 data: {
                     billId: result.data.id,
                     clientId: resolvedClient.data.clientId,
-                    chantierId: resolvedChantier.data.chantierId
+                    chantierId: resolvedChantier.data.chantierId,
+                    billPdfId: resolveBillPdf.data.billPdfId ?? null
                 }
             };
             this.lastProcessResult.set(successResult);
@@ -171,11 +172,12 @@ export class EditBillsOrchestrator {
 
     private async resolvePdfId(pdfFile: UploadedBillPdfRequest, billId: string): Promise<EditBillProcessResult | { success: true; data: { billPdfId: string | null } }> {
         if (!pdfFile) {
-            return { success: true, data: { billPdfId: null } };
+            const previousBillPdfId = this.billStore.bills().find((bill) => bill.id === billId)?.billPdfId ?? null;
+            return { success: true, data: { billPdfId: previousBillPdfId } };
         }
 
         if(pdfFile) {
-            let previousBillPdfId = this.billStore.bills().find(bill => bill.id === billId)?.billPdfId;
+            const previousBillPdfId = this.billStore.bills().find(bill => bill.id === billId)?.billPdfId;
             
             if (previousBillPdfId) {
                 await this.deleteBillPdfUseCase.execute(previousBillPdfId);
