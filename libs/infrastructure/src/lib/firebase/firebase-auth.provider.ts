@@ -1,6 +1,6 @@
 import { AuthProvider, AuthUser, EmailAlreadyUseError, LoginWithEmailAndPasswordError } from "@btpbilltracker/auth"
 import { FirebaseAppService } from "./firebase-app";
-import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { FirebaseError } from "firebase/app";
 
 export class FirebaseAuthProvider implements AuthProvider {
@@ -8,6 +8,10 @@ export class FirebaseAuthProvider implements AuthProvider {
 
     public constructor(firebaseAppService: FirebaseAppService) {
         this.auth = FirebaseAppService.getAppAuth();
+    }
+
+    async logout(): Promise<void> {
+        await signOut(this.auth);
     }
     
     async getCurrentUser() {
