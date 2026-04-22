@@ -119,7 +119,6 @@ export class EditBillsOrchestrator {
                 paymentMode: bill.paymentMode,
                 externalInvoiceReference: bill.invoiceNumber,
                 reminderScenarioId: bill.reminderScenarioId || undefined,
-                billPdfFile: bill.billPdfFile || undefined,
                 billDocumentId: resolveBillPdf.data.billPdfId ?? undefined
             };
 

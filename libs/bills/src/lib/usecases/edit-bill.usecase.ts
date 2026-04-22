@@ -23,7 +23,6 @@ export type EditBillInput = {
     paymentMode?: string;
     reminderScenarioId?: string;
     billDocumentId?: string;
-    billPdfFile?: File;
 };
 
 export class EditBillUseCase {
