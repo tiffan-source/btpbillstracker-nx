@@ -7,4 +7,6 @@ export abstract class AuthProvider {
   abstract loginWithEmailAndPassword(email: string, password: string): Promise<void>;
 
   abstract registerWithEmailAndPassword(email: string, password: string): Promise<void>;
+
+    abstract logout(): Promise<void>;
 }
