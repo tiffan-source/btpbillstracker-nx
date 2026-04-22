@@ -1,10 +1,9 @@
 import { InjectionToken, Provider } from '@angular/core';
 import { AppFirebaseConfig, FirebaseAppService } from '@btpbilltracker/infrastructure';
-import { FIREBASE_CONFIG } from '../../env/env';
 
 export const FIREBASE_APP_CONFIG = new InjectionToken<AppFirebaseConfig>('FIREBASE_APP_CONFIG');
 
-export function provideFirebase(config: AppFirebaseConfig = FIREBASE_CONFIG): Provider[] {
+export function provideFirebase(config: AppFirebaseConfig): Provider[] {
   return [
     { provide: FIREBASE_APP_CONFIG, useValue: config },
     {
@@ -14,5 +13,3 @@ export function provideFirebase(config: AppFirebaseConfig = FIREBASE_CONFIG): Pr
     },
   ];
 }
-
-export const FIREBASE_PROVIDERS: Provider[] = provideFirebase();
