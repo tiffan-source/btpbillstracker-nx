@@ -22,6 +22,7 @@ export type EditBillInput = {
     type?: string;
     paymentMode?: string;
     reminderScenarioId?: string;
+    billDocumentId?: string;
     billPdfFile?: File;
 };
 
@@ -51,6 +52,7 @@ export class EditBillUseCase {
             if (input.type) bill.setType(input.type);
             if (input.paymentMode) bill.setPaymentMode(input.paymentMode);
             if (input.reminderScenarioId) bill.configureReminder(input.reminderScenarioId);
+            if (input.billDocumentId) bill.setBillDocumentId(input.billDocumentId);
 
             await this.repository.edit(bill, owner.uid);
             return success(bill);
