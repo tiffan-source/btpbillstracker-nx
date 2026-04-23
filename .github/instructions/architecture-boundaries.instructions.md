@@ -1,3 +1,8 @@
+---
+applyTo: "**"
+description: This file describes the architecture boundaries and dependency rules for the BTP Bill Tracker monorepo.
+---
+
 # Architecture Boundaries for BTP Bill Tracker
 
 This workspace uses an Nx monorepo with a strict layered architecture:

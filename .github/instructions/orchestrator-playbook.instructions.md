@@ -1,3 +1,8 @@
+---
+applyTo: "**/src/app/services/**/orchestrator/**/*.ts"
+description: This file describes the best practices for implementing orchestrators in the Angular app layer of this monorepo architecture.
+---
+
 # Orchestrator Playbook
 
 Use this playbook when creating or updating orchestrators in `src/app/services/**/orchestrator`.
