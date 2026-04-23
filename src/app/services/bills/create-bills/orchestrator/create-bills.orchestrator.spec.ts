@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { CreateEnrichedBillUseCase } from '@btpbilltracker/bills';
+import { CreateEnrichedBillUseCase, UploadBillPdfUseCase } from '@btpbilltracker/bills';
 import { CreateChantierUseCase } from '@btpbilltracker/chantiers';
 import { CreateQuickClientUseCase } from '@btpbilltracker/clients';
 import { vi } from 'vitest';
@@ -10,11 +10,13 @@ describe('CreateBillsOrchestrator', () => {
   let createBillUseCase: { execute: ReturnType<typeof vi.fn> };
   let createClientUseCase: { execute: ReturnType<typeof vi.fn> };
   let createChantierUseCase: { execute: ReturnType<typeof vi.fn> };
+  let uploadBillPdfUseCase: { execute: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     createBillUseCase = { execute: vi.fn() };
     createClientUseCase = { execute: vi.fn() };
     createChantierUseCase = { execute: vi.fn() };
+    uploadBillPdfUseCase = { execute: vi.fn() };
 
     TestBed.configureTestingModule({
       providers: [
@@ -22,6 +24,7 @@ describe('CreateBillsOrchestrator', () => {
         { provide: CreateEnrichedBillUseCase, useValue: createBillUseCase as unknown as CreateEnrichedBillUseCase },
         { provide: CreateQuickClientUseCase, useValue: createClientUseCase as unknown as CreateQuickClientUseCase },
         { provide: CreateChantierUseCase, useValue: createChantierUseCase as unknown as CreateChantierUseCase },
+        { provide: UploadBillPdfUseCase, useValue: uploadBillPdfUseCase as unknown as UploadBillPdfUseCase },
       ],
     });
 
@@ -36,6 +39,7 @@ describe('CreateBillsOrchestrator', () => {
       paymentMode: 'Virement',
       invoiceNumber: 'INV-001',
       reminderScenarioId: null,
+      billPdfFile: null,
       client: { mode: 'existing', clientId: 'client-1' },
       chantier: { mode: 'existing', chantierId: 'chantier-1' },
     };
@@ -74,6 +78,7 @@ describe('CreateBillsOrchestrator', () => {
       paymentMode: 'Carte bancaire',
       invoiceNumber: 'INV-002',
       reminderScenarioId: 'scenario-1',
+      billPdfFile: null,
       client: { mode: 'new', clientName: 'Alpha' },
       chantier: { mode: 'new', chantierName: 'Villa A' },
     };
@@ -105,6 +110,7 @@ describe('CreateBillsOrchestrator', () => {
       paymentMode: 'Espèces',
       invoiceNumber: 'INV-003',
       reminderScenarioId: null,
+      billPdfFile: null,
       client: { mode: 'new', clientName: 'Beta' },
       chantier: { mode: 'existing', chantierId: 'chantier-3' },
     };
@@ -137,6 +143,7 @@ describe('CreateBillsOrchestrator', () => {
       paymentMode: 'Espèces',
       invoiceNumber: 'INV-003',
       reminderScenarioId: null,
+      billPdfFile: null,
       client: { mode: 'new', clientName: 'Beta' },
       chantier: { mode: 'new', chantierName: 'Villa B' },
     };
@@ -168,6 +175,7 @@ describe('CreateBillsOrchestrator', () => {
       paymentMode: 'Chèque',
       invoiceNumber: 'INV-004',
       reminderScenarioId: null,
+      billPdfFile: null,
       client: { mode: 'existing', clientId: 'client-4' },
       chantier: { mode: 'existing', chantierId: 'chantier-4' },
     };
@@ -182,9 +190,38 @@ describe('CreateBillsOrchestrator', () => {
     expect(result).toEqual({
       success: false,
       step: 'bill',
-      error: { code: 'BILL_ERROR', message: 'Bill persistence failed' },
+      error: { code: 'BILL_ERROR', message: 'Failed to create bill: Bill persistence failed' },
     });
-    expect(orchestrator.processError()).toBe('Bill persistence failed');
+    expect(orchestrator.processError()).toBe('Failed to create bill: Bill persistence failed');
     expect(orchestrator.isProcessing()).toBe(false);
+  });
+
+  it('returns typed step-level failure when an unexpected exception occurs', async () => {
+    const request: CreateBillRequest = {
+      type: 'Situation',
+      amount: 200,
+      dueDate: '2026-04-12',
+      paymentMode: 'Espèces',
+      invoiceNumber: 'INV-005',
+      reminderScenarioId: null,
+      billPdfFile: null,
+      client: { mode: 'new', clientName: 'Beta' },
+      chantier: { mode: 'existing', chantierId: 'chantier-3' },
+    };
+
+    createClientUseCase.execute.mockRejectedValue(new Error('Service unavailable'));
+
+    const result = await orchestrator.createBillProcess(request);
+
+    expect(result).toEqual({
+      success: false,
+      step: 'client',
+      error: {
+        code: 'UNEXPECTED_WORKFLOW_ERROR',
+        message: 'Failed to create client: Service unavailable',
+      },
+    });
+    expect(orchestrator.processError()).toBe('Failed to create client: Service unavailable');
+    expect(createBillUseCase.execute).not.toHaveBeenCalled();
   });
 });
