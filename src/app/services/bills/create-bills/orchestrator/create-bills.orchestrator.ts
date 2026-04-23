@@ -73,7 +73,6 @@ export class CreateBillsOrchestrator {
         let currentStep: CreateBillWorkflowStep = "client";
 
         try {
-            currentStep = "client";
             const resolvedClient = await this.resolveClientId(bill.client);
             if (!resolvedClient.success) {
                 this.lastProcessResult.set(resolvedClient);
@@ -114,7 +113,7 @@ export class CreateBillsOrchestrator {
                 const failureResult = this.failure("bill", result.error.code, `Failed to create bill: ${result.error.message}`);
                 this.lastProcessResult.set(failureResult);
                 return failureResult;
-            }else {
+            } else {
                 this.billStore.addBill({
                     id: result.data.id,
                     clientId: enrichedBill.clientId,

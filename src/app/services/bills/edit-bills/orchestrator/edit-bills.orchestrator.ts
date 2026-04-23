@@ -97,7 +97,6 @@ export class EditBillsOrchestrator {
         let currentStep: EditBillWorkflowStep = "client";
 
         try {
-            currentStep = "client";
             const resolvedClient = await this.resolveClientId(bill.client);
             if (!resolvedClient.success) {
                 this.lastProcessResult.set(resolvedClient);
