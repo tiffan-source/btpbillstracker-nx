@@ -28,6 +28,7 @@ export interface CreateBillRequest {
 }
 
 type CreateBillWorkflowStep = "client" | "chantier" | "pdf" | "bill";
+const UNEXPECTED_WORKFLOW_ERROR_CODE = "UNEXPECTED_WORKFLOW_ERROR";
 
 export type CreateBillProcessResult =
   | {
@@ -69,6 +70,7 @@ export class CreateBillsOrchestrator {
     createBillProcess = async (bill: CreateBillRequest): Promise<CreateBillProcessResult> => {
         this.lastProcessResult.set(null);
         this.isProcessing.set(true);
+        let currentStep: CreateBillWorkflowStep = "client";
 
         try {
             const resolvedClient = await this.resolveClientId(bill.client);
@@ -77,12 +79,14 @@ export class CreateBillsOrchestrator {
                 return resolvedClient;
             }
 
+            currentStep = "chantier";
             const resolvedChantier = await this.resolveChantierId(bill.chantier);
             if (!resolvedChantier.success) {
                 this.lastProcessResult.set(resolvedChantier);
                 return resolvedChantier;
             }
 
+            currentStep = "pdf";
             const resolvedPdf = await this.resolvePdfId(bill.billPdfFile);
             if (!resolvedPdf.success) {
                 this.lastProcessResult.set(resolvedPdf);
@@ -103,19 +107,13 @@ export class CreateBillsOrchestrator {
 
 
 
+            currentStep = "bill";
             const result = await this.createBillsUsecase.execute(enrichedBill);
             if (!result.success) {
-                const failureResult: CreateBillProcessResult = {
-                    success: false,
-                    step: "bill",
-                    error: {
-                        code: result.error.code,
-                        message: result.error.message
-                    }
-                };
+                const failureResult = this.failure("bill", result.error.code, `Failed to create bill: ${result.error.message}`);
                 this.lastProcessResult.set(failureResult);
                 return failureResult;
-            }else {
+            } else {
                 this.billStore.addBill({
                     id: result.data.id,
                     clientId: enrichedBill.clientId,
@@ -141,6 +139,14 @@ export class CreateBillsOrchestrator {
             };
             this.lastProcessResult.set(successResult);
             return successResult;
+        } catch (error: unknown) {
+            const failureResult = this.failure(
+                currentStep,
+                UNEXPECTED_WORKFLOW_ERROR_CODE,
+                `${this.stepMessage(currentStep)}: ${this.errorMessage(error)}`
+            );
+            this.lastProcessResult.set(failureResult);
+            return failureResult;
         } finally {
             this.isProcessing.set(false);
         }
@@ -206,5 +212,33 @@ export class CreateBillsOrchestrator {
 
         this.chantierStore.addChantier({ id: createdChantier.data.id, name: createdChantier.data.name });
         return { success: true, data: { chantierId: createdChantier.data.id } };
+    }
+
+    private failure(step: CreateBillWorkflowStep, code: string, message: string): CreateBillProcessResult {
+        return {
+            success: false,
+            step,
+            error: {
+                code,
+                message
+            }
+        };
+    }
+
+    private stepMessage(step: CreateBillWorkflowStep): string {
+        switch (step) {
+            case "client":
+                return "Failed to create client";
+            case "chantier":
+                return "Failed to create chantier";
+            case "pdf":
+                return "Failed to upload PDF";
+            case "bill":
+                return "Failed to create bill";
+        }
+    }
+
+    private errorMessage(error: unknown): string {
+        return error instanceof Error ? error.message : "An unexpected error occurred";
     }
 }
