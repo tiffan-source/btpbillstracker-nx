@@ -139,6 +139,7 @@ export class EditBillsOrchestrator {
                 this.lastProcessResult.set(failureResult);
                 return failureResult;
             } else {
+                const persistedBillPdfId = result.data.billDocumentId ?? null;
                 this.billStore.updateBill({
                     id: result.data.id,
                     clientId: resolvedClient.data.clientId,
@@ -150,17 +151,18 @@ export class EditBillsOrchestrator {
                     type: bill.type,
                     paymentMode: bill.paymentMode,
                     reminderScenarioId: bill.reminderScenarioId || null,
-                    billPdfId: resolveBillPdf.data.billPdfId ?? null
+                    billPdfId: persistedBillPdfId
                 });
             }
 
+            const persistedBillPdfId = result.data.billDocumentId ?? null;
             const successResult: EditBillProcessResult = {
                 success: true,
                 data: {
                     billId: result.data.id,
                     clientId: resolvedClient.data.clientId,
                     chantierId: resolvedChantier.data.chantierId,
-                    billPdfId: resolveBillPdf.data.billPdfId ?? null
+                    billPdfId: persistedBillPdfId
                 }
             };
             this.lastProcessResult.set(successResult);
