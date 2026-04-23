@@ -36,10 +36,10 @@ class StaticCurrentUser implements AuthProvider {
 }
 
 describe("EditBillUseCase", () => {
-  it("preserves bill document relation when billDocumentId is provided on edit", async () => {
+  it("replaces bill document relation when a new billDocumentId is provided on edit", async () => {
     const repository = new InMemoryBillRepository();
     const existingBill = new Bill("bill-1", "INV-1", "client-1", "chantier-1");
-    existingBill.setBillDocumentId("pdf-existing");
+    existingBill.setBillDocumentId("pdf-previous");
     repository.seedBill(existingBill);
 
     const useCase = new EditBillUseCase(repository, new StaticCurrentUser());
@@ -47,10 +47,11 @@ describe("EditBillUseCase", () => {
     const result = await useCase.execute({
       billId: "bill-1",
       externalInvoiceReference: "INV-UPDATED",
-      billDocumentId: "pdf-existing",
+      billDocumentId: "pdf-new",
     });
 
     expect(result.success).toBe(true);
-    expect(repository.editedBill?.billDocumentId).toBe("pdf-existing");
+    expect(repository.editedBill?.billDocumentId).toBe("pdf-new");
+    expect((await repository.findById("bill-1"))?.billDocumentId).toBe("pdf-new");
   });
 });

@@ -138,21 +138,22 @@ export class EditBillsOrchestrator {
                 };
                 this.lastProcessResult.set(failureResult);
                 return failureResult;
-            } else {
-                this.billStore.updateBill({
-                    id: result.data.id,
-                    clientId: resolvedClient.data.clientId,
-                    chantierId: resolvedChantier.data.chantierId,
-                    amount: bill.amount,
-                    dueDate: bill.dueDate,
-                    status: result.data.status === BILL_STATUS.PAID ? 'paid' : 'unpaid',
-                    invoiceNumber: bill.invoiceNumber,
-                    type: bill.type,
-                    paymentMode: bill.paymentMode,
-                    reminderScenarioId: bill.reminderScenarioId || null,
-                    billPdfId: resolveBillPdf.data.billPdfId ?? null
-                });
             }
+
+            const persistedBillPdfId = result.data.billDocumentId ?? null;
+            this.billStore.updateBill({
+                id: result.data.id,
+                clientId: resolvedClient.data.clientId,
+                chantierId: resolvedChantier.data.chantierId,
+                amount: bill.amount,
+                dueDate: bill.dueDate,
+                status: result.data.status === BILL_STATUS.PAID ? 'paid' : 'unpaid',
+                invoiceNumber: bill.invoiceNumber,
+                type: bill.type,
+                paymentMode: bill.paymentMode,
+                reminderScenarioId: bill.reminderScenarioId || null,
+                billPdfId: persistedBillPdfId
+            });
 
             const successResult: EditBillProcessResult = {
                 success: true,
@@ -160,7 +161,7 @@ export class EditBillsOrchestrator {
                     billId: result.data.id,
                     clientId: resolvedClient.data.clientId,
                     chantierId: resolvedChantier.data.chantierId,
-                    billPdfId: resolveBillPdf.data.billPdfId ?? null
+                    billPdfId: persistedBillPdfId
                 }
             };
             this.lastProcessResult.set(successResult);
