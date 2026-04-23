@@ -171,19 +171,12 @@ export class EditBillsOrchestrator {
     }
 
     private async resolvePdfId(pdfFile: UploadedBillPdfRequest, billId: string): Promise<EditBillProcessResult | { success: true; data: { billPdfId: string | null } }> {
+        const previousBillPdfId = this.billStore.bills().find((bill) => bill.id === billId)?.billPdfId ?? null;
+
         if (!pdfFile) {
-            const previousBillPdfId = this.billStore.bills().find((bill) => bill.id === billId)?.billPdfId ?? null;
             return { success: true, data: { billPdfId: previousBillPdfId } };
         }
 
-        if(pdfFile) {
-            const previousBillPdfId = this.billStore.bills().find(bill => bill.id === billId)?.billPdfId;
-            
-            if (previousBillPdfId) {
-                await this.deleteBillPdfUseCase.execute(previousBillPdfId);
-            }
-        }
-        
         const uploadResult = await this.uploadBillPdfUseCase.execute(pdfFile);
         if (!uploadResult.success) {
             return {
@@ -191,9 +184,23 @@ export class EditBillsOrchestrator {
                 step: "pdf",
                 error: {
                     code: uploadResult.error.code,
-                    message: `Failed to upload PDF: ${uploadResult.error.message}`
+                    message: `Failed to upload PDF: ${uploadResult.error.message}. Previous PDF is still linked. Please retry the upload.`
                 }
             };
+        }
+
+        if (previousBillPdfId && previousBillPdfId !== uploadResult.data) {
+            const deleteResult = await this.deleteBillPdfUseCase.execute(previousBillPdfId);
+            if (!deleteResult.success) {
+                return {
+                    success: false,
+                    step: "pdf",
+                    error: {
+                        code: deleteResult.error.code,
+                        message: `Uploaded the new PDF but failed to remove the previous one: ${deleteResult.error.message}. Please retry replacement.`
+                    }
+                };
+            }
         }
 
         return { success: true, data: { billPdfId: uploadResult.data } };
