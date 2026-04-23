@@ -5,5 +5,7 @@ export abstract class DocumentRepository {
    */
   abstract saveDocument(documentId: string, file: File, ownerUid: string): Promise<void> ;
 
-    abstract deleteDocument(documentId: string): Promise<void>;
+  abstract deleteDocument(documentId: string): Promise<void>;
+
+  abstract getDocumentUrl(documentId: string): Promise<string>;
 }

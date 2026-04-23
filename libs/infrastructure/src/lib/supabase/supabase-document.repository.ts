@@ -24,4 +24,16 @@ export class SupabaseDocumentRepository implements DocumentRepository {
         .from('btpbilltracker')  
         .remove(['public/' + documentId])
     }
+
+    public async getDocumentUrl(documentId: string): Promise<string> {
+        const { data } = this.supabaseClient.getClient().storage
+        .from('btpbilltracker')
+        .getPublicUrl('public/' + documentId);
+
+        if (!data.publicUrl) {
+            throw new Error('Failed to resolve document URL');
+        }
+
+        return data.publicUrl;
+    }
 }
