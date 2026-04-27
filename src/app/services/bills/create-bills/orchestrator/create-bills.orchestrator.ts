@@ -37,7 +37,7 @@ export type CreateBillProcessResult =
         billId: string;
         clientId: string;
         chantierId: string;
-        billPdfId?: string;
+        billPdfId: string | null;
       };
     }
   | {
@@ -135,7 +135,7 @@ export class CreateBillsOrchestrator {
                         billId: result.data.id,
                         clientId: resolvedClient.data.clientId,
                         chantierId: resolvedChantier.data.chantierId,
-                        ...(persistedBillPdfId ? { billPdfId: persistedBillPdfId } : {})
+                        billPdfId: persistedBillPdfId
                     }
                 };
                 this.lastProcessResult.set(successResult);

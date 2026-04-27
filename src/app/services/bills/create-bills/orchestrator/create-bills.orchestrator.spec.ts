@@ -66,6 +66,7 @@ describe('CreateBillsOrchestrator', () => {
         billId: 'bill-1',
         clientId: 'client-1',
         chantierId: 'chantier-1',
+        billPdfId: null,
       },
     });
     expect(createClientUseCase.execute).not.toHaveBeenCalled();
@@ -107,6 +108,7 @@ describe('CreateBillsOrchestrator', () => {
         billId: 'bill-2',
         clientId: 'client-2',
         chantierId: 'chantier-2',
+        billPdfId: null,
       },
     });
     expect(createClientUseCase.execute).toHaveBeenCalledWith({ firstName: 'Alpha', lastName: 'CLIENT' });
