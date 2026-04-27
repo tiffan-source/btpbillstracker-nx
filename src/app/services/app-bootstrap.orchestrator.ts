@@ -65,7 +65,6 @@ export class AppBootstrapOrchestrator {
                 smsMessage: m.smsMessage
             }))
         })) : []);
-
     });
   }
 

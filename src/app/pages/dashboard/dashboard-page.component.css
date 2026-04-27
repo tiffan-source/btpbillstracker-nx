@@ -1,3 +1,32 @@
 .panel-content {  
   border-color: var(--p-panel-border-color );  
 }
+
+.pdf-icon-action {
+  height: 2rem;
+  width: 2rem;
+  border: 1px solid #f3d4d4;
+  border-radius: 9999px;
+  color: #b91c1c;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 160ms ease-in-out, border-color 160ms ease-in-out;
+}
+
+.pdf-icon-action:hover:not(:disabled) {
+  cursor: pointer;
+  border-color: #ef9a9a;
+  background: #fff1f2;
+}
+
+.pdf-icon-action:focus-visible {
+  outline: 2px solid #b91c1c;
+  outline-offset: 2px;
+}
+
+.pdf-icon-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

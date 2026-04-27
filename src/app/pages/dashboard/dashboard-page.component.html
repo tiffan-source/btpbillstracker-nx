@@ -1,4 +1,6 @@
 <div class="min-h-screen bg-background p-6">
+    <lib-toast/>
+
   <div class="mx-auto flex w-full max-w-6xl flex-col gap-8">
     <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div >
@@ -85,11 +87,14 @@
                 <td> <lib-tags [label]="bills.status" [variant]="bills.status === 'unpaid' ? 'warning' : 'success'" /> </td>
                 <td>_</td>
                 <td>
-                    <div class="flex gap-2 scale-90">
-                        <lib-button variant="secondary"  size="small" label="Modifier" (click)="openEditBillsModal(bills.id)"/>
-                        @if (bills.status === 'unpaid') {
-                            <lib-button size="small" label="Payer" (click)="payBillOrchestrator.payBill(bills.id)"/>
-                        }
+                  <div class="flex items-center gap-2 scale-90">
+                    @if (bills.billPdfId) {
+                      <span (click)="dashboardOrchestrator.billIdToConsult.set(bills.id)" class="pi pi-file-pdf cursor-pointer" aria-hidden="true" style="color: green;"></span>
+                    }
+                    <lib-button variant="secondary"  size="small" label="Modifier" (click)="openEditBillsModal(bills.id)"/>
+                    @if (bills.status === 'unpaid') {
+                        <lib-button size="small" label="Payer" (click)="payBillOrchestrator.payBill(bills.id)"/>
+                    }
                     </div>
                 </td>
             </tr>

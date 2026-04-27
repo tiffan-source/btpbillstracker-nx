@@ -1,13 +1,35 @@
-import { computed, inject, Injectable } from "@angular/core";
+import { computed, inject, Injectable, resource, signal } from "@angular/core";
+import { GetBillPdfUrlUseCase } from "@btpbilltracker/bills";
 import { BillStore } from "src/app/stores/bills.store";
 import { ChantierStore } from "src/app/stores/chantier.store";
 import { ClientStore } from "src/app/stores/client.store";
+
+type ViewBillPdfWorkflowStep = "bill" | "pdf";
+
+export type ViewBillPdfResult =
+    | {
+            success: true;
+            data: {
+                url: string;
+            };
+        }
+    | {
+            success: false;
+            step: ViewBillPdfWorkflowStep;
+            error: {
+                code: string;
+                message: string;
+            };
+        };
 
 @Injectable({ providedIn: 'root' })
 export class DashboardOrchestrator {
     private clientStore = inject(ClientStore);
     private chantierStore = inject(ChantierStore);
     private billStore = inject(BillStore);
+    private getBillPdfUrlUseCase = inject(GetBillPdfUrlUseCase);
+
+    billIdToConsult = signal<string | undefined>(undefined);
 
     billsLineTableData = computed(() => {
         const clients = this.clientStore.clients();
@@ -85,4 +107,62 @@ export class DashboardOrchestrator {
                 }
         });
     });
+
+    billPdfUrl = resource({
+        params: () => {
+            const id = this.billIdToConsult();
+            
+            if (!id) {
+                return undefined;
+            }
+            return { id };
+        },
+
+        loader: ({params}) => this.getBillPdfUrlUseCase.execute(params.id)
+    })
+    
+    
+    // (billId: string): Promise<ViewBillPdfResult> {
+    //     const bill = this.billStore.bills().find((currentBill) => currentBill.id === billId);
+    //     if (!bill) {
+    //         return {
+    //             success: false,
+    //             step: "bill",
+    //             error: {
+    //                 code: "BILL_NOT_FOUND",
+    //                 message: "Impossible de retrouver la facture selectionnee.",
+    //             },
+    //         };
+    //     }
+
+    //     if (!bill.billPdfId) {
+    //         return {
+    //             success: false,
+    //             step: "bill",
+    //             error: {
+    //                 code: "BILL_PDF_NOT_FOUND",
+    //                 message: "Aucun PDF associe a cette facture.",
+    //             },
+    //         };
+    //     }
+
+    //     const result = await this.getBillPdfUrlUseCase.execute(bill.billPdfId);
+    //     if (!result.success) {
+    //         return {
+    //             success: false,
+    //             step: "pdf",
+    //             error: {
+    //                 code: result.error.code,
+    //                 message: `Impossible de charger le PDF: ${result.error.message}`,
+    //             },
+    //         };
+    //     }
+
+    //     return {
+    //         success: true,
+    //         data: {
+    //             url: result.data,
+    //         },
+    //     };
+    // }
 }
