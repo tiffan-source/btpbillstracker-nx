@@ -104,4 +104,50 @@ describe('EditBillsOrchestrator', () => {
     expect(orchestrator.processError()).toBe('Failed to create client: Client service unavailable');
     expect(editBillUseCase.execute).not.toHaveBeenCalled();
   });
+
+  it('reconciles optimistic PDF linkage with persisted bill outcome after edit', async () => {
+    const uploadedPdfId = 'pdf-uploaded';
+    const persistedPdfId = 'pdf-persisted';
+    const request: EditBillRequest = {
+      billId: 'bill-3',
+      type: 'Situation',
+      amount: 200,
+      dueDate: '2026-04-11',
+      paymentMode: 'Espèces',
+      invoiceNumber: 'INV-003',
+      reminderScenarioId: null,
+      billPdfFile: new File(['content'], 'facture.pdf', { type: 'application/pdf' }),
+      client: { mode: 'existing', clientId: 'client-1' },
+      chantier: { mode: 'existing', chantierId: 'chantier-1' },
+    };
+
+    uploadBillPdfUseCase.execute.mockResolvedValue({ success: true, data: uploadedPdfId });
+    editBillUseCase.execute.mockResolvedValue({
+      success: true,
+      data: { id: 'bill-3', status: 'UNPAID', billDocumentId: persistedPdfId },
+    });
+
+    const result = await orchestrator.editBillProcess(request);
+
+    expect(result).toEqual({
+      success: true,
+      data: {
+        billId: 'bill-3',
+        clientId: 'client-1',
+        chantierId: 'chantier-1',
+        billPdfId: persistedPdfId,
+      },
+    });
+    expect(editBillUseCase.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        billDocumentId: uploadedPdfId,
+      }),
+    );
+    expect(billStore.updateBill).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'bill-3',
+        billPdfId: persistedPdfId,
+      }),
+    );
+  });
 });

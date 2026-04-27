@@ -3,6 +3,9 @@ import { CreateEnrichedBillUseCase, UploadBillPdfUseCase } from '@btpbilltracker
 import { CreateChantierUseCase } from '@btpbilltracker/chantiers';
 import { CreateQuickClientUseCase } from '@btpbilltracker/clients';
 import { vi } from 'vitest';
+import { BillStore } from 'src/app/stores/bills.store';
+import { ChantierStore } from 'src/app/stores/chantier.store';
+import { ClientStore } from 'src/app/stores/client.store';
 import { CreateBillsOrchestrator, CreateBillRequest } from './create-bills.orchestrator';
 
 describe('CreateBillsOrchestrator', () => {
@@ -11,12 +14,18 @@ describe('CreateBillsOrchestrator', () => {
   let createClientUseCase: { execute: ReturnType<typeof vi.fn> };
   let createChantierUseCase: { execute: ReturnType<typeof vi.fn> };
   let uploadBillPdfUseCase: { execute: ReturnType<typeof vi.fn> };
+  let billStore: { addBill: ReturnType<typeof vi.fn> };
+  let chantierStore: { addChantier: ReturnType<typeof vi.fn> };
+  let clientStore: { addClient: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     createBillUseCase = { execute: vi.fn() };
     createClientUseCase = { execute: vi.fn() };
     createChantierUseCase = { execute: vi.fn() };
     uploadBillPdfUseCase = { execute: vi.fn() };
+    billStore = { addBill: vi.fn() };
+    chantierStore = { addChantier: vi.fn() };
+    clientStore = { addClient: vi.fn() };
 
     TestBed.configureTestingModule({
       providers: [
@@ -25,6 +34,9 @@ describe('CreateBillsOrchestrator', () => {
         { provide: CreateQuickClientUseCase, useValue: createClientUseCase as unknown as CreateQuickClientUseCase },
         { provide: CreateChantierUseCase, useValue: createChantierUseCase as unknown as CreateChantierUseCase },
         { provide: UploadBillPdfUseCase, useValue: uploadBillPdfUseCase as unknown as UploadBillPdfUseCase },
+        { provide: BillStore, useValue: billStore },
+        { provide: ChantierStore, useValue: chantierStore },
+        { provide: ClientStore, useValue: clientStore },
       ],
     });
 
@@ -54,6 +66,7 @@ describe('CreateBillsOrchestrator', () => {
         billId: 'bill-1',
         clientId: 'client-1',
         chantierId: 'chantier-1',
+        billPdfId: null,
       },
     });
     expect(createClientUseCase.execute).not.toHaveBeenCalled();
@@ -95,6 +108,7 @@ describe('CreateBillsOrchestrator', () => {
         billId: 'bill-2',
         clientId: 'client-2',
         chantierId: 'chantier-2',
+        billPdfId: null,
       },
     });
     expect(createClientUseCase.execute).toHaveBeenCalledWith({ firstName: 'Alpha', lastName: 'CLIENT' });
@@ -223,5 +237,46 @@ describe('CreateBillsOrchestrator', () => {
     });
     expect(orchestrator.processError()).toBe('Failed to create client: Service unavailable');
     expect(createBillUseCase.execute).not.toHaveBeenCalled();
+  });
+
+  it('reconciles optimistic PDF linkage with persisted bill outcome after creation', async () => {
+    const uploadedPdfId = 'pdf-uploaded';
+    const persistedPdfId = 'pdf-persisted';
+    const request: CreateBillRequest = {
+      type: 'Solde',
+      amount: 1000,
+      dueDate: '2026-04-10',
+      paymentMode: 'Virement',
+      invoiceNumber: 'INV-001',
+      reminderScenarioId: null,
+      billPdfFile: new File(['content'], 'facture.pdf', { type: 'application/pdf' }),
+      client: { mode: 'existing', clientId: 'client-1' },
+      chantier: { mode: 'existing', chantierId: 'chantier-1' },
+    };
+
+    uploadBillPdfUseCase.execute.mockResolvedValue({ success: true, data: uploadedPdfId });
+    createBillUseCase.execute.mockResolvedValue({ success: true, data: { id: 'bill-1', billDocumentId: persistedPdfId } });
+
+    const result = await orchestrator.createBillProcess(request);
+
+    expect(result).toEqual({
+      success: true,
+      data: {
+        billId: 'bill-1',
+        clientId: 'client-1',
+        chantierId: 'chantier-1',
+        billPdfId: persistedPdfId,
+      },
+    });
+    expect(createBillUseCase.execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        billDocumentId: uploadedPdfId,
+      }),
+    );
+    expect(billStore.addBill).toHaveBeenCalledWith(
+      expect.objectContaining({
+        billPdfId: persistedPdfId,
+      }),
+    );
   });
 });

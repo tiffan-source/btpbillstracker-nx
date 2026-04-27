@@ -37,7 +37,7 @@ export type CreateBillProcessResult =
         billId: string;
         clientId: string;
         chantierId: string;
-        billPdfId?: string;
+        billPdfId: string | null;
       };
     }
   | {
@@ -114,6 +114,7 @@ export class CreateBillsOrchestrator {
                 this.lastProcessResult.set(failureResult);
                 return failureResult;
             } else {
+                const persistedBillPdfId = result.data.billDocumentId ?? null;
                 this.billStore.addBill({
                     id: result.data.id,
                     clientId: enrichedBill.clientId,
@@ -125,20 +126,21 @@ export class CreateBillsOrchestrator {
                     type: enrichedBill.type,
                     paymentMode: enrichedBill.paymentMode,
                     reminderScenarioId: enrichedBill.reminderScenarioId || null,
-                    billPdfId: enrichedBill.billDocumentId || null
+                    billPdfId: persistedBillPdfId
                 });
-            }
 
-            const successResult: CreateBillProcessResult = {
-                success: true,
-                data: {
-                    billId: result.data.id,
-                    clientId: resolvedClient.data.clientId,
-                    chantierId: resolvedChantier.data.chantierId
-                }
-            };
-            this.lastProcessResult.set(successResult);
-            return successResult;
+                const successResult: CreateBillProcessResult = {
+                    success: true,
+                    data: {
+                        billId: result.data.id,
+                        clientId: resolvedClient.data.clientId,
+                        chantierId: resolvedChantier.data.chantierId,
+                        billPdfId: persistedBillPdfId
+                    }
+                };
+                this.lastProcessResult.set(successResult);
+                return successResult;
+            }
         } catch (error: unknown) {
             const failureResult = this.failure(
                 currentStep,
