@@ -23,6 +23,8 @@ export class InputSelect<T> implements ControlValueAccessor{
   optionLabel = input.required<string>();
   optionValue = input<string>();
   invalid = input<boolean>(false);
+  disabled = input<boolean>(false);
+  isDisabled = signal(false);
     
   // Use signal for value  
   value = signal<T | null>(null);  
@@ -41,8 +43,15 @@ export class InputSelect<T> implements ControlValueAccessor{
   registerOnTouched(fn: any): void {  
     this.onTouched = fn;  
   }  
+
+  setDisabledState(isDisabled: boolean): void {
+    this.isDisabled.set(isDisabled);
+  }
   
   updateValue(newValue: T) {  
+    if (this.disabled() || this.isDisabled()) {
+      return;
+    }
     this.value.set(newValue);  
     this.onChange(newValue);  
     this.onTouched();  

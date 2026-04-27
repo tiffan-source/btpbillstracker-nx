@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { ControlValueAccessor, FormsModule } from '@angular/forms';
+import { Component, effect, input, output, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 
 
@@ -12,31 +12,24 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
   templateUrl: './toogle.html',
   styleUrl: './toogle.css',
 })
-export class Toogle implements ControlValueAccessor {
-    private onChange: (value: any) => void = () => {};
-    private onTouched: () => void = () => {};
+export class Toogle {
+    checked = input<boolean>(false);
+    disabled = input<boolean>(false);
+    checkedChange = output<boolean>();
 
-    writeValue(obj: any): void {
-        this.checked = obj ?? false;
-    }
-
-    registerOnChange(fn: any): void {
-        this.onChange = fn;
-    }
-
-    registerOnTouched(fn: any): void {
-        this.onTouched = fn;
-    }
-
-    setDisabledState(isDisabled: boolean): void {
-        // Handle disabled state if needed
-    }
+    protected value = signal(false);
 
     onToggleChange(value: boolean): void {
-        this.checked = value;
-        this.onChange(value);
-        this.onTouched();
+        if (this.disabled()) {
+            return;
+        }
+        this.value.set(value);
+        this.checkedChange.emit(value);
     }
 
-    checked: boolean = false;
+    constructor() {
+        effect(() => {
+            this.value.set(this.checked());
+        });
+    }
 }

@@ -1,10 +1,11 @@
 <p-select   
   [options]="options()"   
   [(ngModel)]="value"   
-  optionLabel="{{optionLabel()}}"   
+  [optionLabel]="optionLabel()"   
   [optionValue]="optionValue()"
   placeholder="{{placeholder()}}"  
   (ngModelChange)="updateValue($event)"
   fluid
   [invalid]="invalid()"
+  [disabled]="disabled() || isDisabled()"
 />
