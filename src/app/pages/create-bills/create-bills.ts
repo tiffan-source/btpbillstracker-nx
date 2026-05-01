@@ -1,4 +1,4 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, computed, effect, inject } from '@angular/core';
 import { Button, Card, DatePicker, Input, InputFile, InputSelect, Label, Toogle, PageTitle, PageSubTitle, Toast, ToastService, TextError, Modal, Spiner } from "@btpbilltracker/components"
 import { ReactiveFormsModule } from '@angular/forms';
 import { CreateBillForm} from '../../forms/create-bill.form';
@@ -6,6 +6,7 @@ import { BillFormField, PaymentMode, TypeBill } from 'src/app/forms/bill.form.ty
 import { ClientsOrchestrator } from 'src/app/services/clients/orchestrator/clients.orchestrator';
 import { ChantierOrchestrator } from 'src/app/services/chantiers/orchestrator/chantier.orchestrator';
 import { CreateBillsOrchestrator } from 'src/app/services/bills/create-bills/orchestrator/create-bills.orchestrator';
+import { MessageTemplateOrchestrator } from 'src/app/services/messageTemplate/orchestrator/message-template.orchestrator';
 
 @Component({
   selector: 'app-create-bills',
@@ -14,7 +15,14 @@ import { CreateBillsOrchestrator } from 'src/app/services/bills/create-bills/orc
 })
 
 export class CreateBills {
+    billsOrchestrator = inject(CreateBillsOrchestrator);
+    clientOrchestrator = inject(ClientsOrchestrator);
+    chantierOrchestrator = inject(ChantierOrchestrator);
+    toastService = inject(ToastService);
+    messageOrchestrator = inject(MessageTemplateOrchestrator);
+
     protected readonly BillFormField = BillFormField;
+
     protected readonly typeOptions: { label: string, value: TypeBill }[] = [
         { label: "Situation", value: "Situation" },
         { label: "Solde", value: "Solde" },
@@ -26,11 +34,7 @@ export class CreateBills {
         { label: "Espèces", value: "Espèces" },
         { label: "Carte bancaire", value: "Carte bancaire" },
     ]
-
-    billsOrchestrator = inject(CreateBillsOrchestrator);
-    clientOrchestrator = inject(ClientsOrchestrator);
-    chantierOrchestrator = inject(ChantierOrchestrator);
-    toastService = inject(ToastService);
+    protected readonly reminderOptions = computed(() => this.messageOrchestrator.reminderMessage().map(scenario => ({ label: scenario.title, value: scenario.id })));
 
     hasSubmittedInvalidForm = false;
 
@@ -53,12 +57,21 @@ export class CreateBills {
         this.billForm.toggleMode('chantier');
     }
 
+    setReminderEnabled(isEnabled: boolean): void {
+        this.billForm.toogleReminderScenario(isEnabled);
+    }
+
     get isCreatingNewClient(): boolean {
         return this.billForm.isInNewMode('client');
     }
 
     get isCreatingNewChantier(): boolean {
         return this.billForm.isInNewMode('chantier');
+    }
+    
+
+    get isReminderEnabled(): boolean {
+        return this.billForm.isReminderEnabled();
     }
 
     fieldHasError(field: BillFormField): boolean {
@@ -84,7 +97,7 @@ export class CreateBills {
         if (this.billForm.invalid) {
             this.hasSubmittedInvalidForm = true;
             this.billForm.markAllAsTouched();
-            this.toastService.showToast('error', 'Veuillez corriger les erreurs du formulaire');
+            this.toastService.showToast('error', 'Veuilledaz corriger les erreurs du formulaire');
             return;
         }
         

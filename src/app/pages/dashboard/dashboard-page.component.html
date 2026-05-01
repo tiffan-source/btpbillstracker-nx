@@ -85,7 +85,7 @@
                 <td>{{ bills.amount }} €</td>
                 <td>{{ bills.dueDate }}</td>
                 <td> <lib-tags [label]="bills.status" [variant]="bills.status === 'unpaid' ? 'warning' : 'success'" /> </td>
-                <td>_</td>
+                <td>{{ bills.nextRelanceDate }}</td>
                 <td>
                   <div class="flex items-center gap-2 scale-90">
                     @if (bills.billPdfId) {

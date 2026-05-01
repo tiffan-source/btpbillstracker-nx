@@ -139,7 +139,7 @@ export class FirestoreBillRepository extends FirestoreBaseRepository implements 
         type: bill.type,
         paymentMode: bill.paymentMode,
         chantierId: bill.chantierId,
-        billDocumentId: bill.billDocumentId,
+        billDocumentId: bill.billDocumentId || "",
         reminderScenarioId: bill.reminderScenarioId || ""
         };
     }

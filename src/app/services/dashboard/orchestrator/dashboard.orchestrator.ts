@@ -3,31 +3,15 @@ import { GetBillPdfUrlUseCase } from "@btpbilltracker/bills";
 import { BillStore } from "src/app/stores/bills.store";
 import { ChantierStore } from "src/app/stores/chantier.store";
 import { ClientStore } from "src/app/stores/client.store";
-
-type ViewBillPdfWorkflowStep = "bill" | "pdf";
-
-export type ViewBillPdfResult =
-    | {
-            success: true;
-            data: {
-                url: string;
-            };
-        }
-    | {
-            success: false;
-            step: ViewBillPdfWorkflowStep;
-            error: {
-                code: string;
-                message: string;
-            };
-        };
+import { ReminderMessageStore } from "src/app/stores/pre-computed-message.store";
 
 @Injectable({ providedIn: 'root' })
 export class DashboardOrchestrator {
-    private clientStore = inject(ClientStore);
-    private chantierStore = inject(ChantierStore);
-    private billStore = inject(BillStore);
-    private getBillPdfUrlUseCase = inject(GetBillPdfUrlUseCase);
+    private readonly clientStore = inject(ClientStore);
+    private readonly chantierStore = inject(ChantierStore);
+    private readonly billStore = inject(BillStore);
+    private readonly reminderMessageStore = inject(ReminderMessageStore);
+    private readonly getBillPdfUrlUseCase = inject(GetBillPdfUrlUseCase);
 
     billIdToConsult = signal<string | undefined>(undefined);
 
@@ -41,10 +25,26 @@ export class DashboardOrchestrator {
             return {
                 ...bill,
                 clientName: client ? `${client.firstName} ${client.lastName}` : 'Inconnu',
-                chantierName: chantier ? chantier.name : 'Inconnu'
+                chantierName: chantier ? chantier.name : 'Inconnu',
+                nextRelanceDate: bill.reminderScenarioId ? this.getNextRelanceDate(bill.reminderScenarioId) : '_'
             }
         })
     });
+
+    private getNextRelanceDate = (relanceId: string): string => {
+        const relance = this.reminderMessageStore.reminder().find(r => r.id === relanceId);
+        if (!relance) {
+            return '_';
+        }
+
+        const today = new Date();
+        const nextRelance = relance.messagesToSend
+            .map(m => ({...m, nextRelanceDate: new Date(today.getTime() + m.interval * 24 * 3600 * 1000)}))
+            .filter(m => m.nextRelanceDate > today)
+            .sort((a, b) => a.nextRelanceDate.getTime() - b.nextRelanceDate.getTime())[0];
+
+        return nextRelance ? nextRelance.nextRelanceDate.toDateString() : '_';
+    }
 
     totalBillLate = computed(() => {
         const today = new Date();
@@ -121,48 +121,4 @@ export class DashboardOrchestrator {
         loader: ({params}) => this.getBillPdfUrlUseCase.execute(params.id)
     })
     
-    
-    // (billId: string): Promise<ViewBillPdfResult> {
-    //     const bill = this.billStore.bills().find((currentBill) => currentBill.id === billId);
-    //     if (!bill) {
-    //         return {
-    //             success: false,
-    //             step: "bill",
-    //             error: {
-    //                 code: "BILL_NOT_FOUND",
-    //                 message: "Impossible de retrouver la facture selectionnee.",
-    //             },
-    //         };
-    //     }
-
-    //     if (!bill.billPdfId) {
-    //         return {
-    //             success: false,
-    //             step: "bill",
-    //             error: {
-    //                 code: "BILL_PDF_NOT_FOUND",
-    //                 message: "Aucun PDF associe a cette facture.",
-    //             },
-    //         };
-    //     }
-
-    //     const result = await this.getBillPdfUrlUseCase.execute(bill.billPdfId);
-    //     if (!result.success) {
-    //         return {
-    //             success: false,
-    //             step: "pdf",
-    //             error: {
-    //                 code: result.error.code,
-    //                 message: `Impossible de charger le PDF: ${result.error.message}`,
-    //             },
-    //         };
-    //     }
-
-    //     return {
-    //         success: true,
-    //         data: {
-    //             url: result.data,
-    //         },
-    //     };
-    // }
 }

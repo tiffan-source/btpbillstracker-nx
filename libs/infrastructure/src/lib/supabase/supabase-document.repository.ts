@@ -30,9 +30,6 @@
             .from('btpbilltracker')
             .getPublicUrl('public/' + documentId);
 
-            console.log(data);
-            
-
             if (!data.publicUrl) {
                 throw new Error('Failed to resolve document URL');
             }

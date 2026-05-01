@@ -53,6 +53,7 @@ export class CreateBillForm extends FormGroup<BillForm> {
 
         this.setMode('client', false);
         this.setMode('chantier', false);
+        this.toogleReminderScenario(true);
     }
 
     get formValue() {
@@ -63,6 +64,10 @@ export class CreateBillForm extends FormGroup<BillForm> {
         return this.controls[CREATE_BILL_TOGGLE_VALIDATION_RULES[mode].existingField].disabled;
     }
 
+    isReminderEnabled(): boolean {
+        return this.controls[BillFormField.ReminderScenarioId].enabled;
+    }
+
     toggleMode(mode: CreateBillToggleMode): void {
         this.setMode(mode, !this.isInNewMode(mode));
     }
@@ -71,6 +76,20 @@ export class CreateBillForm extends FormGroup<BillForm> {
         const { existingField, newField } = CREATE_BILL_TOGGLE_VALIDATION_RULES[mode];
         this.setControlMode(existingField, !isNewMode);
         this.setControlMode(newField, isNewMode);
+    }
+
+    toogleReminderScenario(isEnabled: boolean): void {
+        const controlName = BillFormField.ReminderScenarioId;
+        const control = this.controls[controlName];
+        if (isEnabled) {
+            control.setValidators([Validators.required]);
+            control.enable({ emitEvent: false });
+        } else {
+            control.setValue(null);
+            control.clearValidators();
+            control.disable({ emitEvent: false });
+        }
+        control.updateValueAndValidity({ emitEvent: false });
     }
 
     private setControlMode(controlName: CreateBillToggleField, isEnabled: boolean): void {

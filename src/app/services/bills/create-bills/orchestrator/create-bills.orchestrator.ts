@@ -158,7 +158,6 @@ export class CreateBillsOrchestrator {
         if (!pdfFile) {
             return { success: true, data: { billPdfId: null } };
         }
-
         const uploadResult = await this.uploadBillPdfUseCase.execute(pdfFile);
         if (!uploadResult.success) {
             return {

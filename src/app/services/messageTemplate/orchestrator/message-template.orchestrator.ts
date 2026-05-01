@@ -5,5 +5,8 @@ import {ReminderMessageStore} from "../../../stores/pre-computed-message.store"
 export class MessageTemplateOrchestrator {
     private reminderMessageStore = inject(ReminderMessageStore);
 
-    reminderMessage = computed(() => this.reminderMessageStore.reminder());
+    reminderMessage = computed(() => {
+        let data = this.reminderMessageStore.reminder();
+        return data;
+    });
 }
