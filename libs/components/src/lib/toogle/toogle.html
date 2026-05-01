@@ -1,1 +1,1 @@
-<p-toggleswitch [ngModel]="value()" (ngModelChange)="onToggleChange($event)" [disabled]="disabled()" />
+<p-toggleswitch [ngModel]="value()" (ngModelChange)="onChange($event)" [disabled]="disabled() || false" />

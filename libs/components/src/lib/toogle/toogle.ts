@@ -1,8 +1,6 @@
-import { Component, effect, input, output, signal } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
-
-
 @Component({
   selector: 'lib-toogle',
   imports: [
@@ -13,23 +11,11 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
   styleUrl: './toogle.css',
 })
 export class Toogle {
-    checked = input<boolean>(false);
-    disabled = input<boolean>(false);
-    checkedChange = output<boolean>();
+    disabled = input<boolean>();
+    value = input<boolean>(false);
+    valueChange = output<boolean>();
 
-    protected value = signal(false);
-
-    onToggleChange(value: boolean): void {
-        if (this.disabled()) {
-            return;
-        }
-        this.value.set(value);
-        this.checkedChange.emit(value);
-    }
-
-    constructor() {
-        effect(() => {
-            this.value.set(this.checked());
-        });
-    }
+  onChange(value: boolean): void {
+    this.valueChange.emit(value);
+  }
 }
