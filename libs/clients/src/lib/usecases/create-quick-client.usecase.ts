@@ -4,6 +4,7 @@ import { ClientPersistenceError } from '../errors/client-persistence.error';
 import { InvalidClientNameError } from '../errors/invalid-client-name.error';
 import { ClientRepository } from '../ports/client.repository';
 import { AuthProvider, NoUserAuthenticatedError } from '@btpbilltracker/auth';
+import { ContactRequiredError } from '../errors/contact-required.error';
 
 export interface CreateQuickClientInput {
   firstName: string;
@@ -22,8 +23,11 @@ export class CreateQuickClientUseCase {
   async execute(input: CreateQuickClientInput): Promise<Result<Client>> {
     try {
       const id = this.idGenerator.generate();
-      const client = new Client(id, input.firstName)
-        .setLastName(input.lastName)
+      const client = new Client(id, input.firstName, input.lastName);
+
+      if (!input.email && !input.phone) {
+        throw new ContactRequiredError();
+      }
 
       if (input.email) {
         client.setEmail(input.email);
@@ -39,7 +43,7 @@ export class CreateQuickClientUseCase {
       await this.repository.save(client, owner.uid);
       return success(client);
     } catch (error: unknown) {
-      if (error instanceof InvalidClientNameError || error instanceof ClientPersistenceError) {
+      if (error instanceof InvalidClientNameError || error instanceof ClientPersistenceError || error instanceof ContactRequiredError) {
         return failure(error.code, error.message, error.metadata);
       }
 
