@@ -26,21 +26,28 @@ export class DashboardOrchestrator {
                 ...bill,
                 clientName: client ? `${client.firstName} ${client.lastName}` : 'Inconnu',
                 chantierName: chantier ? chantier.name : 'Inconnu',
-                nextRelanceDate: bill.reminderScenarioId ? this.getNextRelanceDate(bill.reminderScenarioId) : '_'
+                nextRelanceDate: this.getNextRelanceDate(bill.reminderScenarioId, new Date(bill.dueDate))
             }
         })
     });
 
-    private getNextRelanceDate = (relanceId: string): string => {
+    private getNextRelanceDate = (relanceId: string | null, echeance: Date): string => {
+        if (!relanceId) {
+            return '_';
+        }
+
         const relance = this.reminderMessageStore.reminder().find(r => r.id === relanceId);
+
         if (!relance) {
             return '_';
         }
 
         const today = new Date();
         const nextRelance = relance.messagesToSend
-            .map(m => ({...m, nextRelanceDate: new Date(today.getTime() + m.interval * 24 * 3600 * 1000)}))
-            .filter(m => m.nextRelanceDate > today)
+            .map(m => ({...m, nextRelanceDate: new Date(echeance.getTime() + m.interval * 24 * 3600 * 1000)}))
+            .filter(m => {                
+                return m.nextRelanceDate > today
+            })
             .sort((a, b) => a.nextRelanceDate.getTime() - b.nextRelanceDate.getTime())[0];
 
         return nextRelance ? nextRelance.nextRelanceDate.toDateString() : '_';

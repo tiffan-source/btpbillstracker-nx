@@ -9,4 +9,6 @@ export class MessageTemplateOrchestrator {
         let data = this.reminderMessageStore.reminder();
         return data;
     });
+
+    reminderOptions = computed(() => this.reminderMessage().map(scenario => ({ label: scenario.title, value: scenario.id })));
 }

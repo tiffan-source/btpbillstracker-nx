@@ -1,102 +1,43 @@
-import { computed, inject, Injectable, signal } from "@angular/core";
+import { inject, Injectable, signal } from "@angular/core";
 import { CreateEnrichedBillInput, CreateEnrichedBillUseCase, UploadBillPdfUseCase } from "@btpbilltracker/bills"
-import { CreateQuickClientUseCase } from "@btpbilltracker/clients"
-import { CreateChantierUseCase } from "@btpbilltracker/chantiers";
-import { ClientStore } from "../../../../stores/client.store"
-import { ChantierStore } from "src/app/stores/chantier.store";
+import { ToastService } from "libs/components/src/lib/toast/toast";
 import { BillStore } from "src/app/stores/bills.store";
-
-export type CreateBillClientRequest =
-  | { mode: "existing"; clientId: string }
-  | { mode: "new"; clientName: string };
-
-export type CreateBillChantierRequest =
-  | { mode: "existing"; chantierId: string }
-  | { mode: "new"; chantierName: string };
-export type UploadedBillPdfRequest = File | null;
 
 export interface CreateBillRequest {
   type: string;
-  client: CreateBillClientRequest;
-  chantier: CreateBillChantierRequest;
+  client: string;
+  chantier: string;
   amount: number;
-  dueDate: string;
+  dueDate: Date;
   paymentMode: string;
   invoiceNumber: string;
   reminderScenarioId: string | null;
-  billPdfFile: UploadedBillPdfRequest;
+  billPdfFile: File | null;
 }
-
-type CreateBillWorkflowStep = "client" | "chantier" | "pdf" | "bill";
-const UNEXPECTED_WORKFLOW_ERROR_CODE = "UNEXPECTED_WORKFLOW_ERROR";
-
-export type CreateBillProcessResult =
-  | {
-      success: true;
-      data: {
-        billId: string;
-        clientId: string;
-        chantierId: string;
-        billPdfId: string | null;
-      };
-    }
-  | {
-      success: false;
-      step: CreateBillWorkflowStep;
-      error: {
-        code: string;
-        message: string;
-      };
-    };
 
 @Injectable({ providedIn: 'root' })
 export class CreateBillsOrchestrator {
     private createBillsUsecase = inject(CreateEnrichedBillUseCase)
-    private createClientUsecase = inject(CreateQuickClientUseCase)
-    private createChantierUsecase = inject(CreateChantierUseCase)
     private uploadBillPdfUseCase = inject(UploadBillPdfUseCase)
-
-    private clientStore = inject(ClientStore);
-    private chantierStore = inject(ChantierStore);
+    private readonly toastService = inject(ToastService);
     private billStore = inject(BillStore);
 
-    private lastProcessResult = signal<CreateBillProcessResult | null>(null);
-    processError = computed(() => {
-        const result = this.lastProcessResult();
-        return result && !result.success ? result.error.message : null;
-    });
     isProcessing = signal(false);
     
-    createBillProcess = async (bill: CreateBillRequest): Promise<CreateBillProcessResult> => {
-        this.lastProcessResult.set(null);
+    createBillProcess = async (bill: CreateBillRequest): Promise<void> => {
         this.isProcessing.set(true);
-        let currentStep: CreateBillWorkflowStep = "client";
 
         try {
-            const resolvedClient = await this.resolveClientId(bill.client);
-            if (!resolvedClient.success) {
-                this.lastProcessResult.set(resolvedClient);
-                return resolvedClient;
-            }
-
-            currentStep = "chantier";
-            const resolvedChantier = await this.resolveChantierId(bill.chantier);
-            if (!resolvedChantier.success) {
-                this.lastProcessResult.set(resolvedChantier);
-                return resolvedChantier;
-            }
-
-            currentStep = "pdf";
             const resolvedPdf = await this.resolvePdfId(bill.billPdfFile);
             if (!resolvedPdf.success) {
-                this.lastProcessResult.set(resolvedPdf);
-                return resolvedPdf;
+                this.toastService.showToast('error', "Une erreur est survenue lors de l'upload du PDF de la facture");
+                return;
             }
 
             const enrichedBill: CreateEnrichedBillInput = {
                 type: bill.type,
-                clientId: resolvedClient.data.clientId,
-                chantierId: resolvedChantier.data.chantierId,
+                clientId: bill.client,
+                chantierId: bill.chantier,
                 amountTTC: bill.amount,
                 dueDate: bill.dueDate,
                 paymentMode: bill.paymentMode,
@@ -105,14 +46,10 @@ export class CreateBillsOrchestrator {
                 billDocumentId: resolvedPdf.data.billPdfId || undefined
             };
 
-
-
-            currentStep = "bill";
             const result = await this.createBillsUsecase.execute(enrichedBill);
             if (!result.success) {
-                const failureResult = this.failure("bill", result.error.code, `Failed to create bill: ${result.error.message}`);
-                this.lastProcessResult.set(failureResult);
-                return failureResult;
+                this.toastService.showToast('error', "Une erreur est survenue lors de la création de la facture");
+                return;
             } else {
                 const persistedBillPdfId = result.data.billDocumentId ?? null;
                 this.billStore.addBill({
@@ -120,7 +57,7 @@ export class CreateBillsOrchestrator {
                     clientId: enrichedBill.clientId,
                     chantierId: enrichedBill.chantierId,
                     amount: enrichedBill.amountTTC,
-                    dueDate: enrichedBill.dueDate,
+                    dueDate: enrichedBill.dueDate.toDateString(),
                     status: 'unpaid',
                     invoiceNumber: enrichedBill.externalInvoiceReference,
                     type: enrichedBill.type,
@@ -128,33 +65,18 @@ export class CreateBillsOrchestrator {
                     reminderScenarioId: enrichedBill.reminderScenarioId || null,
                     billPdfId: persistedBillPdfId
                 });
-
-                const successResult: CreateBillProcessResult = {
-                    success: true,
-                    data: {
-                        billId: result.data.id,
-                        clientId: resolvedClient.data.clientId,
-                        chantierId: resolvedChantier.data.chantierId,
-                        billPdfId: persistedBillPdfId
-                    }
-                };
-                this.lastProcessResult.set(successResult);
-                return successResult;
+                this.toastService.showToast('success', "La facture a été créée avec succès");
+                return ;
             }
         } catch (error: unknown) {
-            const failureResult = this.failure(
-                currentStep,
-                UNEXPECTED_WORKFLOW_ERROR_CODE,
-                `${this.stepMessage(currentStep)}: ${this.errorMessage(error)}`
-            );
-            this.lastProcessResult.set(failureResult);
-            return failureResult;
+            this.toastService.showToast('error', "Une erreur est survenue lors de la création de la facture");
+            return ;
         } finally {
             this.isProcessing.set(false);
         }
     }
 
-    private async resolvePdfId(pdfFile: UploadedBillPdfRequest): Promise<CreateBillProcessResult | { success: true; data: { billPdfId: string | null } }> {
+    private async resolvePdfId(pdfFile: File | null): Promise<{ success: boolean; data: { billPdfId: string | null } }> {
         if (!pdfFile) {
             return { success: true, data: { billPdfId: null } };
         }
@@ -162,84 +84,11 @@ export class CreateBillsOrchestrator {
         if (!uploadResult.success) {
             return {
                 success: false,
-                step: "pdf",
-                error: {
-                    code: uploadResult.error.code,
-                    message: `Failed to upload PDF: ${uploadResult.error.message}`
-                }
+                data: { billPdfId: null }
             };
         }
 
         return { success: true, data: { billPdfId: uploadResult.data } };
     }
 
-    private async resolveClientId(client: CreateBillClientRequest): Promise<CreateBillProcessResult | { success: true; data: { clientId: string } }> {
-        if (client.mode === "existing") {
-            return { success: true, data: { clientId: client.clientId } };
-        }
-
-        const createdClient = await this.createClientUsecase.execute({ firstName: client.clientName, lastName: "CLIENT" });
-        if (!createdClient.success) {
-            return {
-                success: false,
-                step: "client",
-                error: {
-                    code: createdClient.error.code,
-                    message: `Failed to create client: ${createdClient.error.message}`
-                }
-            };
-        }
-
-        this.clientStore.addClient({ id: createdClient.data.id, firstName: createdClient.data.firstName ?? '', lastName: createdClient.data.lastName ?? '' });
-        return { success: true, data: { clientId: createdClient.data.id } };
-    }
-
-    private async resolveChantierId(chantier: CreateBillChantierRequest): Promise<CreateBillProcessResult | { success: true; data: { chantierId: string } }> {
-        if (chantier.mode === "existing") {
-            return { success: true, data: { chantierId: chantier.chantierId } };
-        }
-
-        const createdChantier = await this.createChantierUsecase.execute({ name: chantier.chantierName });
-        if (!createdChantier.success) {
-            return {
-                success: false,
-                step: "chantier",
-                error: {
-                    code: createdChantier.error.code,
-                    message: `Failed to create chantier: ${createdChantier.error.message}`
-                }
-            };
-        }
-
-        this.chantierStore.addChantier({ id: createdChantier.data.id, name: createdChantier.data.name });
-        return { success: true, data: { chantierId: createdChantier.data.id } };
-    }
-
-    private failure(step: CreateBillWorkflowStep, code: string, message: string): CreateBillProcessResult {
-        return {
-            success: false,
-            step,
-            error: {
-                code,
-                message
-            }
-        };
-    }
-
-    private stepMessage(step: CreateBillWorkflowStep): string {
-        switch (step) {
-            case "client":
-                return "Failed to create client";
-            case "chantier":
-                return "Failed to create chantier";
-            case "pdf":
-                return "Failed to upload PDF";
-            case "bill":
-                return "Failed to create bill";
-        }
-    }
-
-    private errorMessage(error: unknown): string {
-        return error instanceof Error ? error.message : "An unexpected error occurred";
-    }
 }

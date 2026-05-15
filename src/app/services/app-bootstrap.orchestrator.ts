@@ -44,7 +44,7 @@ export class AppBootstrapOrchestrator {
             { 
                 id: b.id,
                 amount: b.amountTTC || 0,
-                dueDate: b.dueDate || '',
+                dueDate: b.dueDate?.toDateString() || '',
                 status: b.status === BILL_STATUS.PAID ? 'paid' : 'unpaid',
                 clientId: b.clientId || '',
                 chantierId: b.chantierId || '',
