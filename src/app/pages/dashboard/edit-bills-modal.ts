@@ -1,39 +1,59 @@
-import { Component, effect, inject, input, output } from "@angular/core";
+import { Component, computed, effect, inject, input, output } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
-import { Modal, Button, Label, TextError, Input, InputSelect, DatePicker, InputFile, ToastService } from "@btpbilltracker/components";
+import { Modal, Button, Tabs } from "@btpbilltracker/components";
 import { BillFormField, PaymentMode, TypeBill } from "src/app/forms/bill.form.type";
 import { EditBillForm } from "src/app/forms/edit-bill.form";
-import { ChantierOrchestrator } from "src/app/services/chantiers/orchestrator/chantier.orchestrator";
-import { ClientsOrchestrator } from "src/app/services/clients/orchestrator/clients.orchestrator";
 import { EditBillsOrchestrator } from "src/app/services/bills/edit-bills/orchestrator/edit-bills.orchestrator";
+import { EditClient } from "./edit-client";
+import { EditChantier } from "./edit-chantier";
+import { EditDetail } from "./edit-detail";
+import { EditDocument } from "./edit-document";
+
+type stepType = "client" | "chantier" | "details" | "document";
 
 @Component({
     selector: 'app-edit-bills-modal',
     templateUrl: './edit-bills-modal.html',
-    imports: [Modal, Button, ReactiveFormsModule, Label, TextError, Input, InputSelect, DatePicker, InputFile],
+    imports: [Modal, Button, ReactiveFormsModule, Tabs, EditClient, EditChantier, EditDetail, EditDocument],
 })
 export class EditBillsModal {
-    editBillOrchestrator = inject(EditBillsOrchestrator);
     billId = input<string | null>(null);
+    editBillOrchestrator = inject(EditBillsOrchestrator);
     billIdChange = output<string | null>();
-    billForm: EditBillForm;
-    hasSubmittedInvalidForm = false;
-    clientOrchestrator = inject(ClientsOrchestrator);
-    chantierOrchestrator = inject(ChantierOrchestrator);
-    toastService = inject(ToastService);
 
-    protected readonly BillFormField = BillFormField;
-    protected readonly typeOptions: { label: string, value: TypeBill }[] = [
-        { label: "Situation", value: "Situation" },
-        { label: "Solde", value: "Solde" },
-        { label: "Acompte", value: "Acompte" },
+    billForm: EditBillForm;
+
+    pdfExistOnBill = computed(() => {
+        const currentId = this.billId();
+        if (!currentId) return false;
+        
+        const billInformation = this.editBillOrchestrator.getBillInformationToEdit(currentId);
+        return !!billInformation.documentId;
+    });
+
+    readonly editionSteps = [
+        {
+            step: "client" as stepType,
+            stepName: "Client",
+            primeIcon: "pi pi-user-edit",
+        },
+        {
+            step: "chantier" as stepType,
+            stepName: "Chantier",
+            primeIcon: "pi pi-briefcase"
+        },
+        {
+            step: "details" as stepType,
+            stepName: "Détails",
+            primeIcon: "pi pi-file-edit"
+        },
+        {
+            step: "document" as stepType,
+            stepName: "Document",
+            primeIcon: "pi pi-file"
+        }
     ];
-    protected readonly paymentModeOptions: { label: string, value: PaymentMode }[] = [
-        { label: "Virement", value: "Virement" },
-        { label: "Chèque", value: "Chèque" },
-        { label: "Espèces", value: "Espèces" },
-        { label: "Carte bancaire", value: "Carte bancaire" },
-    ]
+
 
     constructor() {
         this.billForm = new EditBillForm({
@@ -57,9 +77,7 @@ export class EditBillsModal {
 
             this.billForm.patchValue({
                 [BillFormField.ClientId]: billInformation.clientId,
-                [BillFormField.NewClientName]: '',
                 [BillFormField.ChantierId]: billInformation.chantierId,
-                [BillFormField.NewChantierName]: '',
                 [BillFormField.AmountTTC]: billInformation.amount,
                 [BillFormField.DueDate]: billInformation.dueDate,
                 [BillFormField.InvoiceNumber]: billInformation.invoiceNumber,
@@ -67,86 +85,35 @@ export class EditBillsModal {
                 [BillFormField.PaymentMode]: billInformation.paymentMode as PaymentMode,
                 [BillFormField.ReminderScenarioId]: billInformation.reminderScenarioId
             });
-
-            this.hasSubmittedInvalidForm = false;
         });
 
-        effect(() => {
-            const error = this.editBillOrchestrator.processError();
-            if (error) {
-                this.toastService.showToast('error', error);
-            }
-        })
-    }
-
-    toggleNewClientMode() {
-        this.billForm.toggleMode('client');
-    }
-
-    toggleNewChantierMode() {
-        this.billForm.toggleMode('chantier');
-    }
-
-    get isCreatingNewClient(): boolean {
-        return this.billForm.isInNewMode('client');
-    }
-
-    get isCreatingNewChantier(): boolean {
-        return this.billForm.isInNewMode('chantier');
-    }
-
-    fieldHasError(field: BillFormField): boolean {
-        const control = this.billForm.controls[field];        
-        return !!(control && control.invalid && this.hasSubmittedInvalidForm);
-    }
-
-    fieldErrorMessage(field: BillFormField): string | null {
-        return this.billForm.getErrors(field);
     }
 
     closeModal() {
         this.billIdChange.emit(null);
     }
 
-
-    async editBill(): Promise<void> {
+    async editBill() {
         const currentBillId = this.billId();
-        if (!currentBillId) {
-            this.toastService.showToast('error', 'Aucune facture a modifier');
-            return;
-        }
-
         const formValue = this.billForm.formValue;
 
         if (this.billForm.invalid) {
-            this.hasSubmittedInvalidForm = true;
-            this.billForm.markAllAsTouched();
-            this.toastService.showToast('error', 'Veuillez corriger les erreurs du formulaire');
             return;
         }
-        
-        const { amountTTC, chantierId, chantierName, clientId, dueDate, invoiceNumber, type, paymentMode, reminderScenarioId, newClientName, billPdf } = formValue;
 
-        const result = await this.editBillOrchestrator.editBillProcess({
-            billId: currentBillId,
-            amount: amountTTC,
-            chantier: this.isCreatingNewChantier
-                ? { mode: 'new', chantierName: chantierName ?? '' }
-                : { mode: 'existing', chantierId: chantierId ?? '' },
-            client: this.isCreatingNewClient
-                ? { mode: 'new', clientName: newClientName ?? '' }
-                : { mode: 'existing', clientId: clientId ?? '' },
-            dueDate: dueDate?.toDateString() ?? '',
-            invoiceNumber: invoiceNumber,
+        const { amountTTC, chantierId, clientId, dueDate, invoiceNumber, type, paymentMode, reminderScenarioId } = formValue;
+
+        await this.editBillOrchestrator.editBillProcess({
+            billId: currentBillId!,
             type: type,
+            amount: amountTTC,
+            chantier: chantierId,
+            client: clientId,
+            dueDate: dueDate,
+            invoiceNumber: invoiceNumber,
             paymentMode: paymentMode,
             reminderScenarioId: reminderScenarioId,
-            billPdfFile: billPdf
+            billPdfFile: formValue.billPdf
         });
-        
-        if (result.success) {
-            this.toastService.showToast('success', 'Facture modifiee avec succes');
-            this.closeModal();
-        }
     }
 }

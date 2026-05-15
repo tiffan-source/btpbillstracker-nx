@@ -1,0 +1,47 @@
+<form [formGroup]="parentForm()">
+        <!-- Montant & Date d'échéance -->
+        <div class="flex gap-4 mb-4">
+            <div class="flex flex-col flex-1">
+                <lib-label for="montant" label="Montant TTC ($)"></lib-label>
+                <lib-input [formControlName]="BillFormField.AmountTTC" type="number" placeholder="0,00" id="montant"></lib-input>
+                
+            </div>
+            <div class="flex flex-col flex-1">
+                <lib-label for="echeance" label="Date d'échéance"></lib-label>
+                <lib-date-picker [formControlName]="BillFormField.DueDate" id="echeance" placeholder="mm / dd / yyyy"></lib-date-picker>
+            </div>
+        </div>
+
+        <!-- Numero de facture & Type -->
+        <div class="flex gap-4 mb-4">
+            <div class="flex flex-col flex-1">
+                <lib-label for="facture" label="Numero de facture"></lib-label>
+                <lib-input [formControlName]="BillFormField.InvoiceNumber" type="text" placeholder="FAC-001" id="facture"></lib-input>
+            </div>
+            <div class="flex flex-col flex-1">
+                <lib-label for="type" label="Type"></lib-label>
+                <lib-input-select [options]="typeOptions" [formControlName]="BillFormField.Type" id="type" optionLabel="label" optionValue="value" placeholder="Selectionner un type"></lib-input-select>
+            </div>
+        </div>
+
+        <!-- Méthode de paiement -->
+        <div class="flex flex-col mb-4">
+            <lib-label for="paiement" label="Méthode de paiement prevu"></lib-label>
+            <lib-input-select [options]="paymentModeOptions" placeholder="Selectionner le mode de paiement" optionLabel="label" optionValue="value" [formControlName]="BillFormField.PaymentMode" id="paiement"></lib-input-select>
+        </div>
+
+        <div class="flex flex-col mb-4">
+            <lib-label for="scenario" label="Scenario"></lib-label>
+            <lib-input-select placeholder="Selectionner un scenario de relance" [formControlName]="BillFormField.ReminderScenarioId" [options]="messageOrchestrator.reminderOptions()" optionLabel="label" optionValue="value"></lib-input-select>
+        </div>
+
+        <div class="flex justify-between items-center p-3 rounded bg-primary/15">
+            <div class="flex flex-col">
+                <lib-label for="automated-reminders" label="Relances automatiques"></lib-label>
+                <span>Désactivez si vous gérez à la main</span>
+            </div>
+            <div>
+                <lib-toogle [value]="isReminderEnabled" (valueChange)="setReminderEnabled($event)"/>
+            </div>
+        </div>
+</form>

@@ -1,0 +1,31 @@
+<lib-card title="Informations du chantier" subtitle="Remplissez les détails du chantier ou sélectionnez un chantier existant">
+    <form [formGroup]="parentForm()">
+        <div class="flex flex-col">
+            <lib-label for="chantier" label="Selectionner un chantier"></lib-label>
+            <lib-input-select class="flex-1" optionLabel="label" optionValue="value" [options]="chantierOrchestrator.chantierOptions()"  [formControlName]="BillFormField.ChantierId" placeholder="Selectionner un chantier" id="chantier"></lib-input-select>
+        </div>
+    </form>
+    <lib-divider>
+        <span>ou</span>
+    </lib-divider>
+    <form [formGroup]="chantierForm">
+        <div class="flex flex-col">
+            <lib-label for="chantier_name" label="Nom ou adresse du chantier"></lib-label>
+            <div class="flex items-center gap-4">
+                <lib-input class="flex-1"  [formControlName]="ChantierFormField.ChantierName" placeholder="Nom ou adresse du chantier" id="chantier_name"></lib-input>
+                <lib-button label="Créer le chantier" (click)="createChantier()"></lib-button>
+            </div>
+        </div>
+    </form>
+    <div card-footer>
+        <div class="flex justify-between items-center">
+            <span class="text-sm text-green-500">
+                {{ parentForm().controls[BillFormField.ChantierId].value | chantierNameFromId }}
+            </span>
+            <div class="flex gap-4">
+                <lib-button variant="secondary" label="Précédent" (click)="goPrevious.emit()"></lib-button>
+                <lib-button [disable]="!parentForm().controls[BillFormField.ChantierId].value" (click)="goNext.emit()" label="Suivant"></lib-button>
+            </div>
+        </div>
+    </div>
+</lib-card>

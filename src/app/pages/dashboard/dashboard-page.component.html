@@ -1,5 +1,4 @@
 <div class="min-h-screen bg-background p-6">
-    <lib-toast/>
 
   <div class="mx-auto flex w-full max-w-6xl flex-col gap-8">
     <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -40,28 +39,6 @@
         }
       </lib-panel>
 
-      <!-- <div class="rounded-card border border-subtle bg-surface p-5">
-        <div class="flex flex-col gap-3">
-          @for (invoice of facade.urgentInvoices(); track invoice.id) {
-            <article class="grid grid-cols-1 gap-2 text-sm md:grid-cols-4">
-              <p class="font-semibold text-foreground">
-                <span>{{ invoice.client }}</span>
-                @if (invoice.showsIncompleteClientIndicator) {
-                  <span
-                    class="ml-2 inline-flex rounded-full border border-warning/30 bg-warning/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-warning"
-                    title="Profil client incomplet"
-                  >
-                    Client incomplet
-                  </span>
-                }
-              </p>
-              <p class="text-foreground-muted">{{ invoice.chantier }}</p>
-              <p class="font-semibold text-foreground">{{ invoice.amountTTC }} €</p>
-              <p class="text-danger">{{ invoice.overdueDays }}j de retard</p>
-            </article>
-          }
-        </div>
-      </div> -->
     </section>
 
 
@@ -89,7 +66,7 @@
                 <td>
                   <div class="flex items-center gap-2 scale-90">
                     @if (bills.billPdfId) {
-                      <span (click)="dashboardOrchestrator.billIdToConsult.set(bills.id)" class="pi pi-file-pdf cursor-pointer" aria-hidden="true" style="color: green;"></span>
+                      <span (click)="consultBillPdf(bills.id)" class="pi pi-file-pdf cursor-pointer" aria-hidden="true" style="color: green;"></span>
                     }
                     <lib-button variant="secondary"  size="small" label="Modifier" (click)="openEditBillsModal(bills.id)"/>
                     @if (bills.status === 'unpaid') {
@@ -101,5 +78,5 @@
         </ng-template>
     </lib-table>
   </div>
-        <app-edit-bills-modal [billId]="billIdToEdit()" (billIdChange)="billIdToEdit.set($event)"></app-edit-bills-modal>
+    <app-edit-bills-modal [billId]="billIdToEdit()" (billIdChange)="billIdToEdit.set($event)"></app-edit-bills-modal>
 </div>

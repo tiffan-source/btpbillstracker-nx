@@ -7,7 +7,7 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
   selector: 'app-register',
-  imports: [Button, RouterLink, PageTitle, PageSubTitle, ReactiveFormsModule, Label, Input, Toast],
+  imports: [Button, RouterLink, PageTitle, PageSubTitle, ReactiveFormsModule, Label, Input],
   templateUrl: './register.html',
 })
 export class Register {

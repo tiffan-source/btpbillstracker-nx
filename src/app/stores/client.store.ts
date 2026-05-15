@@ -4,6 +4,8 @@ type ClientViewModel = {
     id: string;
     firstName: string;
     lastName: string;
+    email?: string;
+    phone?: string;
 }
 
 type ClientState = {

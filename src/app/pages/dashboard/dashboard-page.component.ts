@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Button, KpiCard, KpiCardVariant, PageSubTitle, PageTitle, Panel, Table, Tags, Toast, ToastService } from '@btpbilltracker/components';
+import { Button, KpiCard, KpiCardVariant, PageSubTitle, PageTitle, Panel, Table, Tags, ToastService } from '@btpbilltracker/components';
 import { DashboardOrchestrator } from 'src/app/services/dashboard/orchestrator/dashboard.orchestrator';
 import { EditBillsModal } from './edit-bills-modal';
 import { PayBillOrchestrator } from 'src/app/services/bills/pay-bill/orchestrator/pay-bill.orchestrator';
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [PageTitle, PageSubTitle, Button, KpiCard, Table, Panel, EditBillsModal, Tags, Toast],
+  imports: [PageTitle, PageSubTitle, Button, KpiCard, Table, Panel, EditBillsModal, Tags],
   templateUrl: './dashboard-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './dashboard-page.component.css'
@@ -45,6 +45,10 @@ export class DashboardPageComponent {
                 this.dashboardOrchestrator.billIdToConsult.set(undefined);
             }
         });
+    }
+
+    consultBillPdf(billId: string) {
+        this.dashboardOrchestrator.billIdToConsult.set(billId);
     }
 
     goToCreateBill() {

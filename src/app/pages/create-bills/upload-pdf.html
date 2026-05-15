@@ -1,0 +1,16 @@
+
+<lib-card title="Informations de la facture" subtitle="Renseignez les détails de la facture">
+    <form [formGroup]="parentForm()">
+        <div class="flex flex-col">
+            <lib-label for="pdf-facture" label="PDF de la facture (optionnel)"></lib-label>
+            <lib-input-file id="pdf-facture" (fileSelected)="onFileChange($event)"></lib-input-file>
+        </div>
+    </form>
+
+    <div card-footer>
+        <div class="flex justify-between items-center">
+            <lib-button variant="secondary" (click)="goPrevious.emit()" label="Précédent"></lib-button>
+            <lib-button [disable]="false" (click)="goNext.emit()" label="Suivant"></lib-button>
+        </div>
+    </div>
+</lib-card>

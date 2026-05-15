@@ -8,3 +8,4 @@
 - [] Explain error handling to copilot
 - [] Il faut qu'on se debarrasse de get AUth un peu partout dans les usecases
 - [] Factoriser les usecases ?
+- [] Error store cleanup and contralize gestion (maybe even centralize toaster)

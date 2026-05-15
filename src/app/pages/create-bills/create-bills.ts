@@ -1,78 +1,57 @@
-import { Component, computed, effect, inject } from '@angular/core';
-import { Button, Card, DatePicker, Input, InputFile, InputSelect, Label, Toogle, PageTitle, PageSubTitle, Toast, ToastService, TextError, Modal, Spiner } from "@btpbilltracker/components"
+import { Component, inject, signal } from '@angular/core';
+import { PageTitle, PageSubTitle} from "@btpbilltracker/components"
 import { ReactiveFormsModule } from '@angular/forms';
 import { CreateBillForm} from '../../forms/create-bill.form';
-import { BillFormField, PaymentMode, TypeBill } from 'src/app/forms/bill.form.type';
-import { ClientsOrchestrator } from 'src/app/services/clients/orchestrator/clients.orchestrator';
-import { ChantierOrchestrator } from 'src/app/services/chantiers/orchestrator/chantier.orchestrator';
+import { BillFormField } from 'src/app/forms/bill.form.type';
 import { CreateBillsOrchestrator } from 'src/app/services/bills/create-bills/orchestrator/create-bills.orchestrator';
-import { MessageTemplateOrchestrator } from 'src/app/services/messageTemplate/orchestrator/message-template.orchestrator';
+import { CreateOrSelectClient } from './create-or-select-client';
+import { CreateOrSelectChantier } from './create-or-select-chantier';
+import { BillDetail } from './bill-detail';
+import { UploadPdf } from "./upload-pdf";
+import { RelanceSelection } from './relance-selection';
 
 @Component({
   selector: 'app-create-bills',
-  imports: [Card, Input, ReactiveFormsModule, InputSelect, Label, Button, DatePicker, InputFile, Toogle, PageTitle, PageSubTitle, Toast, TextError, Modal, Spiner],
+  imports: [ReactiveFormsModule, PageTitle, PageSubTitle, CreateOrSelectClient, CreateOrSelectChantier, BillDetail, UploadPdf, RelanceSelection],
   templateUrl: './create-bills.html',
 })
 
 export class CreateBills {
     billsOrchestrator = inject(CreateBillsOrchestrator);
-    clientOrchestrator = inject(ClientsOrchestrator);
-    chantierOrchestrator = inject(ChantierOrchestrator);
-    toastService = inject(ToastService);
-    messageOrchestrator = inject(MessageTemplateOrchestrator);
 
     protected readonly BillFormField = BillFormField;
 
-    protected readonly typeOptions: { label: string, value: TypeBill }[] = [
-        { label: "Situation", value: "Situation" },
-        { label: "Solde", value: "Solde" },
-        { label: "Acompte", value: "Acompte" },
-    ];
-    protected readonly paymentModeOptions: { label: string, value: PaymentMode }[] = [
-        { label: "Virement", value: "Virement" },
-        { label: "Chèque", value: "Chèque" },
-        { label: "Espèces", value: "Espèces" },
-        { label: "Carte bancaire", value: "Carte bancaire" },
-    ]
-    protected readonly reminderOptions = computed(() => this.messageOrchestrator.reminderMessage().map(scenario => ({ label: scenario.title, value: scenario.id })));
+    steps = signal<('client' | 'chantier' | 'details' | 'pdf' | 'relance')>('client');
+
+    nextStep(): void {
+        const currentStep = this.steps();
+        if (currentStep === 'client') {
+            this.steps.set('chantier');
+        } else if (currentStep === 'chantier') {
+            this.steps.set('details');
+        } else if (currentStep === 'details') {
+            this.steps.set('pdf');
+        } else if (currentStep === 'pdf') {
+            this.steps.set('relance');
+        }
+    }
+
+    previousStep(): void {
+        const currentStep = this.steps();
+        if (currentStep === 'relance') {
+            this.steps.set('pdf');
+        } else if (currentStep === 'pdf') {
+            this.steps.set('details');
+        } else if (currentStep === 'details') {
+            this.steps.set('chantier');
+        } else if (currentStep === 'chantier') {
+            this.steps.set('client');
+        }
+    }
 
     hasSubmittedInvalidForm = false;
 
     billForm = new CreateBillForm();
-
-    constructor() {
-        effect(() => {
-            const error = this.billsOrchestrator.processError();
-            if (error) {
-                this.toastService.showToast('error', error);
-            }
-        })
-    }
-
-    toggleNewClientMode() {
-        this.billForm.toggleMode('client');
-    }
-
-    toggleNewChantierMode() {
-        this.billForm.toggleMode('chantier');
-    }
-
-    setReminderEnabled(isEnabled: boolean): void {
-        this.billForm.toogleReminderScenario(isEnabled);
-    }
-
-    get isCreatingNewClient(): boolean {
-        return this.billForm.isInNewMode('client');
-    }
-
-    get isCreatingNewChantier(): boolean {
-        return this.billForm.isInNewMode('chantier');
-    }
-    
-
-    get isReminderEnabled(): boolean {
-        return this.billForm.isReminderEnabled();
-    }
 
     fieldHasError(field: BillFormField): boolean {
         const control = this.billForm.controls[field];        
@@ -83,47 +62,31 @@ export class CreateBills {
         return this.billForm.getErrors(field);
     }
 
-    onFileChange(file: File | null): void {
-        this.billForm.patchValue({
-        [BillFormField.BillPdf]: file
-        });
-        
-        this.billForm.controls[BillFormField.BillPdf].updateValueAndValidity();
-    }
-
     async createBill(): Promise<void> {
         const formValue = this.billForm.formValue;
 
         if (this.billForm.invalid) {
             this.hasSubmittedInvalidForm = true;
             this.billForm.markAllAsTouched();
-            this.toastService.showToast('error', 'Veuilledaz corriger les erreurs du formulaire');
             return;
         }
         
-        const { amountTTC, chantierId, chantierName, clientId, dueDate, invoiceNumber, type, paymentMode, reminderScenarioId, newClientName } = formValue;
+        const { amountTTC, chantierId, clientId, dueDate, invoiceNumber, type, paymentMode, reminderScenarioId, billPdf } = formValue;
 
-        const result = await this.billsOrchestrator.createBillProcess({
+        await this.billsOrchestrator.createBillProcess({
             amount: amountTTC,
-            chantier: this.isCreatingNewChantier
-                ? { mode: 'new', chantierName: chantierName ?? '' }
-                : { mode: 'existing', chantierId: chantierId ?? '' },
-            client: this.isCreatingNewClient
-                ? { mode: 'new', clientName: newClientName ?? '' }
-                : { mode: 'existing', clientId: clientId ?? '' },
-            dueDate: dueDate?.toDateString() ?? '',
             invoiceNumber: invoiceNumber,
             type: type,
             paymentMode: paymentMode,
             reminderScenarioId: reminderScenarioId,
-            billPdfFile: formValue.billPdf
+            billPdfFile: billPdf,
+            chantier: chantierId,
+            client: clientId,
+            dueDate: dueDate
         });
-        
-        if (result.success) {
-            this.toastService.showToast('success', 'Facture créée avec succès');
-            this.billForm.reset();
-            this.billForm.markAsUntouched();
-            this.hasSubmittedInvalidForm = false;
-        }
+
+        this.billForm.reset();
+        this.billForm.markAsUntouched();
+        this.hasSubmittedInvalidForm = false;
     }
 }

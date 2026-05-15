@@ -19,7 +19,7 @@ export function fromEntityToViewModel(bill: Bill): BillViewModel {
     return {
         id: bill.id,
         amount: bill.amountTTC || 0,
-        dueDate: bill.dueDate || '',
+        dueDate: bill.dueDate?.toDateString() || '',
         status: bill.status === 'PAID' ? 'paid' : 'unpaid',
         clientId: bill.clientId,
         chantierId: bill.chantierId ,

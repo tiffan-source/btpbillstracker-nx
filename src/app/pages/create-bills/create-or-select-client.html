@@ -1,0 +1,49 @@
+
+<lib-card title="Informations du client" subtitle="Remplissez les détails du client ou sélectionnez un client existant">
+    <div class="flex gap-4 mb-4">
+        <lib-button [variant]="mode() === 'select' ? 'primary' : 'secondary'" size="small" label="Client existant" (click)="selectMode('select')" />
+        <lib-button [variant]="mode() === 'create' ? 'primary' : 'secondary'" size="small" label="Nouveau client" (click)="selectMode('create')" />
+    </div>
+    @switch (mode()) {
+        @case('select') {
+            <form [formGroup]="parentForm()">
+                <div class="flex flex-col">
+                    <lib-label for="client" label="Client"></lib-label>
+                    <lib-input-select class="flex-1" optionLabel="label" optionValue="value" [options]="clientOrchestrator.clientOptions()" [formControlName]="BillFormField.ClientId" placeholder="Selectionner un client" id="client"></lib-input-select>
+                </div>
+            </form>
+        }
+        @case('create') {
+            <form [formGroup]="clientForm" class="flex flex-col gap-4">
+                <div class="flex flex-col flex-1">
+                    <lib-label for="nom" label="Nom du client"></lib-label>
+                    <lib-input [formControlName]="ClientFormField.Lastname" type="text" placeholder="John Doe" id="nom"></lib-input>
+                </div>
+                <div class="flex flex-col flex-1">
+                    <lib-label for="prenom" label="Prenom(s) du client"></lib-label>
+                    <lib-input [formControlName]="ClientFormField.Firstname" type="text" placeholder="John" id="prenom"></lib-input>
+                </div>
+                <div class="flex gap-4">
+                    <div class="flex flex-col flex-1">
+                        <lib-label for="email" label="Email du client"></lib-label>
+                        <lib-input [formControlName]="ClientFormField.Email" type="email" placeholder="john.doe@example.com" id="email"></lib-input>
+                    </div>
+                    <div class="flex flex-col flex-1">
+                        <lib-label for="phone" label="Téléphone du client"></lib-label>
+                        <lib-input [formControlName]="ClientFormField.PhoneNumber" type="tel" placeholder="+33 1 23 45 67 89" id="phone"></lib-input>
+                    </div>
+                </div>
+                <lib-button [loading]="clientOrchestrator.operationInformation().isLoading"  label="Créer le client" (click)="createClient()"></lib-button>
+            </form>
+        }
+    }
+
+    <div card-footer>
+        <div class="flex justify-between items-center">
+            <span class="text-sm text-green-500">
+                {{ parentForm().controls[BillFormField.ClientId].value | clientNameFromId }}
+            </span>
+            <lib-button [disable]="!parentForm().controls[BillFormField.ClientId].value" (click)="goNext.emit()" label="Suivant"></lib-button>
+        </div>
+    </div>
+</lib-card>

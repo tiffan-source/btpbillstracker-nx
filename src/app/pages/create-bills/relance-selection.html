@@ -1,0 +1,26 @@
+
+<lib-card title="Informations de la facture" subtitle="Renseignez les détails de la facture">
+    <form [formGroup]="parentForm()">
+        <div class="flex flex-col mb-4">
+            <lib-label for="scenario" label="Scenario"></lib-label>
+            <lib-input-select placeholder="Selectionner un scenario de relance" [formControlName]="BillFormField.ReminderScenarioId" [options]="messageOrchestrator.reminderOptions()" optionLabel="label" optionValue="value"></lib-input-select>
+        </div>
+
+        <div class="flex justify-between items-center p-3 rounded bg-primary/15">
+            <div class="flex flex-col">
+                <lib-label for="automated-reminders" label="Relances automatiques"></lib-label>
+                <span>Désactivez si vous gérez à la main</span>
+            </div>
+            <div>
+                <lib-toogle [value]="isReminderEnabled" (valueChange)="setReminderEnabled($event)"/>
+            </div>
+        </div>
+    </form>
+
+    <div card-footer>
+        <div class="flex justify-between items-center">
+            <lib-button variant="secondary" (click)="goPrevious.emit()" label="Précédent"></lib-button>
+            <lib-button [loading]="isCreatingBill()" (click)="done.emit()" label="Créer la facture"></lib-button>
+        </div>
+    </div>
+</lib-card>
