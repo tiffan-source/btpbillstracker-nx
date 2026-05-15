@@ -17,7 +17,7 @@ export type EditBillInput = {
     clientId?: string;
     chantierId?: string;
     amountTTC?: number;
-    dueDate?: string;
+    dueDate?: Date;
     externalInvoiceReference?: string;
     type?: string;
     paymentMode?: string;

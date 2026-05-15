@@ -51,8 +51,8 @@ export class FirestoreClientRepository extends FirestoreBaseRepository implement
     return new Client(
       plainClient.id,
       plainClient.firstName,
-    ).setLastName(plainClient.lastName || '')
-     .setEmail(plainClient.email || '')
+        plainClient.lastName || ''
+    ).setEmail(plainClient.email || '')
      .setPhone(plainClient.phone || '');
   }
 }

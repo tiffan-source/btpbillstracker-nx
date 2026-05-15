@@ -35,7 +35,7 @@ export class Bill {
   private _chantierId: string;
   private _status: BILL_STATUS = BILL_STATUS.DRAFT;
   private _amountTTC?: number;
-  private _dueDate?: string;
+  private _dueDate: Date | null = null;
   private _externalInvoiceReference?: string;
   private _type?: BILL_TYPES;
   private _paymentMode?: PAYMENT_MODES;
@@ -63,7 +63,7 @@ export class Bill {
   get clientId(): string { return this._clientId; }
   get status(): BILL_STATUS { return this._status; }
   get amountTTC(): number | undefined { return this._amountTTC; }
-  get dueDate(): string | undefined { return this._dueDate; }
+  get dueDate(): Date | null { return this._dueDate; }
   get externalInvoiceReference(): string | undefined { return this._externalInvoiceReference; }
   get type(): BILL_TYPES | undefined { return this._type; }
   get paymentMode(): PAYMENT_MODES | undefined { return this._paymentMode; }
@@ -80,8 +80,8 @@ export class Bill {
     return this;
   }
 
-  setDueDate(dueDate: string): this {
-    if (!dueDate || dueDate.trim().length === 0) {
+  setDueDate(dueDate: Date): this {
+    if (!dueDate) {
       throw new BillDueDateRequiredError();
     }
     this._dueDate = dueDate;

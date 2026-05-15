@@ -13,7 +13,7 @@ import { AuthProvider, NoUserAuthenticatedError } from "@btpbilltracker/auth";
 export type CreateEnrichedBillInput = {
   clientId: string;
   amountTTC: number;
-  dueDate: string;
+  dueDate: Date;
   externalInvoiceReference: string;
   type: string;
   paymentMode: string;

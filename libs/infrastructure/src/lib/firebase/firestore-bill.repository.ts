@@ -56,11 +56,13 @@ export class FirestoreBillRepository extends FirestoreBaseRepository implements 
 
     async findAllByOwner(ownerUid: string): Promise<Bill[]> {
         const q = query(this.getCollection(), where('ownerUid', '==', ownerUid));
+                
         const querySnapshot = await getDocs(q);
         const bills: Bill[] = [];
 
         querySnapshot.forEach((doc) => {
           const plainBill = doc.data() as FirestorePlainBill;
+          
           const bill = this.toBillEntity(plainBill);
 
           if (bill !== null) {
@@ -91,7 +93,7 @@ export class FirestoreBillRepository extends FirestoreBaseRepository implements 
         bill.setAmountTTC(parseInt(plainBill.amountTTC?.toString() || "0"));
 
         if (this.isNonEmptyString(plainBill.dueDate)) {
-            bill.setDueDate(plainBill.dueDate);
+            bill.setDueDate(new Date(plainBill.dueDate));
         }
 
         if (this.isNonEmptyString(plainBill.type)) {
@@ -134,7 +136,7 @@ export class FirestoreBillRepository extends FirestoreBaseRepository implements 
         clientId: bill.clientId,
         status: bill.status,
         amountTTC: bill.amountTTC,
-        dueDate: bill.dueDate,
+        dueDate: bill.dueDate?.toDateString(),
         externalInvoiceReference: bill.externalInvoiceReference,
         type: bill.type,
         paymentMode: bill.paymentMode,
