@@ -10,7 +10,7 @@ export class PayMyBillUseCase {
     private readonly currentUser: AuthProvider,
   ) { }
 
-  async execute(billId: string, paymentDetails: any): Promise<Result<Bill>> {
+  async execute(billId: string): Promise<Result<Bill>> {
     try {
         const owner = await this.currentUser.getCurrentUser();
         if (!owner) {

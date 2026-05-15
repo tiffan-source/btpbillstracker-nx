@@ -1,5 +1,5 @@
 import { patchState, signalStore, withMethods, withState } from "@ngrx/signals";
-import { Bill } from "libs/bills/src/lib/domains/bill.entity";
+import { Bill } from "@btpbilltracker/bills";
 
 type BillViewModel = {
     id: string;
