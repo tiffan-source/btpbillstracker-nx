@@ -24,4 +24,8 @@ export class InputFile {
             this.fileSelected.emit(null);
         }
     }
+
+    onPrimeNgFileRemove($event: any): void {
+        this.fileSelected.emit(null);
+    }
 }

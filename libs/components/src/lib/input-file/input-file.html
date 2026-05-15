@@ -1,8 +1,22 @@
-<p-fileupload 
-  id="{{id()}}" 
-  #fu 
-  mode="basic" 
-  chooseIcon="pi pi-upload" 
-  accept=".pdf" 
-  (onSelect)="onPrimeNgFileSelect($event)" 
-/>
+<p-fileupload   
+  id="{{id()}}"   
+  #fu   
+  mode="advanced"   
+  chooseIcon="pi pi-upload"   
+  accept=".pdf"   
+  (onSelect)="onPrimeNgFileSelect($event)"
+  (onRemove)="onPrimeNgFileRemove($event)"
+  [showUploadButton]="false"  
+>  
+  <ng-template #content let-files let-removeFileCallback="removeFileCallback">  
+    @if (files?.length > 0) {
+      <div class="">
+        @for (item of files; track $index) {
+            <div class="flex items-center ">  
+                <span>{{ item.name }}</span>  
+            </div>
+        }
+      </div>  
+    }
+  </ng-template>  
+</p-fileupload>

@@ -1,5 +1,5 @@
-import { Component, input, signal } from '@angular/core';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, inject, input, signal } from '@angular/core';
+import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 
 
@@ -8,13 +8,6 @@ import { SelectModule } from 'primeng/select';
   imports: [SelectModule, FormsModule],
   templateUrl: './input-select.html',
   styleUrl: './input-select.css',
-    providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: InputSelect,
-      multi: true
-    }
-  ]
 })
 export class InputSelect<T> implements ControlValueAccessor{
   placeholder = input<string>('');  
@@ -22,9 +15,20 @@ export class InputSelect<T> implements ControlValueAccessor{
   options = input<T[]>([]);  
   optionLabel = input.required<string>();
   optionValue = input<string>();
-  invalid = input<boolean>(false);
   disabled = input<boolean>(false);
   isDisabled = signal(false);
+
+  ngControl = inject(NgControl, { optional: true, self: true });
+
+    constructor() {
+        if (this.ngControl) {
+            this.ngControl.valueAccessor = this;
+        }
+    }
+
+    get control() {
+        return this.ngControl?.control;
+    }
     
   // Use signal for value  
   value = signal<T | null>(null);  

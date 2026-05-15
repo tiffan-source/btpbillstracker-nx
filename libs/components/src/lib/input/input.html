@@ -6,5 +6,5 @@ aria-describedby="{{id()}} + '-help'"
 [value]="value()"
 (input)="updateValue($event)"
 fluid
-[invalid]="invalid()"
+[invalid]="control?.invalid && (control?.dirty || control?.touched)"
 />

@@ -1,1 +1,1 @@
-<p-datepicker [invalid]="invalid()" placeholder="{{placeholder()}}" id="{{id()}}" [(ngModel)]="value" (ngModelChange)="updateValue($event)" fluid/>
+<p-datepicker [invalid]="control?.invalid && (control?.dirty || control?.touched)" placeholder="{{placeholder()}}" id="{{id()}}" [(ngModel)]="value" (ngModelChange)="updateValue($event)" fluid/>

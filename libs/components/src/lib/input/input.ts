@@ -1,5 +1,5 @@
-import { Component, input, signal } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
+import { Component, inject, input, signal } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl} from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 
 type InputType = 'text' | 'number' | 'password' | 'email' | 'tel';
@@ -8,20 +8,12 @@ type InputType = 'text' | 'number' | 'password' | 'email' | 'tel';
   selector: 'lib-input',
   imports: [InputTextModule],
   templateUrl: './input.html',
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: Input,
-      multi: true
-    }
-  ]
 })
 export class Input implements ControlValueAccessor {
 
     type = input<InputType>('text');
     placeholder = input<string>('');
     id = input<string>('');
-    invalid = input<boolean>(false);
 
     value = signal<string | number>('');
     private onChange: (value: string | number) => void = () => {};
@@ -37,6 +29,19 @@ export class Input implements ControlValueAccessor {
 
     registerOnTouched(fn: () => void): void {
         this.onTouched = fn;
+    }
+
+    ngControl = inject(NgControl, { optional: true, self: true });
+
+    constructor() {
+        if (this.ngControl) {
+            // ✅ 2. On indique au NgControl que ce composant est son ValueAccessor
+            this.ngControl.valueAccessor = this;
+        }
+    }
+
+    get control() {
+        return this.ngControl?.control;
     }
 
     updateValue(event: Event) {

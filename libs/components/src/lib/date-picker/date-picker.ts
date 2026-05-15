@@ -1,5 +1,5 @@
-import { Component, input } from '@angular/core';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, inject, input } from '@angular/core';
+import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
 
 
@@ -8,18 +8,10 @@ import { DatePickerModule } from 'primeng/datepicker';
   imports: [DatePickerModule, FormsModule],
   templateUrl: './date-picker.html',
   styleUrl: './date-picker.css',
-    providers: [
-        {
-        provide: NG_VALUE_ACCESSOR,
-        useExisting: DatePicker,
-        multi: true
-        }
-    ]
 })
 export class DatePicker implements ControlValueAccessor {
     placeholder = input<string>('');
     id = input<string>('');
-    invalid = input<boolean>(false);
 
     value: Date | null = null;
     private onChange: any = (value: Date | null) => {};
@@ -41,4 +33,17 @@ export class DatePicker implements ControlValueAccessor {
         this.onChange(event);
         this.onTouched();
     }
+
+    ngControl = inject(NgControl, { optional: true, self: true });
+
+    constructor() {
+        if (this.ngControl) {
+            this.ngControl.valueAccessor = this;
+        }
+    }
+
+    get control() {
+        return this.ngControl?.control;
+    }
+
 }

@@ -1,0 +1,38 @@
+<p-tabs value="0" [scrollable]="scrollable">
+    
+    <!-- SECTION DES EN-TÊTES (Onglets) -->
+    <p-tablist>
+        
+
+        <!-- Boucle pour générer les boutons d'onglets -->
+        @for (item of items; track $index) {
+        <p-tab [value]="$index.toString()">
+            <!-- Si un template d'en-tête est fourni, on le projette avec les données de l'item -->
+            @if (headerTemplate) {
+            <ng-container *ngTemplateOutlet="headerTemplate; context: { $implicit: item, index: $index }"></ng-container>
+            } 
+            <!-- Sinon, on affiche simplement le titre texte -->
+            @else {
+            {{ item.title }}
+            }
+        </p-tab>
+        }
+    </p-tablist>
+
+    <!-- SECTION DES CONTENUS -->
+    <p-tabpanels>
+        @for (item of items; track $index) {
+        <p-tabpanel [value]="$index.toString()">
+            <!-- Si un template de contenu est fourni, on le projette -->
+            @if (contentTemplate) {
+            <ng-container *ngTemplateOutlet="contentTemplate; context: { $implicit: item, index: $index }"></ng-container>
+            } 
+            <!-- Sinon, on affiche le texte par défaut -->
+            @else {
+            <p class="m-0">{{ item.content }}</p>
+            }
+        </p-tabpanel>
+        }
+    </p-tabpanels>
+
+</p-tabs>

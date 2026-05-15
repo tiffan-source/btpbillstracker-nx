@@ -18,3 +18,4 @@ export * from "./lib/modal/modal";
 export * from "./lib/tag/tags";
 export * from "./lib/spiner/spiner";
 export * from "./lib/divider/divider";
+export * from "./lib/tabs/tabs";
