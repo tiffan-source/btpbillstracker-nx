@@ -83,7 +83,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 
 ## Local Skills
 
-- `.github/skills/angular-orchestrator-implementation/SKILL.md`
+- `.github/skills/angular-orchestrator-and-service-implementation/SKILL.md`
 - `.github/skills/domain-usecase-implementation/SKILL.md`
 - `.github/skills/ports-adapters-wiring/SKILL.md`
 - `.github/skills/bugfix-root-cause/SKILL.md`
